@@ -1,19 +1,13 @@
 {
-  "name": "kandor",
+  "name": "@kandor/root",
   "version": "0.0.0",
-  "private": true,
   "author": "Rafa Mel",
   "description": "Transport agnostic API framework",
-  "keywords": [
-    "keyword",
-    "keyword",
-    "keyword"
-  ],
+  "keywords": [],
+  "private": true,
   "engines": {
     "node": ">=8"
   },
-  "main": "pkg/dist/index.js",
-  "types": "pkg/dist/index.d.ts",
   "scripts": {
     "commit": "kpo commit --",
     "semantic": "kpo semantic --",
@@ -28,21 +22,14 @@
     "prepublishOnly": "kpo prepublishOnly --",
     "preversion": "kpo preversion --",
     "version": "kpo version --",
-    "build": "kpo build --",
-    "build:transpile": "kpo build:transpile --",
-    "build:types": "kpo build:types --",
-    "fix:code": "kpo fix:code --",
-    "lint:code": "kpo lint:code --",
-    "lint:types": "kpo lint:types --",
+    "release": "kpo release --",
     "test": "kpo test --",
+    "test:coverage": "kpo test:coverage --",
     "verify": "kpo verify --",
     "validate": "kpo validate --",
-    "docs": "kpo docs --",
-    "build:pack": "kpo build:pack --",
-    "build:static": "kpo build:static --",
-    "release": "kpo release --",
-    "watch": "kpo watch --",
-    "watch:test": "kpo watch:test --"
+    "bootstrap": "kpo bootstrap --",
+    "link": "kpo link --",
+    "postinstall": "kpo postinstall --"
   },
   "license": "MIT",
   "homepage": "https://github.com/rafamel/kandor",
@@ -54,43 +41,13 @@
     "url": "https://github.com/rafamel/kandor/issues"
   },
   "devDependencies": {
-    "@pika/pack": "^0.4.0",
-    "@pika/plugin-build-web": "^0.6.0",
-    "@pika/plugin-standard-pkg": "^0.6.0",
-    "@riseup/library": "^0.4.0",
-    "@riseup/tooling": "^0.4.0",
-    "@types/jest": "^24.0.13",
-    "@zerollup/ts-transform-paths": "^1.7.3",
-    "coveralls": "^3.0.4",
-    "husky": "^3.0.5",
+    "@riseup/monorepo": "^0.4.0",
     "kpo": "^0.11.0",
-    "onchange": "^6.0.0",
-    "rxjs": "^6.5.3",
-    "typescript": "^3.6.3"
+    "lerna": "^3.15.0",
+    "husky": "^3.0.0",
+    "coveralls": "^3.0.4"
   },
-  "dependencies": {
-    "@types/json-schema": "^7.0.3",
-    "camelcase": "^5.3.1"
-  },
-  "peerDependencies": {
-    "rxjs": "6.x"
-  },
-  "@pika/pack": {
-    "pipeline": [
-      [
-        "@pika/plugin-standard-pkg",
-        {
-          "exclude": [
-            "__mocks__/**/*",
-            "__tests__/**/*"
-          ]
-        }
-      ],
-      [
-        "@pika/plugin-build-web"
-      ]
-    ]
-  },
+  "dependencies": {},
   "husky": {
     "hooks": {
       "pre-commit": "kpo verify"
