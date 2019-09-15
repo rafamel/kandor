@@ -1,11 +1,11 @@
-import { CollectionTree, InputHook } from '~/types';
+import { InputHook, AppCollectionTree } from '~/types';
 import { collection as createCollection } from './collection';
 
 export function scope(
   name: string,
-  collection: CollectionTree,
+  collection: AppCollectionTree,
   hooks?: InputHook | InputHook[]
-): CollectionTree {
+): AppCollectionTree {
   const { types, ...other } = collection;
   const tree = createCollection();
   tree.types = types;

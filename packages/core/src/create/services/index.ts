@@ -1,4 +1,4 @@
-import { CollectionTree, InputHook, InputServices } from '~/types';
+import { InputHook, InputServices, AppCollectionTree } from '~/types';
 import { itemToCollection } from './item-to-collection';
 import { collection } from '../collection';
 import { scope as createScope } from '../scope';
@@ -6,19 +6,19 @@ import { scope as createScope } from '../scope';
 export function services(
   services: InputServices,
   hooks?: InputHook | InputHook[]
-): CollectionTree;
+): AppCollectionTree;
 export function services(
   name: string,
   services: InputServices,
   hooks?: InputHook | InputHook[]
-): CollectionTree;
+): AppCollectionTree;
 export function services(
   name: string,
   scope: boolean,
   services: InputServices,
   hooks?: InputHook | InputHook[]
-): CollectionTree;
-export function services(...args: any[]): CollectionTree {
+): AppCollectionTree;
+export function services(...args: any[]): AppCollectionTree {
   const hasName = typeof args[0] === 'string';
   const hasScope = typeof args[1] === 'boolean';
   const name: string = hasName ? args[0] : '';
@@ -34,7 +34,7 @@ export function services(...args: any[]): CollectionTree {
     ? args[2]
     : args[1];
 
-  const collections: CollectionTree[] = [];
+  const collections: AppCollectionTree[] = [];
   const entries = Object.entries(services);
   for (const [key, item] of entries) {
     collections.push(itemToCollection(name, key, item));

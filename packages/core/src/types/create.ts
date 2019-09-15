@@ -1,20 +1,21 @@
 import {
-  Service,
-  CollectionTree,
-  RequestType,
-  ResponseType,
-  ErrorType,
+  AppService,
   QueryService,
   SubscriptionService,
-  MutationService
+  MutationService,
+  AppCollectionTree,
+  AppResponseType,
+  AppRequestType,
+  AppErrorType
 } from './collection';
 import { ErrorCode } from './error';
 import { Schema } from './schema';
 
 // Services
-export type InputService<T extends Service> = Omit<T, 'types'> & {
+export type InputService<T extends AppService> = Omit<T, 'types'> & {
   types: InputServiceTypes;
 };
+
 export interface InputServiceTypes {
   errors?: Array<InputInlineError | string>;
   request?: InputInlineRequest | string;
@@ -35,8 +36,8 @@ export type InputServices = {
   delete?: ServiceItem<MutationService>;
 };
 
-export interface ServiceItem<T extends Service = Service> {
-  kind: keyof CollectionTree['services'];
+export interface ServiceItem<T extends AppService = AppService> {
+  kind: keyof AppCollectionTree['services'];
   types: ServiceItemTypes;
   service: T;
 }
@@ -58,8 +59,8 @@ export type InputHookFn<I = any> = (
 ) => void | Promise<void>;
 
 // Types
-export type InputError = ErrorType;
-export type InputRequest = RequestType;
-export type InputResponse<T = any> = Omit<ResponseType<T>, 'children'> & {
-  children?: Partial<ResponseType<T>['children']>;
+export type InputError = AppErrorType;
+export type InputRequest = AppRequestType;
+export type InputResponse<T = any> = Omit<AppResponseType<T>, 'children'> & {
+  children?: Partial<AppResponseType<T>['children']>;
 };

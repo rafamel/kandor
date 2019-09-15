@@ -1,9 +1,9 @@
-import { CollectionTree, ScopeTree } from '~/types';
+import { AppCollectionTree, AppScopeTree } from '~/types';
 import { emptyCollection } from './empty';
 
 export function mergeCollectionArray(
-  collections: CollectionTree[]
-): CollectionTree {
+  collections: AppCollectionTree[]
+): AppCollectionTree {
   return collections.reduce(
     (acc, collection) => mergeCollections(acc, collection),
     emptyCollection()
@@ -11,9 +11,9 @@ export function mergeCollectionArray(
 }
 
 export function mergeCollections(
-  a: CollectionTree,
-  b: CollectionTree
-): CollectionTree {
+  a: AppCollectionTree,
+  b: AppCollectionTree
+): AppCollectionTree {
   const { types: aTypes, ...aScope } = a;
   const { types: bTypes, ...bScope } = b;
   return {
@@ -26,7 +26,7 @@ export function mergeCollections(
   };
 }
 
-export function mergeScopes(a: ScopeTree, b: ScopeTree): ScopeTree {
+export function mergeScopes(a: AppScopeTree, b: AppScopeTree): AppScopeTree {
   const scopeKeys = {
     a: Object.keys(a.scopes),
     b: Object.keys(b.scopes)
@@ -45,7 +45,7 @@ export function mergeScopes(a: ScopeTree, b: ScopeTree): ScopeTree {
       ...a.scopes,
       ...b.scopes,
       ...nonUniqueScopeKeys.reduce(
-        (acc: { [key: string]: ScopeTree }, x) =>
+        (acc: { [key: string]: AppScopeTree }, x) =>
           Object.assign(acc, mergeScopes(a.scopes[x], b.scopes[x])),
         {}
       )

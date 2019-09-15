@@ -1,13 +1,19 @@
-import { CollectionTree, Service, Tree, ServiceItem, InputHook } from '~/types';
+import {
+  ServiceItem,
+  InputHook,
+  AppCollectionTree,
+  AppTree,
+  AppService
+} from '~/types';
 import { query, mutation, subscription } from '../service';
 import { services as createServices } from '../services';
 import { mergeCollectionArray } from './merge';
 import { emptyCollection } from './empty';
 
 export function setCollectionHooks(
-  collection: CollectionTree,
+  collection: AppCollectionTree,
   hooks: InputHook | InputHook[]
-): CollectionTree {
+): AppCollectionTree {
   const empty = emptyCollection();
 
   return mergeCollectionArray([
@@ -25,11 +31,11 @@ export function setCollectionHooks(
   ]);
 }
 
-export function setServicesHooks<T extends Service>(
-  kind: keyof Tree['services'],
+export function setServicesHooks<T extends AppService>(
+  kind: keyof AppTree['services'],
   services: { [key: string]: T },
   hooks: InputHook | InputHook[]
-): CollectionTree {
+): AppCollectionTree {
   const entries = Object.entries(services);
   return createServices(
     entries.reduce(
@@ -40,8 +46,8 @@ export function setServicesHooks<T extends Service>(
   );
 }
 
-export function setServiceHooks<T extends Service>(
-  kind: keyof Tree['services'],
+export function setServiceHooks<T extends AppService>(
+  kind: keyof AppTree['services'],
   service: T,
   hooks: InputHook | InputHook[]
 ): ServiceItem<T> {

@@ -1,4 +1,4 @@
-import { ServiceItem, CollectionTree } from '~/types';
+import { ServiceItem, AppCollectionTree } from '~/types';
 import { collection } from '../collection';
 import camelcase from 'camelcase';
 import { request, response, error } from '../type';
@@ -7,8 +7,8 @@ export function itemToCollection(
   prefix: string,
   name: string,
   item: ServiceItem
-): CollectionTree {
-  const collections: CollectionTree[] = [];
+): AppCollectionTree {
+  const collections: AppCollectionTree[] = [];
   const service = {
     ...item.service,
     types: { ...item.service.types }

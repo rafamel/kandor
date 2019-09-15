@@ -1,8 +1,8 @@
-import { ServiceItem, InputHook, Service } from '~/types';
+import { ServiceItem, InputHook, AppService } from '~/types';
 import { Observable, from } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 
-export function setServiceHooks<T extends Service>(
+export function setServiceHooks<T extends AppService>(
   service: ServiceItem<T>,
   hooks: InputHook | InputHook[]
 ): ServiceItem<T> {
@@ -10,7 +10,7 @@ export function setServiceHooks<T extends Service>(
   return arr.reduce((acc, hook) => setServiceHooks(acc, hook), service);
 }
 
-export function setServiceHook<T extends Service>(
+export function setServiceHook<T extends AppService>(
   service: ServiceItem<T>,
   hook: InputHook
 ): ServiceItem<T> {

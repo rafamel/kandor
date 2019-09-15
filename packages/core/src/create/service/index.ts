@@ -1,10 +1,10 @@
 import {
-  QueryService,
-  MutationService,
-  SubscriptionService,
   ServiceItem,
   InputService,
-  InputHook
+  InputHook,
+  QueryService,
+  MutationService,
+  SubscriptionService
 } from '~/types';
 import { inputServiceToItem } from './input-to-item';
 import { setServiceHooks } from './hooks';

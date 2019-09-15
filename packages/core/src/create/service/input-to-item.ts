@@ -1,13 +1,13 @@
 import {
-  Service,
   ServiceItem,
   CollectionTree,
   InputService,
   ServiceItemTypes,
-  ErrorCode
+  ErrorCode,
+  AppService
 } from '~/types';
 
-export function inputServiceToItem<T extends Service>(
+export function inputServiceToItem<T extends AppService>(
   kind: keyof Required<CollectionTree>['services'],
   service: InputService<T>
 ): ServiceItem<T> {

@@ -1,24 +1,24 @@
 import {
-  CollectionTree,
   InputRequest,
   InputResponse,
-  InputError
+  InputError,
+  AppCollectionTree
 } from '~/types';
 import { collection } from './collection';
 
-export function error(name: string, type: InputError): CollectionTree {
+export function error(name: string, type: InputError): AppCollectionTree {
   const tree = collection();
   tree.types.error[name] = type;
   return tree;
 }
 
-export function request(name: string, type: InputRequest): CollectionTree {
+export function request(name: string, type: InputRequest): AppCollectionTree {
   const tree = collection();
   tree.types.request[name] = type;
   return tree;
 }
 
-export function response(name: string, type: InputResponse): CollectionTree {
+export function response(name: string, type: InputResponse): AppCollectionTree {
   const tree = collection();
   tree.types.response[name] = {
     ...type,
