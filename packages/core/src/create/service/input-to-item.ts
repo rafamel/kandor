@@ -1,43 +1,72 @@
-import {
-  ServiceItem,
-  CollectionTree,
-  InputService,
-  ServiceItemTypes,
-  ErrorCode,
-  AppService
-} from '~/types';
+import { InputService, AppService, FreeItem, FreeItemKind } from '~/types';
+import camelcase from 'camelcase';
+import { emptyTypes, isFreeItem } from '~/utils';
+import uuid from 'uuid/v4';
 
-export function inputServiceToItem<T extends AppService>(
-  kind: keyof Required<CollectionTree>['services'],
+const id = () => uuid().replace(/-/g, '');
+
+export function inputServiceToItem<T extends AppService, N extends string>(
+  name: N,
+  kind: FreeItemKind<T>,
   service: InputService<T>
-): ServiceItem<T> {
+): FreeItem<T, N> {
   const item = {
+    name,
     kind,
-    types: {} as ServiceItemTypes,
-    service: {
+    types: { ...emptyTypes(), inline: emptyTypes() },
+    item: {
       ...service,
       types: { ...service.types }
     }
   };
 
-  if (typeof item.service.types.request !== 'string') {
-    item.types.request = item.service.types.request;
-    item.service.types.request = '';
-  }
-  if (typeof item.service.types.response !== 'string') {
-    item.types.response = item.service.types.response;
-    item.service.types.response = '';
-  }
-  if (item.service.types.errors && item.service.types.errors.length) {
-    const errorStrings: string[] = [];
-    const errorDefinitions: Array<{ name: string; code: ErrorCode }> = [];
-    for (const error of item.service.types.errors) {
-      if (typeof error === 'string') errorStrings.push(error);
-      else errorDefinitions.push(error);
+  const { request, response, errors } = item.item.types;
+  const pascalName = camelcase(name, { pascalCase: true });
+  if (request && typeof request !== 'string') {
+    if (isFreeItem(request)) {
+      item.item.types.request = request.name;
+      item.types.request[request.name] = request.item;
+    } else {
+      const pascalRequestName = pascalName + 'Request-' + id();
+      item.item.types.request = pascalRequestName;
+      item.types.inline.request[pascalRequestName] = { schema: request };
     }
-    item.types.errors = errorDefinitions;
-    item.service.types.errors = errorStrings;
+  }
+  if (response && typeof response !== 'string') {
+    if (isFreeItem(response)) {
+      item.item.types.response = response.name;
+      item.types.response[response.name] = response.item;
+    } else {
+      const pascalResponseName = pascalName + 'Response-' + id();
+      item.item.types.response = pascalResponseName;
+      item.types.inline.response[pascalResponseName] = {
+        schema: response,
+        children: { query: {}, subscription: {} }
+      };
+    }
+  }
+  if (errors && errors.length) {
+    const errorStrings: string[] = [];
+
+    for (const error of errors) {
+      if (typeof error === 'string') {
+        errorStrings.push(error);
+      } else if (isFreeItem(error)) {
+        errorStrings.push(error.name);
+        item.types.error[error.name] = error.item;
+      } else {
+        const { name: errorName, ...other } = error;
+        const pascalErrorName =
+          pascalName + camelcase(errorName, { pascalCase: true }) + '-' + id();
+
+        errorStrings.push(pascalErrorName);
+        item.types.inline.error[pascalErrorName] = {
+          ...other
+        };
+      }
+    }
+    item.item.types.errors = errorStrings;
   }
 
-  return item as ServiceItem<T>;
+  return item as FreeItem<T, N>;
 }

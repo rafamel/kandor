@@ -1,15 +1,29 @@
-import { InputHook, AppCollectionTree } from '~/types';
-import { collection as createCollection } from './collection';
+import { FreeItem, CollectionTree, ScopeTree } from '~/types';
+import { emptyCollection, emptyTypes } from '~/utils';
+import group from './group';
 
-export function scope(
-  name: string,
-  collection: AppCollectionTree,
-  hooks?: InputHook | InputHook[]
-): AppCollectionTree {
-  const { types, ...other } = collection;
-  const tree = createCollection();
-  tree.types = types;
-  tree.scopes[name] = other;
+export default function scope<N extends string, T extends CollectionTree>(
+  name: N,
+  collection: FreeItem<T>
+): FreeItem<
+  CollectionTree &
+    Pick<T, 'types'> & {
+      scopes: { [P in N]: ScopeTree & Pick<T, 'services' | 'scopes'> };
+    }
+> {
+  const item = group(name, collection);
 
-  return hooks ? createCollection(tree, hooks) : tree;
+  return {
+    ...item,
+    item: {
+      ...emptyCollection(),
+      types: item.item.types,
+      scopes: {
+        [name]: {
+          ...item.item,
+          types: emptyTypes()
+        }
+      } as any
+    }
+  };
 }

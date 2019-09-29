@@ -1,37 +1,29 @@
 import {
-  ServiceItem,
   InputService,
-  InputHook,
   QueryService,
   MutationService,
-  SubscriptionService
+  SubscriptionService,
+  FreeItem
 } from '~/types';
 import { inputServiceToItem } from './input-to-item';
-import { setServiceHooks } from './hooks';
 
-export function query(
-  service: InputService<QueryService>,
-  hooks?: InputHook | InputHook[]
-): ServiceItem<QueryService> {
-  return hooks
-    ? setServiceHooks(inputServiceToItem('query', service), hooks)
-    : inputServiceToItem('query', service);
+export function query<I, O, N extends string>(
+  name: N,
+  service: InputService<QueryService<I, O>>
+): FreeItem<QueryService<I, O>, N> {
+  return inputServiceToItem(name, 'query', service);
 }
 
-export function mutation(
-  service: InputService<MutationService>,
-  hooks?: InputHook | InputHook[]
-): ServiceItem<MutationService> {
-  return hooks
-    ? setServiceHooks(inputServiceToItem('mutation', service), hooks)
-    : inputServiceToItem('mutation', service);
+export function mutation<I, O, N extends string>(
+  name: N,
+  service: InputService<MutationService<I, O>>
+): FreeItem<MutationService<I, O>, N> {
+  return inputServiceToItem(name, 'mutation', service);
 }
 
-export function subscription(
-  service: InputService<SubscriptionService>,
-  hooks?: InputHook | InputHook[]
-): ServiceItem<SubscriptionService> {
-  return hooks
-    ? setServiceHooks(inputServiceToItem('subscription', service), hooks)
-    : inputServiceToItem('subscription', service);
+export function subscription<I, O, N extends string>(
+  name: N,
+  service: InputService<SubscriptionService<I, O>>
+): FreeItem<SubscriptionService<I, O>, N> {
+  return inputServiceToItem(name, 'subscription', service);
 }
