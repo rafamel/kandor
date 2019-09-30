@@ -6,7 +6,9 @@ import {
   RequestTypeImplementation,
   QueryImplementationResolve,
   MutationImplementationResolve,
-  SubscriptionImplementationResolve
+  SubscriptionImplementationResolve,
+  QueryServiceImplementation,
+  SubscriptionServiceImplementation
 } from '../collection';
 import { Envelope } from './envelope';
 
@@ -17,20 +19,19 @@ export type InputService<I = any, O = any> =
   | InputSubscriptionService<I, O>;
 
 export interface InputQueryService<I = any, O = any> {
-  types?: InputTypes;
+  types?: InputServiceTypes;
   resolve: QueryImplementationResolve<I, O>;
 }
 export interface InputMutationService<I = any, O = any> {
-  types?: InputTypes;
+  types?: InputServiceTypes;
   resolve: MutationImplementationResolve<I, O>;
 }
 export interface InputSubscriptionService<I = any, O = any> {
-  types?: InputTypes;
+  types?: InputServiceTypes;
   resolve: SubscriptionImplementationResolve<I, O>;
 }
 
-// Types
-export interface InputTypes {
+export interface InputServiceTypes {
   errors?: Array<
     InputInlineError | Envelope<ErrorTypeImplementation, string> | string
   >;
@@ -47,6 +48,20 @@ export interface InputTypes {
 export type InputInlineError = { name: string; code: ErrorCode };
 export type InputInlineRequest = Schema;
 export type InputInlineResponse = Schema;
+
+// Types
+export interface InputErrorType {
+  code: ErrorCode;
+}
+export interface InputRequestType {
+  schema: Schema;
+}
+export interface InputResponseType {
+  schema: Schema;
+  children?: Array<
+    Envelope<QueryServiceImplementation | SubscriptionServiceImplementation>
+  >;
+}
 
 // Hooks
 export type InputHook = {

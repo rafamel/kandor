@@ -1,10 +1,14 @@
-import { ServiceTypes, TreeTypesImplementation, InputTypes } from '~/types';
+import {
+  ServiceTypes,
+  TreeTypesImplementation,
+  InputServiceTypes
+} from '~/types';
 import { isEnvelope, mergeTypes } from '~/utils';
 import camelcase from 'camelcase';
 
 export default function handleInputTypes(
   prefix: string,
-  input: InputTypes = {}
+  input: InputServiceTypes = {}
 ): {
   names: ServiceTypes;
   types?: TreeTypesImplementation;

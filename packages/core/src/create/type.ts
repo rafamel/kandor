@@ -1,62 +1,58 @@
 import {
-  ErrorCode,
-  Schema,
-  QueryServiceImplementation,
-  SubscriptionServiceImplementation,
   ResponseTypeImplementation,
   ErrorTypeImplementation,
   RequestTypeImplementation,
   TreeTypesImplementation,
-  Envelope
+  Envelope,
+  InputErrorType,
+  InputResponseType,
+  InputRequestType
 } from '~/types';
 import { mergeTypes, prefixInlineTypes } from '~/utils';
 
 export function error<N extends string>(
   name: N,
-  code: ErrorCode
+  error: InputErrorType
 ): Envelope<ErrorTypeImplementation, N> {
   return {
     name,
     item: {
       kind: 'error',
-      code
+      code: error.code
     }
   };
 }
 
 export function request<N extends string>(
   name: N,
-  schema: Schema
+  request: InputRequestType
 ): Envelope<RequestTypeImplementation, N> {
   return {
     name,
     item: {
       kind: 'request',
-      schema
+      schema: request.schema
     }
   };
 }
 
 export function response<N extends string>(
   name: N,
-  schema: Schema,
-  children?: Array<
-    Envelope<QueryServiceImplementation | SubscriptionServiceImplementation>
-  >
+  response: InputResponseType
 ): Envelope<ResponseTypeImplementation, N> {
   const envelope: Envelope<ResponseTypeImplementation, N> = {
     name,
     item: {
       kind: 'response',
-      schema
+      schema: response.schema
     }
   };
 
-  if (children) {
+  if (response.children) {
     let inline: TreeTypesImplementation = {};
     let types: TreeTypesImplementation = {};
     envelope.item.children = {};
-    for (const child of children) {
+    for (const child of response.children) {
       if (child.inline) inline = mergeTypes(inline, child.inline);
       if (child.types) types = mergeTypes(types, child.types);
     }
