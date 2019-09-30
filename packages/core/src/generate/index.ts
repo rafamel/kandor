@@ -12,11 +12,5 @@ export async function writeTypings(
 export async function generateTypings(
   collection: CollectionTree
 ): Promise<string> {
-  return (
-    (
-      (await compileTypings(collection.types.request)) +
-      '\n' +
-      (await compileTypings(collection.types.response))
-    ).trim() + '\n'
-  );
+  return (await compileTypings(collection.types)).trim() + '\n';
 }

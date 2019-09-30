@@ -1,91 +1,120 @@
 import { ErrorCode } from '../error';
 import { Schema } from '../schema';
-import { ServiceDefinition } from './services';
 
 // Groups
 export type Element<
-  Q extends ServiceDefinition = ServiceDefinition,
-  M extends ServiceDefinition = ServiceDefinition,
-  S extends ServiceDefinition = ServiceDefinition
+  Q extends QueryService = QueryService,
+  M extends MutationService = MutationService,
+  S extends SubscriptionService = SubscriptionService
 > = Tree<Q, M, S> | Type<Q, S> | Service<Q, M, S>;
 
 export type Tree<
-  Q extends ServiceDefinition = ServiceDefinition,
-  M extends ServiceDefinition = ServiceDefinition,
-  S extends ServiceDefinition = ServiceDefinition
+  Q extends QueryService = QueryService,
+  M extends MutationService = MutationService,
+  S extends SubscriptionService = SubscriptionService
 > = CollectionTree<Q, M, S> | ScopeTree;
 
 export type Type<
-  Q extends ServiceDefinition = ServiceDefinition,
-  S extends ServiceDefinition = ServiceDefinition
+  Q extends QueryService = QueryService,
+  S extends SubscriptionService = SubscriptionService
 > = ErrorType | RequestType | ResponseType<Q, S>;
 
 export type Service<
-  Q extends ServiceDefinition = ServiceDefinition,
-  M extends ServiceDefinition = ServiceDefinition,
-  S extends ServiceDefinition = ServiceDefinition
+  Q extends QueryService = QueryService,
+  M extends MutationService = MutationService,
+  S extends SubscriptionService = SubscriptionService
 > = Q | M | S;
 
 // Tree
 export interface CollectionTree<
-  Q extends ServiceDefinition = ServiceDefinition,
-  M extends ServiceDefinition = ServiceDefinition,
-  S extends ServiceDefinition = ServiceDefinition
+  Q extends QueryService = QueryService,
+  M extends MutationService = MutationService,
+  S extends SubscriptionService = SubscriptionService
 > {
+  kind: 'collection';
   types: TreeTypes<Q, S>;
   services: TreeServices<Q, M, S>;
-  scopes: { [key: string]: ScopeTree<Q, M, S> };
+  scopes: TreeScopes<Q, M, S>;
 }
 
 export interface ScopeTree<
-  Q extends ServiceDefinition = ServiceDefinition,
-  M extends ServiceDefinition = ServiceDefinition,
-  S extends ServiceDefinition = ServiceDefinition
+  Q extends QueryService = QueryService,
+  M extends MutationService = MutationService,
+  S extends SubscriptionService = SubscriptionService
 > {
-  services: TreeServices<Q, M, S>;
+  kind: 'scope';
+  services: { [key: string]: Q | M | S };
   scopes: { [key: string]: ScopeTree<Q, M, S> };
 }
 
 export interface TreeTypes<
-  Q extends ServiceDefinition = ServiceDefinition,
-  S extends ServiceDefinition = ServiceDefinition
+  Q extends QueryService = QueryService,
+  S extends SubscriptionService = SubscriptionService
 > {
-  error: { [key: string]: ErrorType };
-  request: { [key: string]: RequestType };
-  response: { [key: string]: ResponseType<Q, S> };
+  [key: string]: Type<Q, S>;
 }
 
 export interface TreeServices<
-  Q extends ServiceDefinition = ServiceDefinition,
-  M extends ServiceDefinition = ServiceDefinition,
-  S extends ServiceDefinition = ServiceDefinition
+  Q extends QueryService = QueryService,
+  M extends MutationService = MutationService,
+  S extends SubscriptionService = SubscriptionService
 > {
-  query: { [key: string]: Q };
-  mutation: { [key: string]: M };
-  subscription: { [key: string]: S };
+  [key: string]: Q | M | S;
+}
+
+export interface TreeScopes<
+  Q extends QueryService = QueryService,
+  M extends MutationService = MutationService,
+  S extends SubscriptionService = SubscriptionService
+> {
+  [key: string]: ScopeTree<Q, M, S>;
+}
+
+// Services
+export interface QueryService {
+  kind: 'query';
+  types: ServiceTypes;
+}
+
+export interface MutationService {
+  kind: 'mutation';
+  types: ServiceTypes;
+}
+
+export interface SubscriptionService {
+  kind: 'subscription';
+  types: ServiceTypes;
+}
+
+export interface ServiceTypes {
+  errors: string[];
+  request: string;
+  response: string;
 }
 
 // Types
 export interface ErrorType {
+  kind: 'error';
   code: ErrorCode;
 }
 
 export interface RequestType {
+  kind: 'request';
   schema: Schema;
 }
 
 export interface ResponseType<
-  Q extends ServiceDefinition = ServiceDefinition,
-  S extends ServiceDefinition = ServiceDefinition
+  Q extends QueryService = QueryService,
+  S extends SubscriptionService = SubscriptionService
 > {
+  kind: 'response';
   schema: Schema;
-  children: ResponseTypeChildren<Q, S>;
+  children?: ResponseTypeChildren<Q, S>;
 }
 
 export interface ResponseTypeChildren<
-  Q extends ServiceDefinition = ServiceDefinition,
-  S extends ServiceDefinition = ServiceDefinition
+  Q extends QueryService = QueryService,
+  S extends SubscriptionService = SubscriptionService
 > {
-  query: { [key: string]: Q };
-  subscription: { [key: string]: S };
+  [key: string]: Q | S;
 }

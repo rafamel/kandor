@@ -1,25 +1,17 @@
-import { FreeItem, CollectionTree } from '~/types';
-import group from './group';
+import { EnvelopeCollection, CollectionTreeImplementation } from '~/types';
 import { mergeTypes } from '~/utils';
 
-export default function root<T extends CollectionTree>(
-  collection: FreeItem<T>
+export default function root<T extends CollectionTreeImplementation>(
+  collection: EnvelopeCollection<T>
 ): T {
-  // Ensure there are no inline types
-  const item = group(collection);
-  if (item.types && item.types.inline) {
-    throw Error(
-      `Didn't expect to find inline types after grouping a collection`
-    );
-  }
-
-  const response = {
-    ...collection.item,
-    types: collection.types
-      ? mergeTypes(collection.item.types, collection.types)
-      : collection.item.types
-  };
   // TODO: verify types exist
+  // TODO: check all types are used (there are no dangling types)
 
-  return response;
+  return {
+    ...collection.item,
+    types: mergeTypes(
+      mergeTypes(collection.item.types || {}, collection.types || {}),
+      collection.inline || {}
+    )
+  };
 }

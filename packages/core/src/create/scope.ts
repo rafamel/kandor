@@ -1,28 +1,31 @@
-import { FreeItem, CollectionTree, ScopeTree } from '~/types';
-import { emptyCollection, emptyTypes } from '~/utils';
+import {
+  CollectionTreeImplementation,
+  EnvelopeCollection,
+  CollectionScopePopulate
+} from '~/types';
+import { emptyCollection } from '~/utils';
 import group from './group';
 
-export default function scope<N extends string, T extends CollectionTree>(
+export default function scope<
+  T extends CollectionTreeImplementation,
+  N extends string
+>(
   name: N,
-  collection: FreeItem<T>
-): FreeItem<
-  CollectionTree &
-    Pick<T, 'types'> & {
-      scopes: { [P in N]: ScopeTree & Pick<T, 'services' | 'scopes'> };
-    }
+  collection: EnvelopeCollection<T>
+): EnvelopeCollection<
+  CollectionTreeImplementation & CollectionScopePopulate<T, N>
 > {
-  const item = group(name, collection);
+  const envelope = group(name, collection);
+  const empty = emptyCollection() as CollectionTreeImplementation;
+  const { types, ...other } = envelope.item;
 
   return {
-    ...item,
+    ...envelope,
     item: {
-      ...emptyCollection(),
-      types: item.item.types,
+      ...empty,
+      types,
       scopes: {
-        [name]: {
-          ...item.item,
-          types: emptyTypes()
-        }
+        [name]: { ...other, kind: 'scope' }
       } as any
     }
   };

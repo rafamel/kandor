@@ -1,22 +1,14 @@
-import { FreeItem, CollectionTree } from '~/types';
-import { prefixCollectionInlineTypes } from '~/utils';
+import { CollectionTreeImplementation, EnvelopeCollection } from '~/types';
+import { prefixInlineTypes, mergeTypes } from '~/utils';
 
-/* Declaration */
-export default function group<T extends FreeItem<CollectionTree>>(
-  name: string | null,
-  collection: T
-): T;
-export default function group<T extends FreeItem<CollectionTree>>(
-  collection: T
-): T;
+export default function group<T extends CollectionTreeImplementation>(
+  name: string,
+  collection: EnvelopeCollection<T>
+): EnvelopeCollection<T> {
+  const { inline, ...other } = prefixInlineTypes(name, collection);
 
-/* Implementation */
-export default function group(
-  a: string | null | FreeItem<CollectionTree>,
-  b?: FreeItem<CollectionTree>
-): FreeItem<CollectionTree> {
-  const collection = b ? b : (a as FreeItem<CollectionTree>);
-  const name = b ? (a as string | null) : '';
-
-  return prefixCollectionInlineTypes(name || '', collection);
+  return {
+    ...other,
+    types: mergeTypes(other.types || {}, inline || {})
+  };
 }

@@ -1,88 +1,72 @@
 import {
-  InputRequest,
-  InputResponse,
-  InputError,
-  AppErrorType,
-  AppRequestType,
-  AppResponseType,
-  FreeItem
+  ErrorCode,
+  Schema,
+  QueryServiceImplementation,
+  SubscriptionServiceImplementation,
+  ResponseTypeImplementation,
+  ErrorTypeImplementation,
+  RequestTypeImplementation,
+  TreeTypesImplementation,
+  Envelope
 } from '~/types';
-import { emptyTypes, mergeTypes } from '~/utils';
-import camelcase from 'camelcase';
+import { mergeTypes, prefixInlineTypes } from '~/utils';
 
 export function error<N extends string>(
   name: N,
-  type: InputError
-): FreeItem<AppErrorType, N> {
+  code: ErrorCode
+): Envelope<ErrorTypeImplementation, N> {
   return {
     name,
-    kind: 'error',
-    item: type
+    item: {
+      kind: 'error',
+      code
+    }
   };
 }
 
 export function request<N extends string>(
   name: N,
-  type: InputRequest
-): FreeItem<AppRequestType, N> {
+  schema: Schema
+): Envelope<RequestTypeImplementation, N> {
   return {
     name,
-    kind: 'request',
-    item: type
+    item: {
+      kind: 'request',
+      schema
+    }
   };
 }
 
 export function response<N extends string>(
   name: N,
-  type: InputResponse
-): FreeItem<AppResponseType> {
-  const pascalName = camelcase(name, { pascalCase: true });
-  let types = emptyTypes();
-  const children: AppResponseType['children'] = {
-    query: {},
-    subscription: {}
+  schema: Schema,
+  children?: Array<
+    Envelope<QueryServiceImplementation | SubscriptionServiceImplementation>
+  >
+): Envelope<ResponseTypeImplementation, N> {
+  const envelope: Envelope<ResponseTypeImplementation, N> = {
+    name,
+    item: {
+      kind: 'response',
+      schema
+    }
   };
 
-  if (type.children && type.children.length) {
-    for (const child of type.children) {
-      const service = { ...child.item, types: { ...child.item.types } };
-      if (child.types) {
-        types = mergeTypes(types, child.types);
-        if (child.types.inline) {
-          if (
-            service.types.request &&
-            Object.hasOwnProperty.call(
-              child.types.inline.request,
-              service.types.request
-            )
-          ) {
-            const pascalTypeName =
-              pascalName + service.types.request.replace(/-[^-]*$/, '');
-            types.request[pascalTypeName] =
-              child.types.inline.request[service.types.request];
-            service.types.request = pascalTypeName;
-          }
-        }
-      }
-      if (child.kind !== 'query' && child.kind !== 'subscription') {
-        throw Error(
-          `Children services must be of kind "query" or "subscription"`
-        );
-      }
-      children[child.kind][child.name] = service;
+  if (children) {
+    let inline: TreeTypesImplementation = {};
+    let types: TreeTypesImplementation = {};
+    envelope.item.children = {};
+    for (const child of children) {
+      if (child.inline) inline = mergeTypes(inline, child.inline);
+      if (child.types) types = mergeTypes(types, child.types);
     }
+    if (Object.keys(inline).length) envelope.inline = inline;
+    if (Object.keys(types).length) envelope.types = types;
   }
 
+  const { inline, ...other } = prefixInlineTypes(name, envelope);
   return {
-    name,
-    kind: 'response',
-    types: {
-      ...types,
-      inline: emptyTypes()
-    },
-    item: {
-      ...type,
-      children
-    }
+    ...other,
+    types: mergeTypes(other.types || {}, inline || {})
   };
 }

@@ -1,98 +1,112 @@
 import {
-  FreeItem,
-  QueryService,
-  MutationService,
-  SubscriptionService,
-  CollectionTree
+  TreeTypes,
+  Envelope,
+  EnvelopeElement,
+  TreeTypesImplementation,
+  ServiceImplementation,
+  ResponseTypeImplementation,
+  CollectionTreeImplementation
 } from '~/types';
-import { emptyTypes, emptyServices } from './empty';
-import { mergeTypes } from './merge';
 import camelcase from 'camelcase';
+import clone from 'lodash.clonedeep';
+import traverse from './traverse';
+import { mergeTypes } from './merge';
 
-export function prefixCollectionInlineTypes<T extends FreeItem<CollectionTree>>(
+export function prefixInlineTypes<T extends EnvelopeElement, N extends string>(
   prefix: string,
-  collection: T
-): T {
-  const item = {
-    ...collection,
-    types: mergeTypes(emptyTypes(), collection.types || emptyTypes()),
-    item: {
-      ...collection.item,
-      services: emptyServices()
-    }
-  };
+  envelope: Envelope<T, N>
+): Envelope<T, N> {
+  if (!envelope.inline) return envelope;
 
-  const keys = ['query', 'mutation', 'subscription'] as [
-    'query',
-    'mutation',
-    'subscription'
-  ];
+  let inline: TreeTypesImplementation = {};
+  const pascalPrefix = camelcase(prefix, { pascalCase: true });
 
-  for (const kind of keys) {
-    const hashEntries = Object.entries(collection.item.services[kind]);
-    for (const [name, value] of hashEntries) {
-      const serviceItem = prefixServiceInlineTypes(prefix, {
-        name,
-        kind,
-        item: value as any,
-        types: collection.types
+  switch (envelope.item.kind) {
+    case 'collection': {
+      const tree = clone(envelope.item) as T & CollectionTreeImplementation;
+      traverse({ tree, deep: true, children: false }, (element, path) => {
+        const key = path.slice(-1)[0] || '';
+        const elementEnvelope = prefixInlineTypes(prefix, {
+          name: key,
+          item: element,
+          inline: envelope.inline
+        });
+        Object.assign(element, elementEnvelope.item);
+        if (elementEnvelope.inline) {
+          inline = mergeTypes(inline, elementEnvelope.inline);
+        }
       });
-      item.item.services[kind][name] = serviceItem.item;
-      item.types = mergeTypes(item.types, serviceItem.types || emptyTypes());
+      return envelope;
+    }
+    case 'query':
+    case 'mutation':
+    case 'subscription': {
+      const service = clone(envelope.item) as T & ServiceImplementation;
+      if (Object.hasOwnProperty.call(envelope.inline, service.types.request)) {
+        const name =
+          pascalPrefix + camelcase(service.types.request, { pascalCase: true });
+        service.types.request = name;
+        inline[name] = envelope.inline[service.types.request];
+      }
+      if (Object.hasOwnProperty.call(envelope.inline, service.types.response)) {
+        const name =
+          pascalPrefix +
+          camelcase(service.types.response, { pascalCase: true });
+        service.types.response = name;
+        inline[name] = envelope.inline[service.types.response];
+      }
+      for (const error of service.types.errors) {
+        if (Object.hasOwnProperty.call(envelope.inline, error)) {
+          const name = pascalPrefix + camelcase(error, { pascalCase: true });
+          service.types.errors = service.types.errors
+            .filter((x) => x === error)
+            .concat(name);
+          inline[name] = envelope.inline[error];
+        }
+      }
+      return Object.keys(inline).length
+        ? { ...envelope, inline, item: service }
+        : { ...envelope, item: service };
+    }
+    case 'error':
+    case 'request': {
+      return envelope;
+    }
+    case 'response': {
+      const response = clone(envelope.item) as T & ResponseTypeImplementation;
+      if (response.children) {
+        const childrenKeys = Object.keys(response.children);
+        for (const childKey of childrenKeys) {
+          const child = response.children[childKey];
+          const childEnvelope = prefixInlineTypes(prefix, {
+            name: childKey,
+            item: child,
+            inline: envelope.inline
+          });
+          response.children[childKey] = childEnvelope.item;
+          if (childEnvelope.inline) {
+            inline = mergeTypes(inline, childEnvelope.inline);
+          }
+        }
+      }
+      return Object.keys(inline).length
+        ? { ...envelope, inline, item: response }
+        : { ...envelope, item: response };
+    }
+    default: {
+      throw Error(`Invalid item kind for Envelope`);
     }
   }
-
-  return item;
 }
 
-export function prefixServiceInlineTypes<
-  T extends FreeItem<QueryService | MutationService | SubscriptionService>
->(prefix: string, service: T): T {
-  if (!service.types || !service.types.inline) return service;
-
+export function prefixTypes(prefix: string, types: TreeTypes): TreeTypes {
   const pascalPrefix = camelcase(prefix, { pascalCase: true });
-  const item = { ...service.item, types: { ...service.item.types } };
-  const types = mergeTypes(emptyTypes(), service.types || emptyTypes());
 
-  if (
-    item.types.request &&
-    Object.hasOwnProperty.call(service.types.inline.request, item.types.request)
-  ) {
-    const pascalName = pascalPrefix + item.types.request.replace(/-[^-]*$/, '');
-    types.request[pascalName] =
-      service.types.inline.request[item.types.request];
-    item.types.request = pascalName;
+  const t: TreeTypes = {};
+  const typeKeys = Object.keys(types);
+  for (const typeKey of typeKeys) {
+    t[pascalPrefix + camelcase(typeKey, { pascalCase: true })] = types[typeKey];
   }
 
-  if (
-    item.types.response &&
-    Object.hasOwnProperty.call(
-      service.types.inline.response,
-      item.types.response
-    )
-  ) {
-    const pascalName =
-      pascalPrefix + item.types.response.replace(/-[^-]*$/, '');
-    types.response[pascalName] =
-      service.types.inline.response[item.types.response];
-    item.types.response = pascalName;
-  }
-
-  if (item.types.errors && item.types.errors.length) {
-    for (const error of item.types.errors) {
-      if (Object.hasOwnProperty.call(service.types.inline.error, error)) {
-        const pascalName = pascalPrefix + error.replace(/-[^-]*$/, '');
-        types.error[pascalName] = service.types.inline.error[error];
-        item.types.errors = item.types.errors.map((x) =>
-          x === error ? pascalName : x
-        );
-      }
-    }
-  }
-
-  return {
-    ...service,
-    item,
-    types
-  };
+  return t;
 }
