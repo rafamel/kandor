@@ -5,10 +5,11 @@ export default function group<T extends CollectionTreeImplementation>(
   name: string,
   collection: EnvelopeCollection<T>
 ): EnvelopeCollection<T> {
-  const { inline, ...other } = prefixInlineTypes(name, collection);
+  const { inline, ...envelope } = prefixInlineTypes(name, collection);
 
-  return {
-    ...other,
-    types: mergeTypes(other.types || {}, inline || {})
-  };
+  if (inline && Object.keys(inline).length) {
+    envelope.types = mergeTypes(envelope.types || {}, inline);
+  }
+
+  return envelope;
 }

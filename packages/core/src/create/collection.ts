@@ -3,14 +3,14 @@ import {
   CollectionPopulate,
   EnvelopeElement,
   CollectionTreeImplementation,
-  TreeTypesImplementation,
   EnvelopeCollection
 } from '~/types';
 import {
   mergeTypes,
   emptyCollection,
   mergeCollection,
-  mergeServices
+  mergeServices,
+  mergeEnvelopeTypes
 } from '~/utils';
 
 export default collection;
@@ -225,33 +225,33 @@ function collection<
 function collection(
   ...items: Array<Envelope<EnvelopeElement> | undefined>
 ): EnvelopeCollection {
-  let collection = emptyCollection() as CollectionTreeImplementation;
-  let inline: TreeTypesImplementation = {};
-  let types: TreeTypesImplementation = {};
+  let envelope: EnvelopeCollection = {
+    name: 'root',
+    item: emptyCollection() as CollectionTreeImplementation
+  };
 
-  for (const envelope of items) {
-    if (!envelope) continue;
+  for (const item of items) {
+    if (!item) continue;
 
-    if (envelope.inline) inline = mergeTypes(inline, envelope.inline);
-    if (envelope.types) types = mergeTypes(types, envelope.types);
-    switch (envelope.item.kind) {
+    envelope = mergeEnvelopeTypes(envelope, item);
+    switch (item.item.kind) {
       case 'collection': {
-        collection = mergeCollection(collection, envelope.item);
+        envelope.item = mergeCollection(envelope.item, item.item);
         break;
       }
       case 'query':
       case 'mutation':
       case 'subscription': {
-        collection.services = mergeServices(collection.services, {
-          [envelope.name]: envelope.item
+        envelope.item.services = mergeServices(envelope.item.services, {
+          [item.name]: item.item
         });
         break;
       }
       case 'error':
       case 'request':
       case 'response': {
-        collection.types = mergeTypes(collection.types, {
-          [envelope.name]: envelope.item
+        envelope.item.types = mergeTypes(envelope.item.types, {
+          [item.name]: item.item
         });
         break;
       }
@@ -261,11 +261,5 @@ function collection(
     }
   }
 
-  const envelope: EnvelopeCollection = {
-    name: 'root',
-    item: collection
-  };
-  if (Object.keys(inline).length) envelope.inline = inline;
-  if (Object.keys(types).length) envelope.types = types;
   return envelope;
 }

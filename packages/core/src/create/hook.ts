@@ -8,7 +8,7 @@ import {
   CollectionTreeImplementation
 } from '~/types';
 import clone from 'lodash.clonedeep';
-import { isEnvelope, mergeTypes, traverse } from '~/utils';
+import { isEnvelope, mergeTypes, traverse, mergeEnvelopeTypes } from '~/utils';
 import camelcase from 'camelcase';
 import { from } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
@@ -23,7 +23,7 @@ export default function hook<T extends EnvelopeElement, N extends string>(
 
   switch (envelope.item.kind) {
     case 'collection': {
-      const collection = clone(envelope) as Envelope<
+      let collection = clone(envelope) as Envelope<
         T & CollectionTreeImplementation,
         N
       >;
@@ -33,18 +33,7 @@ export default function hook<T extends EnvelopeElement, N extends string>(
           const key = path.slice(-1)[0] || '';
           const elementEnvelope = hook({ name: key, item: element }, hooks);
           Object.assign(element, elementEnvelope.item);
-          if (elementEnvelope.types) {
-            collection.types = mergeTypes(
-              collection.types || {},
-              elementEnvelope.types
-            );
-          }
-          if (elementEnvelope.inline) {
-            collection.inline = mergeTypes(
-              collection.inline || {},
-              elementEnvelope.inline
-            );
-          }
+          collection = mergeEnvelopeTypes(collection, elementEnvelope);
         }
       );
       return collection;
@@ -52,18 +41,13 @@ export default function hook<T extends EnvelopeElement, N extends string>(
     case 'query':
     case 'mutation':
     case 'subscription': {
-      const service = clone(envelope) as Envelope<T & ServiceImplementation, N>;
+      let service = clone(envelope) as Envelope<T & ServiceImplementation, N>;
       if (hooks.errors) {
         for (const error of hooks.errors) {
           if (typeof error === 'string') {
             service.item.types.errors.push(error);
           } else if (isEnvelope(error)) {
-            if (error.types) {
-              service.types = mergeTypes(service.types || {}, error.types);
-            }
-            if (error.inline) {
-              service.inline = mergeTypes(service.inline || {}, error.inline);
-            }
+            service = mergeEnvelopeTypes(service, error);
             service.types = mergeTypes(service.types || {}, {
               [error.name]: error.item
             });
@@ -121,31 +105,21 @@ export default function hook<T extends EnvelopeElement, N extends string>(
       return envelope;
     }
     case 'response': {
-      const response = clone(envelope) as Envelope<
+      let response = clone(envelope) as Envelope<
         T & ResponseTypeImplementation,
         N
       >;
 
-      if (!response.item.children) return response;
+      const children = response.item.children;
+      if (!children || !Object.keys(children).length) return response;
 
-      const childrenKeys = Object.keys(response.item.children);
-      for (const childKey of childrenKeys) {
-        const child = response.item.children[childKey];
-        const childEnvelope = hook({ name: childKey, item: child }, hooks);
-        response.item.children[childKey] = childEnvelope.item;
-        if (childEnvelope.types) {
-          response.types = mergeTypes(
-            response.types || {},
-            childEnvelope.types
-          );
-        }
-        if (childEnvelope.inline) {
-          response.inline = mergeTypes(
-            response.inline || {},
-            childEnvelope.inline
-          );
-        }
+      for (const [key, child] of Object.entries(children)) {
+        const childEnvelope = hook({ name: key, item: child }, hooks);
+        children[key] = childEnvelope.item;
+        response = mergeEnvelopeTypes(response, childEnvelope);
       }
+      response.item.children = children;
+
       return response;
     }
     default: {

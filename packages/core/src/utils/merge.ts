@@ -1,4 +1,11 @@
-import { TreeTypes, TreeServices, ScopeTree, CollectionTree } from '~/types';
+import {
+  TreeTypes,
+  TreeServices,
+  ScopeTree,
+  CollectionTree,
+  Envelope,
+  EnvelopeElement
+} from '~/types';
 
 export function mergeCollection<
   A extends CollectionTree,
@@ -91,4 +98,27 @@ export function mergeTypes<A extends TreeTypes, B extends TreeTypes>(
   }
 
   return { ...a, ...b };
+}
+
+export function mergeEnvelopeTypes<T extends EnvelopeElement, N extends string>(
+  a: Envelope<T, N>,
+  b: { types?: TreeTypes; inline?: TreeTypes }
+): Envelope<T, N> {
+  const envelope = { ...a };
+  if (
+    Object.hasOwnProperty.call(b, 'inline') &&
+    b.inline &&
+    Object.keys(b.inline).length
+  ) {
+    envelope.inline = mergeTypes(envelope.inline || {}, b.inline);
+  }
+  if (
+    Object.hasOwnProperty.call(b, 'types') &&
+    b.types &&
+    Object.keys(b.types).length
+  ) {
+    envelope.types = mergeTypes(envelope.types || {}, b.types);
+  }
+
+  return envelope;
 }
