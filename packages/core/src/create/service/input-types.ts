@@ -14,7 +14,7 @@ export default function handleInputTypes(
   types?: TreeTypesImplementation;
   inline?: TreeTypesImplementation;
 } {
-  let { request, response, errors } = input || {};
+  let { request, response, errors } = input;
   const pascalPrefix = camelcase(prefix, { pascalCase: true });
 
   let types: TreeTypesImplementation = {};
@@ -46,7 +46,7 @@ export default function handleInputTypes(
     if (response.types) types = mergeTypes(types, response.types);
     if (response.inline) inline = mergeTypes(inline, response.inline);
     types = mergeTypes(types, { [response.name]: response.item });
-    names.request = response.name;
+    names.response = response.name;
   } else {
     const name = pascalPrefix + 'Response';
     inline = mergeTypes(inline, {
