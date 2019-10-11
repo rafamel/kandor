@@ -1,11 +1,11 @@
-# kandor
+# Karmic
 
-[![Build Status](https://img.shields.io/travis/rafamel/kandor/master.svg)](https://travis-ci.org/rafamel/kandor)
-[![Coverage](https://img.shields.io/coveralls/rafamel/kandor/master.svg)](https://coveralls.io/github/rafamel/kandor)
-[![License](https://img.shields.io/github/license/rafamel/kandor.svg)](https://github.com/rafamel/kandor/blob/master/LICENSE)
+[![Build Status](https://img.shields.io/travis/rafamel/karmic/master.svg)](https://travis-ci.org/rafamel/karmic)
+[![Coverage](https://img.shields.io/coveralls/rafamel/karmic/master.svg)](https://coveralls.io/github/rafamel/karmic)
+[![License](https://img.shields.io/github/license/rafamel/karmic.svg)](https://github.com/rafamel/karmic/blob/master/LICENSE)
 
-> Transport agnostic API framework.
+> A transport agnostic API framework
 
 ## Packages
 
-* [*@riseup/core:*](https://github.com/rafamel/kandor/tree/master/packages/core) core package.
+* [*@karmic/core:*](https://github.com/rafamel/karmic/tree/master/packages/core) core package.

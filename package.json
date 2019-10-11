@@ -1,8 +1,8 @@
 {
-  "name": "@kandor/root",
+  "name": "@karmic/root",
   "version": "0.0.0",
   "author": "Rafa Mel",
-  "description": "Transport agnostic API framework",
+  "description": "A transport agnostic API framework",
   "keywords": [],
   "private": true,
   "engines": {
@@ -32,13 +32,13 @@
     "postinstall": "kpo postinstall --"
   },
   "license": "MIT",
-  "homepage": "https://github.com/rafamel/kandor",
+  "homepage": "https://github.com/rafamel/karmic",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rafamel/kandor"
+    "url": "https://github.com/rafamel/karmic"
   },
   "bugs": {
-    "url": "https://github.com/rafamel/kandor/issues"
+    "url": "https://github.com/rafamel/karmic/issues"
   },
   "devDependencies": {
     "@riseup/monorepo": "^0.4.0",

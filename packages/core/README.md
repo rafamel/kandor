@@ -1,15 +1,15 @@
-# @kandor/core
+# @karmic/core
 
-[![Version](https://img.shields.io/npm/v/@kandor/core.svg)](https://www.npmjs.com/package/@kandor/core)
-[![Build Status](https://img.shields.io/travis/rafamel/kandor/master.svg)](https://travis-ci.org/rafamel/kandor)
-[![Coverage](https://img.shields.io/coveralls/rafamel/kandor/master.svg)](https://coveralls.io/github/rafamel/kandor)
-[![Dependencies](https://img.shields.io/david/rafamel/kandor.svg?path=packages%2Fcore)](https://david-dm.org/rafamel/kandor?path=packages%2Fcore)
-[![Vulnerabilities](https://img.shields.io/snyk/vulnerabilities/npm/@kandor/core.svg)](https://snyk.io/test/npm/@kandor/core)
-[![License](https://img.shields.io/github/license/rafamel/kandor.svg)](https://github.com/rafamel/kandor/blob/master/LICENSE)
-[![Types](https://img.shields.io/npm/types/@kandor/core.svg)](https://www.npmjs.com/package/@kandor/core)
+[![Version](https://img.shields.io/npm/v/@karmic/core.svg)](https://www.npmjs.com/package/@karmic/core)
+[![Build Status](https://img.shields.io/travis/rafamel/karmic/master.svg)](https://travis-ci.org/rafamel/karmic)
+[![Coverage](https://img.shields.io/coveralls/rafamel/karmic/master.svg)](https://coveralls.io/github/rafamel/karmic)
+[![Dependencies](https://img.shields.io/david/rafamel/karmic.svg?path=packages%2Fcore)](https://david-dm.org/rafamel/karmic?path=packages%2Fcore)
+[![Vulnerabilities](https://img.shields.io/snyk/vulnerabilities/npm/@karmic/core.svg)](https://snyk.io/test/npm/@karmic/core)
+[![License](https://img.shields.io/github/license/rafamel/karmic.svg)](https://github.com/rafamel/karmic/blob/master/LICENSE)
+[![Types](https://img.shields.io/npm/types/@karmic/core.svg)](https://www.npmjs.com/package/@karmic/core)
 
-> *Kandor* core package.
+> A transport agnostic API framework.
 
 ## Install
 
-[`npm install @kandor/core`](https://www.npmjs.com/package/@kandor/core)
+[`npm install @karmic/core`](https://www.npmjs.com/package/@karmic/core)
