@@ -29,22 +29,27 @@ export type Service<
 export interface CollectionTree<
   Q extends QueryService = QueryService,
   M extends MutationService = MutationService,
-  S extends SubscriptionService = SubscriptionService
+  S extends SubscriptionService = SubscriptionService,
+  A extends TreeTypes<Q, S> = TreeTypes<Q, S>,
+  B extends TreeServices<Q, M, S> = TreeServices<Q, M, S>,
+  C extends TreeScopes<Q, M, S> = TreeScopes<Q, M, S>
 > {
   kind: 'collection';
-  types: TreeTypes<Q, S>;
-  services: TreeServices<Q, M, S>;
-  scopes: TreeScopes<Q, M, S>;
+  types: A;
+  services: B;
+  scopes: C;
 }
 
 export interface ScopeTree<
   Q extends QueryService = QueryService,
   M extends MutationService = MutationService,
-  S extends SubscriptionService = SubscriptionService
+  S extends SubscriptionService = SubscriptionService,
+  B extends TreeServices<Q, M, S> = TreeServices<Q, M, S>,
+  C extends TreeScopes<Q, M, S> = TreeScopes<Q, M, S>
 > {
   kind: 'scope';
-  services: { [key: string]: Q | M | S };
-  scopes: { [key: string]: ScopeTree<Q, M, S> };
+  services: B;
+  scopes: C;
 }
 
 export interface TreeTypes<
@@ -54,12 +59,31 @@ export interface TreeTypes<
   [key: string]: Type<Q, S>;
 }
 
-export interface TreeServices<
+export type TreeServices<
+  Q extends QueryService = QueryService,
+  M extends MutationService = MutationService,
+  S extends SubscriptionService = SubscriptionService
+> = HashServices<Q, M, S> & CrudServices<Q, M, S>;
+
+export interface HashServices<
   Q extends QueryService = QueryService,
   M extends MutationService = MutationService,
   S extends SubscriptionService = SubscriptionService
 > {
   [key: string]: Q | M | S;
+}
+
+export interface CrudServices<
+  Q extends QueryService = QueryService,
+  M extends MutationService = MutationService,
+  S extends SubscriptionService = SubscriptionService
+> {
+  get?: Q | S;
+  list?: Q | S;
+  create?: M;
+  update?: M;
+  patch?: M;
+  remove?: M;
 }
 
 export interface TreeScopes<
@@ -87,15 +111,20 @@ export interface SubscriptionService {
 }
 
 export interface ServiceTypes {
-  errors: string[];
-  request: string;
-  response: string;
+  errors: ServiceErrors;
+  request: string | RequestType;
+  response: string | ResponseType;
+}
+
+export interface ServiceErrors {
+  [key: string]: ErrorType | string;
 }
 
 // Types
 export interface ErrorType {
   kind: 'error';
   code: ErrorCode;
+  description?: string;
 }
 
 export interface RequestType {

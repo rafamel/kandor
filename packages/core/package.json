@@ -1,13 +1,22 @@
 {
-  "name": "@kandor/core",
+  "name": "@karmic/core",
   "version": "0.0.0",
   "private": true,
   "author": "Rafa Mel",
-  "description": "Kandor core package",
+  "description": "Karmic core package",
   "keywords": [
-    "keyword",
-    "keyword",
-    "keyword"
+    "api",
+    "server",
+    "framework",
+    "backend",
+    "real-time",
+    "realtime",
+    "transport",
+    "tcp",
+    "websockets",
+    "http",
+    "REST",
+    "RPC"
   ],
   "engines": {
     "node": ">=8"
@@ -45,13 +54,13 @@
     "watch:test": "kpo watch:test --"
   },
   "license": "MIT",
-  "homepage": "https://github.com/rafamel/kandor/packages/core",
+  "homepage": "https://github.com/rafamel/karmic/packages/core",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rafamel/kandor"
+    "url": "https://github.com/rafamel/karmic"
   },
   "bugs": {
-    "url": "https://github.com/rafamel/kandor/issues"
+    "url": "https://github.com/rafamel/karmic/issues"
   },
   "devDependencies": {
     "@pika/pack": "^0.4.0",

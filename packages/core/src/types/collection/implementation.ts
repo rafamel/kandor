@@ -14,9 +14,14 @@ import {
   ResponseTypeChildren,
   TreeTypes,
   TreeServices,
-  TreeScopes
+  TreeScopes,
+  ServiceTypes,
+  HashServices,
+  CrudServices,
+  ServiceErrors
 } from './collection';
 import { Observable } from '../observable';
+import { Schema } from '../schema';
 
 // Groups
 export type ElementImplementation = Element<
@@ -43,16 +48,28 @@ export type ServiceImplementation = Service<
 >;
 
 // Tree
-export type CollectionTreeImplementation = CollectionTree<
+export type CollectionTreeImplementation<
+  A extends TreeTypesImplementation = TreeTypesImplementation,
+  B extends TreeServicesImplementation = TreeServicesImplementation,
+  C extends TreeScopesImplementation = TreeScopesImplementation
+> = CollectionTree<
   QueryServiceImplementation,
   MutationServiceImplementation,
-  SubscriptionServiceImplementation
+  SubscriptionServiceImplementation,
+  A,
+  B,
+  C
 >;
 
-export type ScopeTreeImplementation = ScopeTree<
+export type ScopeTreeImplementation<
+  B extends TreeServicesImplementation = TreeServicesImplementation,
+  C extends TreeScopesImplementation = TreeScopesImplementation
+> = ScopeTree<
   QueryServiceImplementation,
   MutationServiceImplementation,
-  SubscriptionServiceImplementation
+  SubscriptionServiceImplementation,
+  B,
+  C
 >;
 
 export type TreeTypesImplementation = TreeTypes<
@@ -61,6 +78,18 @@ export type TreeTypesImplementation = TreeTypes<
 >;
 
 export type TreeServicesImplementation = TreeServices<
+  QueryServiceImplementation,
+  MutationServiceImplementation,
+  SubscriptionServiceImplementation
+>;
+
+export type HashServicesImplementation = HashServices<
+  QueryServiceImplementation,
+  MutationServiceImplementation,
+  SubscriptionServiceImplementation
+>;
+
+export type CrudServicesImplementation = CrudServices<
   QueryServiceImplementation,
   MutationServiceImplementation,
   SubscriptionServiceImplementation
@@ -75,33 +104,53 @@ export type TreeScopesImplementation = TreeScopes<
 // Services
 export interface QueryServiceImplementation<I = any, O = any>
   extends QueryService {
-  resolve: QueryImplementationResolve<I, O>;
+  types: ServiceTypesImplementation;
+  intercepts: Array<InterceptImplementation<I, O>>;
+  resolve: (data: I, context: any) => Promise<O>;
 }
 
 export interface MutationServiceImplementation<I = any, O = any>
   extends MutationService {
-  resolve: MutationImplementationResolve<I, O>;
+  types: ServiceTypesImplementation;
+  intercepts: Array<InterceptImplementation<I, O>>;
+  resolve: (data: I, context: any) => Promise<O>;
 }
 
 export interface SubscriptionServiceImplementation<I = any, O = any>
   extends SubscriptionService {
-  resolve: SubscriptionImplementationResolve<I, O>;
+  types: ServiceTypesImplementation;
+  intercepts: Array<InterceptImplementation<I, O>>;
+  resolve: (data: I, context: any) => Observable<O>;
 }
 
-export type QueryImplementationResolve<I = any, O = any> = (
-  data: I,
-  context: any
-) => O | Promise<O>;
+export interface ServiceTypesImplementation extends ServiceTypes {
+  errors: ServiceErrorsImplementation;
+  request: RequestTypeImplementation | string;
+  response: ResponseTypeImplementation | string;
+}
 
-export type MutationImplementationResolve<I = any, O = any> = (
-  data: I,
-  context: any
-) => O | Promise<O>;
+export type ServiceErrorsImplementation = ServiceErrors;
 
-export type SubscriptionImplementationResolve<I = any, O = any> = (
+export interface InterceptImplementation<I = any, O = any> {
+  kind: 'intercept';
+  errors: ServiceErrorsImplementation;
+  factory: InterceptFactoryImplementation<I, O>;
+}
+
+export type InterceptFactoryImplementation<I = any, O = any> = (
+  schemas: InterceptSchemasImplementation
+) => InterceptResolveImplementation<I, O>;
+
+export type InterceptResolveImplementation<I = any, O = any> = (
   data: I,
-  context: any
-) => Observable<O | Promise<O>> | Promise<Observable<O | Promise<O>>>;
+  context: any,
+  next: (data: I) => Observable<O>
+) => Observable<O>;
+
+export interface InterceptSchemasImplementation {
+  request: Schema;
+  response: Schema;
+}
 
 // Types
 export type ErrorTypeImplementation = ErrorType;
