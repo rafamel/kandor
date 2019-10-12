@@ -7,17 +7,26 @@ import {
 import { from, Observable } from 'rxjs';
 import { switchMap, mergeMap } from 'rxjs/operators';
 import clone from 'lodash.clonedeep';
-import { traverse, isElementService } from '~/utils';
+import {
+  traverse,
+  isElementService,
+  emptyIntercept,
+  mergeServiceErrors
+} from '~/utils';
 
 export function intercepts<T extends CollectionTreeImplementation>(
   collection: T,
-  intercepts: InterceptImplementation[]
+  intercepts: InterceptImplementation[],
+  options?: { prepend?: boolean }
 ): T {
   collection = clone(collection);
+  const opts = Object.assign({ prepend: true }, options);
 
-  traverse({ tree: collection, deep: true, children: true }, (element) => {
+  traverse(collection, (element) => {
     if (!isElementService(element)) return;
-    element.intercepts = intercepts.concat(element.intercepts);
+    element.intercepts = opts.prepend
+      ? intercepts.concat(element.intercepts || [])
+      : (element.intercepts || []).concat(intercepts);
   });
 
   return collection;
@@ -53,7 +62,9 @@ export function before<T>(
       const fn = hook.factory.apply(this, args);
       return function(data, context, next) {
         const get = async (): Promise<T> => fn(data, context);
-        return from(get()).pipe(switchMap((value) => next(value)));
+        return from(get()).pipe(
+          switchMap((value) => next(value === undefined ? data : value))
+        );
       };
     }
   };
@@ -68,9 +79,45 @@ export function after<T>(
     factory(...args: any) {
       const fn = hook.factory.apply(this, args);
       return function(data, context, next) {
-        const get = async (data: T): Promise<T> => fn(data, context);
+        const get = async (value: T): Promise<T> => {
+          const result = await fn(value, context);
+          return result === undefined ? value : result;
+        };
         return next(data).pipe(mergeMap((value) => get(value)));
       };
     }
   };
+}
+
+export function allof(
+  intercepts: InterceptImplementation[]
+): InterceptImplementation {
+  function pair(
+    a: InterceptImplementation,
+    b: InterceptImplementation
+  ): InterceptImplementation {
+    return {
+      kind: 'intercept',
+      errors: mergeServiceErrors(a.errors, b.errors),
+      factory(...args: any) {
+        const aFn = a.factory.apply(this, args);
+        const bFn = b.factory.apply(this, args);
+        return function(data, context, next) {
+          return aFn(data, context, (data) => {
+            return bFn(data, context, next);
+          });
+        };
+      }
+    };
+  }
+
+  if (!intercepts.length) return emptyIntercept();
+  if (intercepts.length === 1) return intercepts[0];
+
+  let intercept = pair(intercepts[0], intercepts[1]);
+  for (const item of intercepts.slice(2)) {
+    intercept = pair(intercept, item);
+  }
+
+  return intercept;
 }

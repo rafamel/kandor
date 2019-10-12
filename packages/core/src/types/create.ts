@@ -4,10 +4,19 @@ import {
   ResponseTypeImplementation,
   InterceptSchemasImplementation,
   ServiceErrorsImplementation,
-  InterceptImplementation
+  InterceptImplementation,
+  CollectionTreeImplementation,
+  CollectionTreeApplication,
+  CollectionTree
 } from './collection';
 import { Observable } from './observable';
 import { Schema } from './schema';
+
+// Collection
+export type InputCollection =
+  | Partial<CollectionTree>
+  | Partial<CollectionTreeImplementation>
+  | Partial<CollectionTreeApplication>;
 
 // Services
 export interface InputQueryService<I = any, O = any> {

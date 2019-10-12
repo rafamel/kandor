@@ -1,4 +1,4 @@
-import { ScopeTree, CollectionTree } from '~/types';
+import { ScopeTree, CollectionTree, InterceptImplementation } from '~/types';
 
 export function emptyCollection(): CollectionTree {
   return {
@@ -13,5 +13,15 @@ export function emptyScope(): ScopeTree {
     services: {},
     scopes: {},
     kind: 'scope'
+  };
+}
+
+export function emptyIntercept(): InterceptImplementation {
+  return {
+    kind: 'intercept',
+    errors: {},
+    factory: () => (data, context, next) => {
+      return next(data);
+    }
   };
 }

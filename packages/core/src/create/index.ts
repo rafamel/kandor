@@ -1,3 +1,4 @@
+export { default as application } from './application';
 export { default as collection } from './collection';
 export { default as scope } from './scope';
 export { default as schema } from './schema';

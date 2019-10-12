@@ -1,4 +1,10 @@
-import { TreeTypes, TreeServices, ScopeTree, CollectionTree } from '~/types';
+import {
+  TreeTypes,
+  TreeServices,
+  ScopeTree,
+  CollectionTree,
+  ServiceErrors
+} from '~/types';
 
 export function mergeCollection<
   A extends CollectionTree,
@@ -91,4 +97,23 @@ export function mergeTypes<A extends TreeTypes, B extends TreeTypes>(
   }
 
   return { ...a, ...b };
+}
+
+export function mergeServiceErrors(
+  a: ServiceErrors,
+  b: ServiceErrors
+): ServiceErrors {
+  return Object.entries(a)
+    .concat(Object.entries(b))
+    .reduce((acc: ServiceErrors, [key, value]) => {
+      if (
+        Object.hasOwnProperty.call(a, key) &&
+        Object.hasOwnProperty.call(b, key) &&
+        a[key] !== b[key]
+      ) {
+        throw Error(`Intercepts error collition: ${key}`);
+      }
+      acc[key] = value;
+      return acc;
+    }, {});
 }

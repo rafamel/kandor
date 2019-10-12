@@ -105,22 +105,22 @@ export type TreeScopesImplementation = TreeScopes<
 export interface QueryServiceImplementation<I = any, O = any>
   extends QueryService {
   types: ServiceTypesImplementation;
-  intercepts: Array<InterceptImplementation<I, O>>;
   resolve: (data: I, context: any) => Promise<O>;
+  intercepts?: Array<InterceptImplementation<I, O>>;
 }
 
 export interface MutationServiceImplementation<I = any, O = any>
   extends MutationService {
   types: ServiceTypesImplementation;
-  intercepts: Array<InterceptImplementation<I, O>>;
   resolve: (data: I, context: any) => Promise<O>;
+  intercepts?: Array<InterceptImplementation<I, O>>;
 }
 
 export interface SubscriptionServiceImplementation<I = any, O = any>
   extends SubscriptionService {
   types: ServiceTypesImplementation;
-  intercepts: Array<InterceptImplementation<I, O>>;
   resolve: (data: I, context: any) => Observable<O>;
+  intercepts?: Array<InterceptImplementation<I, O>>;
 }
 
 export interface ServiceTypesImplementation extends ServiceTypes {
