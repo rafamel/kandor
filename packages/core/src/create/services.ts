@@ -7,10 +7,14 @@ import {
   InputSubscriptionService,
   TreeServicesImplementation,
   CollectionTreeImplementation,
-  Observable
+  Observable,
+  InputServiceTypes,
+  ServiceTypesImplementation
 } from '~/types';
 import { from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
+import { request, response } from './types';
+import { isElement } from '~/utils';
 
 export function services<T extends TreeServicesImplementation>(
   services: T
@@ -31,12 +35,7 @@ export function query<I, O>(
   return {
     ...query,
     kind: 'query',
-    types: {
-      errors: {},
-      request: { kind: 'request', schema: {} },
-      response: { kind: 'response', schema: {} },
-      ...(query.types || {})
-    },
+    types: parseTypes(query.types),
     intercepts: query.intercepts || [],
     async resolve(...args: any) {
       return query.resolve.apply(this, args);
@@ -50,12 +49,7 @@ export function mutation<I, O>(
   return {
     ...mutation,
     kind: 'mutation',
-    types: {
-      errors: {},
-      request: { kind: 'request', schema: {} },
-      response: { kind: 'response', schema: {} },
-      ...(mutation.types || {})
-    },
+    types: parseTypes(mutation.types),
     intercepts: mutation.intercepts || [],
     async resolve(...args: any) {
       return mutation.resolve.apply(this, args);
@@ -69,12 +63,7 @@ export function subscription<I, O>(
   return {
     ...subscription,
     kind: 'subscription',
-    types: {
-      errors: {},
-      request: { kind: 'request', schema: {} },
-      response: { kind: 'response', schema: {} },
-      ...(subscription.types || {})
-    },
+    types: parseTypes(subscription.types),
     intercepts: subscription.intercepts || [],
     resolve(...args: any) {
       const get = async (): Promise<Observable<O>> => {
@@ -82,5 +71,19 @@ export function subscription<I, O>(
       };
       return from(get()).pipe(switchMap((obs) => obs));
     }
+  };
+}
+
+function parseTypes(types: InputServiceTypes = {}): ServiceTypesImplementation {
+  return {
+    errors: types.errors || {},
+    request:
+      isElement(types.request) || typeof types.request === 'string'
+        ? types.request
+        : request({ schema: types.request || {} }),
+    response:
+      isElement(types.response) || typeof types.response === 'string'
+        ? types.response
+        : response({ schema: types.response || {} })
   };
 }

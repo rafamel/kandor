@@ -1,5 +1,4 @@
 import {
-  ServiceTypesImplementation,
   ErrorTypeImplementation,
   RequestTypeImplementation,
   ResponseTypeImplementation,
@@ -8,24 +7,32 @@ import {
   InterceptImplementation
 } from './collection';
 import { Observable } from './observable';
+import { Schema } from './schema';
 
-// Input
+// Services
 export interface InputQueryService<I = any, O = any> {
-  types?: ServiceTypesImplementation;
+  types?: InputServiceTypes;
   intercepts?: Array<InterceptImplementation<I, O>>;
   resolve: (data: I, context: any) => Promise<O> | O;
 }
 export interface InputMutationService<I = any, O = any> {
-  types?: ServiceTypesImplementation;
+  types?: InputServiceTypes;
   intercepts?: Array<InterceptImplementation<I, O>>;
   resolve: (data: I, context: any) => Promise<O> | O;
 }
 export interface InputSubscriptionService<I = any, O = any> {
-  types?: ServiceTypesImplementation;
+  types?: InputServiceTypes;
   intercepts?: Array<InterceptImplementation<I, O>>;
   resolve: (data: I, context: any) => Observable<O> | Promise<Observable<O>>;
 }
 
+export interface InputServiceTypes {
+  errors?: ServiceErrorsImplementation;
+  request?: string | Schema | RequestTypeImplementation;
+  response?: string | Schema | ResponseTypeImplementation;
+}
+
+// Types
 export type InputErrorType = Omit<ErrorTypeImplementation, 'kind'>;
 export type InputRequestType = Omit<RequestTypeImplementation, 'kind'>;
 export type InputResponseType = Omit<ResponseTypeImplementation, 'kind'>;

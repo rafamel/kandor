@@ -125,8 +125,8 @@ export interface SubscriptionServiceImplementation<I = any, O = any>
 
 export interface ServiceTypesImplementation extends ServiceTypes {
   errors: ServiceErrorsImplementation;
-  request: RequestTypeImplementation | string;
-  response: ResponseTypeImplementation | string;
+  request: string | RequestTypeImplementation;
+  response: string | ResponseTypeImplementation;
 }
 
 export type ServiceErrorsImplementation = ServiceErrors;
