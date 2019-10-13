@@ -2,8 +2,8 @@ import {
   InputInterceptHook,
   InterceptImplementation,
   InputIntercept,
-  CollectionTreeImplementation,
-  CreateInterceptsOptions
+  CreateInterceptsOptions,
+  CollectionTree
 } from '~/types';
 import { from, Observable } from 'rxjs';
 import { switchMap, mergeMap } from 'rxjs/operators';
@@ -12,10 +12,11 @@ import {
   traverse,
   isElementService,
   emptyIntercept,
-  mergeServiceErrors
+  mergeServiceErrors,
+  isServiceImplementation
 } from '~/utils';
 
-export function intercepts<T extends CollectionTreeImplementation>(
+export function intercepts<T extends CollectionTree>(
   collection: T,
   intercepts: InterceptImplementation[],
   options?: CreateInterceptsOptions
@@ -27,7 +28,10 @@ export function intercepts<T extends CollectionTreeImplementation>(
     collection,
     { deep: true, children: true, inline: true },
     (element) => {
-      if (!isElementService(element)) return;
+      if (!isElementService(element) || !isServiceImplementation(element)) {
+        return;
+      }
+
       element.intercepts = opts.prepend
         ? intercepts.concat(element.intercepts || [])
         : (element.intercepts || []).concat(intercepts);

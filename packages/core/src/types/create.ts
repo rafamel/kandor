@@ -7,7 +7,12 @@ import {
   InterceptImplementation,
   CollectionTreeImplementation,
   CollectionTreeApplication,
-  CollectionTree
+  CollectionTree,
+  ScopeTree,
+  QueryService,
+  MutationService,
+  SubscriptionService,
+  ScopeTreeImplementation
 } from './collection';
 import { Observable } from './observable';
 import { Schema } from './schema';
@@ -23,13 +28,12 @@ export interface CreateInterceptsOptions {
   prepend?: boolean;
 }
 
-// Collection
+// Input
 export type InputCollection =
   | Partial<CollectionTree>
   | Partial<CollectionTreeImplementation>
   | Partial<CollectionTreeApplication>;
 
-// Services
 export interface InputQueryService<I = any, O = any> {
   types?: InputServiceTypes;
   intercepts?: Array<InterceptImplementation<I, O>>;
@@ -52,12 +56,10 @@ export interface InputServiceTypes {
   response?: string | Schema | ResponseTypeImplementation;
 }
 
-// Types
 export type InputErrorType = Omit<ErrorTypeImplementation, 'kind'>;
 export type InputRequestType = Omit<RequestTypeImplementation, 'kind'>;
 export type InputResponseType = Omit<ResponseTypeImplementation, 'kind'>;
 
-// Intercepts
 export interface InputIntercept<I = any, O = any> {
   errors?: ServiceErrorsImplementation;
   factory: InputInterceptFactory<I, O>;
@@ -86,3 +88,48 @@ export type InputInterceptHookResolve<T = any> = (
   data: T,
   context: any
 ) => T | Promise<T>;
+
+// Create
+export type ScopeCreate<
+  T extends CollectionTree,
+  N extends string
+> = T extends CollectionTreeImplementation
+  ? CollectionTreeImplementation<
+      T['types'],
+      {},
+      { [P in N]: ScopeTreeImplementation<T['services'], T['scopes']> }
+    >
+  : CollectionTree<
+      QueryService,
+      MutationService,
+      SubscriptionService,
+      T['types'],
+      {},
+      {
+        [P in N]: ScopeTree<
+          QueryService,
+          MutationService,
+          SubscriptionService,
+          T['services'],
+          T['scopes']
+        >;
+      }
+    >;
+
+export type ExtractScopeCreate<
+  T extends CollectionTree,
+  N extends keyof T['scopes']
+> = T extends CollectionTreeImplementation
+  ? CollectionTreeImplementation<
+      T['types'],
+      T['scopes'][N]['services'],
+      T['scopes'][N]['scopes']
+    >
+  : CollectionTree<
+      QueryService,
+      MutationService,
+      SubscriptionService,
+      T['types'],
+      T['scopes'][N]['services'],
+      T['scopes'][N]['scopes']
+    >;
