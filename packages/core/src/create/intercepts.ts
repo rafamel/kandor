@@ -22,12 +22,16 @@ export function intercepts<T extends CollectionTreeImplementation>(
   collection = clone(collection);
   const opts = Object.assign({ prepend: true }, options);
 
-  traverse(collection, (element) => {
-    if (!isElementService(element)) return;
-    element.intercepts = opts.prepend
-      ? intercepts.concat(element.intercepts || [])
-      : (element.intercepts || []).concat(intercepts);
-  });
+  traverse(
+    collection,
+    { deep: true, children: true, inline: true },
+    (element) => {
+      if (!isElementService(element)) return;
+      element.intercepts = opts.prepend
+        ? intercepts.concat(element.intercepts || [])
+        : (element.intercepts || []).concat(intercepts);
+    }
+  );
 
   return collection;
 }

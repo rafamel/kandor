@@ -44,26 +44,30 @@ export default function application(
     )
   };
 
-  traverse(collection, { children: false, inline: false }, (element, path) => {
-    const name = opts.transform(path.slice(-1)[0], true);
+  traverse(
+    collection,
+    { deep: true, children: false, inline: false },
+    (element, path) => {
+      const name = opts.transform(path.slice(-1)[0], true);
 
-    if (isElementType(element)) {
-      if (element.kind !== 'response' || !element.children) return;
-      for (const [key, service] of Object.entries(element.children)) {
-        const fullName = name + opts.transform(key, false);
-        serviceIntercepts(fullName, service, types.source);
-        mergeServiceTypes(fullName, service, types, opts);
+      if (isElementType(element)) {
+        if (element.kind !== 'response' || !element.children) return;
+        for (const [key, service] of Object.entries(element.children)) {
+          const fullName = name + opts.transform(key, false);
+          serviceIntercepts(fullName, service, types.source);
+          mergeServiceTypes(fullName, service, types, opts);
+        }
+      } else {
+        const fullName =
+          opts.prefixScope && path[path.length - 3]
+            ? opts.transform(path[path.length - 3], false) + name
+            : name;
+
+        serviceIntercepts(fullName, element, types.source);
+        mergeServiceTypes(fullName, element, types, opts);
       }
-    } else {
-      const fullName =
-        opts.prefixScope && path[path.length - 3]
-          ? opts.transform(path[path.length - 3], false) + name
-          : name;
-
-      serviceIntercepts(fullName, element, types.source);
-      mergeServiceTypes(fullName, element, types, opts);
     }
-  });
+  );
 
   return {
     ...collection,

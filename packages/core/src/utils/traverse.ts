@@ -16,7 +16,11 @@ function traverse<
   S extends SubscriptionService
 >(
   tree: Tree<Q, M, S>,
-  cb: (element: Service<Q, M, S> | Type<Q, S>, path: string[]) => void
+  cb: (
+    element: Service<Q, M, S> | Type<Q, S>,
+    path: string[],
+    route: string[]
+  ) => void
 ): void;
 function traverse<
   Q extends QueryService,
@@ -25,7 +29,11 @@ function traverse<
 >(
   tree: Tree<Q, M, S>,
   options: { deep?: boolean; children?: boolean; inline?: boolean },
-  cb: (element: Service<Q, M, S> | Type<Q, S>, path: string[]) => void
+  cb: (
+    element: Service<Q, M, S> | Type<Q, S>,
+    path: string[],
+    route: string[]
+  ) => void
 ): void;
 function traverse(tree: Tree, b: any, c?: any): void {
   const options = c ? b : {};
@@ -33,22 +41,30 @@ function traverse(tree: Tree, b: any, c?: any): void {
 
   return traverseEach(
     [],
+    [],
     tree,
-    Object.assign({ deep: true, children: true, inline: true }, options),
+    Object.assign({ deep: true, children: false, inline: false }, options),
     cb
   );
 }
 
 export function traverseEach(
   path: string[],
+  route: string[],
   tree: Tree,
   options: { deep: boolean; children: boolean; inline: boolean },
-  cb: (element: Service | Type, path: string[]) => void
+  cb: (element: Service | Type, path: string[], route: string[]) => void
 ): void {
   if (isTreeCollection(tree)) {
     const typeKeys = Object.keys(tree.types);
     for (const key of typeKeys) {
-      traverseType(path.concat(['types', key]), tree.types[key], options, cb);
+      traverseType(
+        path.concat(['types', key]),
+        route.concat([key]),
+        tree.types[key],
+        options,
+        cb
+      );
     }
   }
 
@@ -56,6 +72,7 @@ export function traverseEach(
   for (const key of serviceKeys) {
     traverseService(
       path.concat(['services', key]),
+      route.concat([key]),
       tree.services[key],
       options,
       cb
@@ -67,6 +84,7 @@ export function traverseEach(
     for (const scopeName of scopeNames) {
       traverseEach(
         path.concat(['scopes', scopeName]),
+        route.concat([scopeName]),
         tree.scopes[scopeName],
         options,
         cb
@@ -77,11 +95,12 @@ export function traverseEach(
 
 export function traverseType(
   path: string[],
+  route: string[],
   type: Type,
   options: { deep: boolean; children: boolean; inline: boolean },
-  cb: (element: Service | Type, path: string[]) => void
+  cb: (element: Service | Type, path: string[], route: string[]) => void
 ): void {
-  cb(type, path);
+  cb(type, path, route);
 
   if (
     options.children &&
@@ -92,23 +111,31 @@ export function traverseType(
     const childrenKeys = Object.keys(type.children);
     for (const childKey of childrenKeys) {
       const child = type.children[childKey];
-      traverseService(path.concat(['children', childKey]), child, options, cb);
+      traverseService(
+        path.concat(['children', childKey]),
+        route.concat([childKey]),
+        child,
+        options,
+        cb
+      );
     }
   }
 }
 
 export function traverseService(
   path: string[],
+  route: string[],
   service: Service,
   options: { deep: boolean; children: boolean; inline: boolean },
-  cb: (element: Service | Type, path: string[]) => void
+  cb: (element: Service | Type, path: string[], route: string[]) => void
 ): void {
-  cb(service, path);
+  cb(service, path, route);
 
   if (options.inline) {
     if (typeof service.types.request !== 'string') {
       traverseType(
         path.concat(['types', 'request']),
+        route.concat(['request']),
         service.types.request,
         options,
         cb
@@ -117,6 +144,7 @@ export function traverseService(
     if (typeof service.types.response !== 'string') {
       traverseType(
         path.concat(['types', 'response']),
+        route.concat(['response']),
         service.types.response,
         options,
         cb
@@ -126,6 +154,7 @@ export function traverseService(
       if (typeof error !== 'string') {
         traverseType(
           path.concat(['types', 'errors', name]),
+          route.concat(['errors', name]),
           error,
           options,
           cb
