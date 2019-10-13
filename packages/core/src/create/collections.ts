@@ -1,9 +1,9 @@
 import { CollectionTreeImplementation, InputCollection } from '~/types';
 import { emptyCollection, mergeCollection } from '~/utils';
 
-export default collection;
+export default collections;
 
-function collection<
+function collections<
   C1 extends InputCollection = CollectionTreeImplementation<{}, {}, {}>,
   C2 extends InputCollection = C1,
   C3 extends InputCollection = C1,
@@ -157,7 +157,7 @@ function collection<
   C49 &
   C50;
 
-function collection(
+function collections(
   ...collections: InputCollection[]
 ): CollectionTreeImplementation {
   let collection = emptyCollection() as CollectionTreeImplementation;
