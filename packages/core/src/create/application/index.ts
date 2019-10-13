@@ -1,5 +1,4 @@
 import {
-  CollectionTreeImplementation,
   CollectionTreeApplication,
   CollectionTree,
   TreeTypes,
@@ -10,9 +9,14 @@ import { traverse, isElementType } from '~/utils';
 import camelcase from 'camelcase';
 import serviceIntercepts from './service-intercepts';
 import { mergeServiceTypes } from './merge';
+import { error } from '../types';
+import { intercepts, intercept } from '../intercepts';
+import { catchError } from 'rxjs/operators';
+import { throwError } from 'rxjs';
+import { PublicError, CollectionError } from '~/errors';
 
 export default function application(
-  collection: CollectionTree | CollectionTreeImplementation,
+  collection: CollectionTree,
   options?: CreateApplicationOptions
 ): CollectionTreeApplication {
   const opts = Object.assign(
@@ -24,8 +28,31 @@ export default function application(
     options
   );
 
-  // clone collection
+  // clone collection and add internal server error
   collection = clone(collection);
+  if (!collection.types.InternalServerError) {
+    collection.types.InternalServerError = error({ code: 'ServerError' });
+  }
+  collection = intercepts(
+    collection,
+    [
+      intercept({
+        errors: { InternalServerError: 'InternalServerError' },
+        factory: () => (data, context, next) => {
+          return next(data).pipe(
+            catchError((err) =>
+              throwError(
+                err instanceof PublicError
+                  ? err
+                  : new CollectionError(collection, 'InternalServerError')
+              )
+            )
+          );
+        }
+      })
+    ],
+    { prepend: true }
+  );
 
   const types = {
     source: collection.types,
