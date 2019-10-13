@@ -106,21 +106,21 @@ export interface QueryServiceImplementation<I = any, O = any>
   extends QueryService {
   types: ServiceTypesImplementation;
   resolve: (data: I, context: any) => Promise<O>;
-  intercepts?: Array<InterceptImplementation<I, O>>;
+  intercepts?: InterceptImplementation[];
 }
 
 export interface MutationServiceImplementation<I = any, O = any>
   extends MutationService {
   types: ServiceTypesImplementation;
   resolve: (data: I, context: any) => Promise<O>;
-  intercepts?: Array<InterceptImplementation<I, O>>;
+  intercepts?: InterceptImplementation[];
 }
 
 export interface SubscriptionServiceImplementation<I = any, O = any>
   extends SubscriptionService {
   types: ServiceTypesImplementation;
   resolve: (data: I, context: any) => Observable<O>;
-  intercepts?: Array<InterceptImplementation<I, O>>;
+  intercepts?: InterceptImplementation[];
 }
 
 export interface ServiceTypesImplementation extends ServiceTypes {
