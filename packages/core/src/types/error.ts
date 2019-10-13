@@ -2,9 +2,9 @@ export type ErrorCode = ClientErrorCode | ServerErrorCode;
 
 export type ClientErrorCode =
   | 'ClientError'
-  | 'ClientNotFound'
-  | 'ClientForbidden'
   | 'ClientUnauthorized'
+  | 'ClientForbidden'
+  | 'ClientNotFound'
   | 'ClientConflict'
   | 'ClientUnsupported'
   | 'ClientTooEarly'
