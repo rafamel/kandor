@@ -15,6 +15,13 @@ import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { PublicError, CollectionError } from '~/errors';
 
+/**
+ * Returns a new object instance of a collection; prepares a collection to be used by an adapter:
+ * - Pipes all services intercepts with their resolve function and merges their error types.
+ * - Ensures all services throw with a `PublicError`.
+ * - Checks for non-existent type references and references of the wrong kind.
+ * - Moves all inline types to `CollectionTree.types`.
+ */
 export default function application(
   collection: CollectionTree,
   options?: CreateApplicationOptions

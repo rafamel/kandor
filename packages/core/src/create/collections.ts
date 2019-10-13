@@ -157,6 +157,9 @@ function collections<
   C49 &
   C50;
 
+/**
+ * Merges collections.
+ */
 function collections(
   ...collections: InputCollection[]
 ): CollectionTreeImplementation {

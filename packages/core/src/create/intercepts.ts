@@ -16,6 +16,9 @@ import {
   isServiceImplementation
 } from '~/utils';
 
+/**
+ * Adds `intercepts` to all `ServiceImplementation`s of a given collection.
+ */
 export function intercepts<T extends CollectionTree>(
   collection: T,
   intercepts: InterceptImplementation[],
@@ -41,6 +44,9 @@ export function intercepts<T extends CollectionTree>(
   return collection;
 }
 
+/**
+ * Creates an intercept.
+ */
 export function intercept<I, O>(
   intercept: InputIntercept<I, O>
 ): InterceptImplementation<I, O> {
@@ -61,6 +67,9 @@ export function intercept<I, O>(
   };
 }
 
+/**
+ * Exposes a simpler api to create intercepts to be run *before* the `resolve` function of a `ServiceImplementation` has been called to act on the incoming `data`.
+ */
 export function before<T>(
   hook: InputInterceptHook<T>
 ): InterceptImplementation<T, any> {
@@ -79,6 +88,9 @@ export function before<T>(
   };
 }
 
+/**
+ * Exposes a simpler api to create intercepts to be run *after* the `resolve` function of a `ServiceImplementation` has been called to act on the outgoing `data`.
+ */
 export function after<T>(
   hook: InputInterceptHook<T>
 ): InterceptImplementation<any, T> {

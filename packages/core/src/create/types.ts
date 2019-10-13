@@ -9,6 +9,9 @@ import {
   CollectionTreeImplementation
 } from '~/types';
 
+/**
+ * Returns a new `collection` with types `types`.
+ */
 export function types<T extends TreeTypesImplementation>(
   types: T
 ): CollectionTreeImplementation<T, {}, {}> {
@@ -20,6 +23,9 @@ export function types<T extends TreeTypesImplementation>(
   };
 }
 
+/**
+ * Creates an `ErrorTypeImplementation`.
+ */
 export function error(error: InputErrorType): ErrorTypeImplementation {
   return {
     kind: 'error',
@@ -27,6 +33,9 @@ export function error(error: InputErrorType): ErrorTypeImplementation {
   };
 }
 
+/**
+ * Creates a `RequestTypeImplementation`.
+ */
 export function request(request: InputRequestType): RequestTypeImplementation {
   return {
     kind: 'request',
@@ -34,6 +43,9 @@ export function request(request: InputRequestType): RequestTypeImplementation {
   };
 }
 
+/**
+ * Creates a `ResponseTypeImplementation`.
+ */
 export function response(
   response: InputResponseType
 ): ResponseTypeImplementation {

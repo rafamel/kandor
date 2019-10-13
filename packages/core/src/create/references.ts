@@ -6,6 +6,9 @@ export function references<
   K extends keyof T['types']
 >(collection: T, names?: K[]): { [P in K]: P };
 
+/**
+ * Returns an object with *keys* and *values* of `names`. It is essentially a helper to be used for type safety when referencing error types on service creation.
+ */
 export function references(
   a: CollectionTree | string[],
   b?: string[]
@@ -32,6 +35,9 @@ export function references(
   }
 }
 
+/**
+ * Returns a *string* equal to `name`. It is essentially a helper to be used for type safety when referencing request and response types on service creation.
+ */
 export function reference<T extends CollectionTree, K extends keyof T['types']>(
   collection: T,
   name: K

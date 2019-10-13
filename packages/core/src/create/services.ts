@@ -16,6 +16,9 @@ import { switchMap } from 'rxjs/operators';
 import { request, response } from './types';
 import { isElement } from '~/utils';
 
+/**
+ * Returns a new `collection` with services `services`.
+ */
 export function services<T extends TreeServicesImplementation>(
   services: T
 ): CollectionTreeImplementation<{}, T, {}> {
@@ -29,6 +32,9 @@ export function services<T extends TreeServicesImplementation>(
   };
 }
 
+/**
+ * Creates a `QueryServiceImplementation`.
+ */
 export function query<I, O>(
   query: InputQueryService<I, O>
 ): QueryServiceImplementation<I, O> {
@@ -43,6 +49,9 @@ export function query<I, O>(
   };
 }
 
+/**
+ * Creates a `MutationServiceImplementation`.
+ */
 export function mutation<I, O>(
   mutation: InputMutationService<I, O>
 ): MutationServiceImplementation<I, O> {
@@ -57,6 +66,9 @@ export function mutation<I, O>(
   };
 }
 
+/**
+ * Creates a `MutationServiceImplementation`.
+ */
 export function subscription<I, O>(
   subscription: InputSubscriptionService<I, O>
 ): SubscriptionServiceImplementation<I, O> {
