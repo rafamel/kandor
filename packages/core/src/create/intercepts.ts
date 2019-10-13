@@ -2,7 +2,8 @@ import {
   InputInterceptHook,
   InterceptImplementation,
   InputIntercept,
-  CollectionTreeImplementation
+  CollectionTreeImplementation,
+  CreateInterceptsOptions
 } from '~/types';
 import { from, Observable } from 'rxjs';
 import { switchMap, mergeMap } from 'rxjs/operators';
@@ -17,7 +18,7 @@ import {
 export function intercepts<T extends CollectionTreeImplementation>(
   collection: T,
   intercepts: InterceptImplementation[],
-  options?: { prepend?: boolean }
+  options?: CreateInterceptsOptions
 ): T {
   collection = clone(collection);
   const opts = Object.assign({ prepend: true }, options);

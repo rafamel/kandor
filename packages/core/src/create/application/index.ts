@@ -2,7 +2,8 @@ import {
   CollectionTreeImplementation,
   CollectionTreeApplication,
   CollectionTree,
-  TreeTypes
+  TreeTypes,
+  CreateApplicationOptions
 } from '~/types';
 import clone from 'lodash.clonedeep';
 import { traverse, isElementType } from '~/utils';
@@ -12,14 +13,8 @@ import { mergeServiceTypes } from './merge';
 
 export default function application(
   collection: CollectionTree | CollectionTreeImplementation,
-  options?: {
-    prefixScope?: boolean;
-    prefixInlineError?: boolean;
-    transform?: (str: string, explicit: boolean) => string;
-  }
+  options?: CreateApplicationOptions
 ): CollectionTreeApplication {
-  collection = clone(collection);
-
   const opts = Object.assign(
     {
       prefixScope: true,
@@ -28,6 +23,9 @@ export default function application(
     },
     options
   );
+
+  // clone collection
+  collection = clone(collection);
 
   const types = {
     source: collection.types,

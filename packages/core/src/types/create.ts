@@ -12,6 +12,17 @@ import {
 import { Observable } from './observable';
 import { Schema } from './schema';
 
+// Options
+export interface CreateApplicationOptions {
+  prefixScope?: boolean;
+  prefixInlineError?: boolean;
+  transform?: (str: string, explicit: boolean) => string;
+}
+
+export interface CreateInterceptsOptions {
+  prepend?: boolean;
+}
+
 // Collection
 export type InputCollection =
   | Partial<CollectionTree>
