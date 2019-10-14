@@ -2,18 +2,23 @@ import {
   CollectionTreeApplication,
   CollectionTree,
   TreeTypes,
-  CreateApplicationOptions
+  CreateApplicationOptions,
+  GenericError,
+  ErrorType
 } from '~/types';
 import clone from 'lodash.clonedeep';
 import { traverse, isElementType } from '~/utils';
 import camelcase from 'camelcase';
 import serviceIntercepts from './service-intercepts';
 import { mergeServiceTypes } from './merge';
-import { error } from '../types';
 import { intercepts, intercept } from '../intercepts';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { PublicError, CollectionError } from '~/errors';
+import { error } from '../types';
+
+// TODO: validate collection object (ajv) + check schemas are valid
+// TODO: adapters rely on resolve() existing on all services. Separate normalization from application?
 
 /**
  * Returns a new object instance of a collection; prepares a collection to be used by an adapter:
@@ -35,23 +40,36 @@ export default function application(
     options
   );
 
-  // clone collection and add internal server error
+  // clone collection and add global errors
   collection = clone(collection);
-  if (!collection.types.InternalServerError) {
-    collection.types.InternalServerError = error({ code: 'ServerError' });
+  const errors: {
+    [P in GenericError]: ErrorType;
+  } = {
+    ServerError: error({ code: 'ServerError' }),
+    ClientError: error({ code: 'ClientError' })
+  };
+  for (const [name, error] of Object.entries(errors)) {
+    if (!collection.types[name]) {
+      collection.types[name] = error;
+    }
   }
+
+  const internal: GenericError = 'ServerError';
   collection = intercepts(
     collection,
     [
       intercept({
-        errors: { InternalServerError: 'InternalServerError' },
+        errors: Object.keys(errors).reduce(
+          (acc, key) => Object.assign(acc, { [key]: key }),
+          {}
+        ),
         factory: () => (data, context, next) => {
           return next(data).pipe(
             catchError((err) =>
               throwError(
                 err instanceof PublicError
                   ? err
-                  : new CollectionError(collection, 'InternalServerError')
+                  : new CollectionError(collection, internal)
               )
             )
           );

@@ -15,3 +15,5 @@ export type ServerErrorCode =
   | 'ServerNotImplemented'
   | 'ServerUnavailable'
   | 'ServerTimeout';
+
+export type GenericError = 'ClientError' | 'ServerError';
