@@ -15,18 +15,7 @@ import {
   ScopeTreeImplementation
 } from './collection';
 import { Observable } from 'rxjs';
-import { Schema } from './schema';
-
-// Options
-export interface CreateApplicationOptions {
-  prefixScope?: boolean;
-  prefixInlineError?: boolean;
-  transform?: (str: string, explicit: boolean) => string;
-}
-
-export interface CreateInterceptsOptions {
-  prepend?: boolean;
-}
+import { Schema } from './types';
 
 // Input
 export type InputCollection =

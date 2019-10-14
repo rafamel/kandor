@@ -21,7 +21,7 @@ import {
   ServiceErrors
 } from './collection';
 import { Observable } from 'rxjs';
-import { Schema } from '../schema';
+import { Schema } from '../types';
 
 // Groups
 export type ElementImplementation = Element<

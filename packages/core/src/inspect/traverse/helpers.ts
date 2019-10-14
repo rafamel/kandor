@@ -1,52 +1,13 @@
-import {
-  Tree,
-  Service,
-  Type,
-  QueryService,
-  MutationService,
-  SubscriptionService,
-  Element
-} from '~/types';
-import { isTreeCollection } from './is';
-
-export default traverse;
-
-function traverse<
-  Q extends QueryService,
-  M extends MutationService,
-  S extends SubscriptionService
->(
-  tree: Tree<Q, M, S>,
-  cb: (element: Element<Q, M, S>, path: string[], route: string[]) => void
-): void;
-function traverse<
-  Q extends QueryService,
-  M extends MutationService,
-  S extends SubscriptionService
->(
-  tree: Tree<Q, M, S>,
-  options: { deep?: boolean; children?: boolean; inline?: boolean },
-  cb: (element: Element<Q, M, S>, path: string[], route: string[]) => void
-): void;
-function traverse(tree: Tree, b: any, c?: any): void {
-  const options = c ? b : {};
-  const cb = c || b;
-
-  return traverseTree(
-    [],
-    [],
-    tree,
-    Object.assign({ deep: true, children: false, inline: false }, options),
-    cb
-  );
-}
+import { isTreeCollection } from '../is';
+import { Tree, Type, Service } from '~/types';
+import { TraverseInspectOptions, TraverseInspectFn } from './traverse';
 
 export function traverseTree(
   path: string[],
   route: string[],
   tree: Tree,
-  options: { deep: boolean; children: boolean; inline: boolean },
-  cb: (element: Element, path: string[], route: string[]) => void
+  cb: TraverseInspectFn,
+  options: Required<TraverseInspectOptions>
 ): void {
   cb(tree, path, route);
 
@@ -57,8 +18,8 @@ export function traverseTree(
         path.concat(['types', key]),
         route.concat([key]),
         tree.types[key],
-        options,
-        cb
+        cb,
+        options
       );
     }
   }
@@ -69,8 +30,8 @@ export function traverseTree(
       path.concat(['services', key]),
       route.concat([key]),
       tree.services[key],
-      options,
-      cb
+      cb,
+      options
     );
   }
 
@@ -81,8 +42,8 @@ export function traverseTree(
         path.concat(['scopes', scopeName]),
         route.concat([scopeName]),
         tree.scopes[scopeName],
-        options,
-        cb
+        cb,
+        options
       );
     }
   }
@@ -92,8 +53,8 @@ export function traverseType(
   path: string[],
   route: string[],
   type: Type,
-  options: { deep: boolean; children: boolean; inline: boolean },
-  cb: (element: Element, path: string[], route: string[]) => void
+  cb: TraverseInspectFn,
+  options: Required<TraverseInspectOptions>
 ): void {
   cb(type, path, route);
 
@@ -110,8 +71,8 @@ export function traverseType(
         path.concat(['children', childKey]),
         route.concat([childKey]),
         child,
-        options,
-        cb
+        cb,
+        options
       );
     }
   }
@@ -121,8 +82,8 @@ export function traverseService(
   path: string[],
   route: string[],
   service: Service,
-  options: { deep: boolean; children: boolean; inline: boolean },
-  cb: (element: Element, path: string[], route: string[]) => void
+  cb: TraverseInspectFn,
+  options: Required<TraverseInspectOptions>
 ): void {
   cb(service, path, route);
 
@@ -132,8 +93,8 @@ export function traverseService(
         path.concat(['types', 'request']),
         route.concat(['request']),
         service.types.request,
-        options,
-        cb
+        cb,
+        options
       );
     }
     if (typeof service.types.response !== 'string') {
@@ -141,8 +102,8 @@ export function traverseService(
         path.concat(['types', 'response']),
         route.concat(['response']),
         service.types.response,
-        options,
-        cb
+        cb,
+        options
       );
     }
     for (const [name, error] of Object.entries(service.types.errors)) {
@@ -151,8 +112,8 @@ export function traverseService(
           path.concat(['types', 'errors', name]),
           route.concat(['errors', name]),
           error,
-          options,
-          cb
+          cb,
+          options
         );
       }
     }

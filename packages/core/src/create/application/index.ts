@@ -2,12 +2,10 @@ import {
   CollectionTreeApplication,
   CollectionTree,
   TreeTypes,
-  CreateApplicationOptions,
   GenericError,
   ErrorType
 } from '~/types';
 import clone from 'lodash.clonedeep';
-import { traverse, isElementType, isElementService } from '~/utils';
 import camelcase from 'camelcase';
 import serviceIntercepts from './service-intercepts';
 import { mergeServiceTypes } from './merge';
@@ -16,11 +14,17 @@ import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { PublicError, CollectionError } from '~/errors';
 import { error } from '../types';
+import { traverse, isElementType, isElementService } from '~/inspect';
 
 // TODO: validate collection object (ajv) + check schemas are valid
 // TODO: adapters rely on resolve() existing on all services. Separate normalization from application?
-// TODO: check scope names don't collide with services
-// TODO: check no service or type has empty name
+// TODO: check no type has empty name
+
+export interface ApplicationCreateOptions {
+  prefixScope?: boolean;
+  prefixInlineError?: boolean;
+  transform?: (str: string, explicit: boolean) => string;
+}
 
 /**
  * Returns a new object instance of a collection; prepares a collection to be used by an adapter:
@@ -29,9 +33,9 @@ import { error } from '../types';
  * - Checks for non-existent type references and references of the wrong kind.
  * - Moves all inline types to `CollectionTree.types`.
  */
-export default function application(
+export function application(
   collection: CollectionTree,
-  options?: CreateApplicationOptions
+  options?: ApplicationCreateOptions
 ): CollectionTreeApplication {
   const opts = Object.assign(
     {
@@ -98,7 +102,6 @@ export default function application(
 
   traverse(
     collection,
-    { deep: true, children: false, inline: false },
     (element, path) => {
       const name = opts.transform(path.slice(-1)[0], true);
 
@@ -118,7 +121,8 @@ export default function application(
         serviceIntercepts(fullName, element, types.source);
         mergeServiceTypes(fullName, element, types, opts);
       }
-    }
+    },
+    { deep: true, children: false, inline: false }
   );
 
   return {

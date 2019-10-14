@@ -1,6 +1,6 @@
-export { default as application } from './application';
-export { default as collections } from './collections';
-export { default as schema } from './schema';
+export * from './application';
+export * from './collections';
+export * from './schema';
 export * from './scopes';
 export * from './intercepts';
 export * from './references';

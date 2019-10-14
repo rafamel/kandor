@@ -2,19 +2,17 @@ import {
   InputInterceptHook,
   InterceptImplementation,
   InputIntercept,
-  CreateInterceptsOptions,
   CollectionTree
 } from '~/types';
 import { from, Observable } from 'rxjs';
 import { switchMap, mergeMap } from 'rxjs/operators';
 import clone from 'lodash.clonedeep';
-import {
-  traverse,
-  isElementService,
-  emptyIntercept,
-  mergeServiceErrors,
-  isServiceImplementation
-} from '~/utils';
+import { emptyIntercept, mergeServiceErrors } from '~/utils';
+import { traverse, isElementService, isServiceImplementation } from '~/inspect';
+
+export interface InterceptsCreateOptions {
+  prepend?: boolean;
+}
 
 /**
  * Adds `intercepts` to all `ServiceImplementation`s of a given collection.
@@ -22,14 +20,13 @@ import {
 export function intercepts<T extends CollectionTree>(
   collection: T,
   intercepts: InterceptImplementation[],
-  options?: CreateInterceptsOptions
+  options?: InterceptsCreateOptions
 ): T {
   collection = clone(collection);
   const opts = Object.assign({ prepend: true }, options);
 
   traverse(
-    collection,
-    { deep: true, children: true, inline: true },
+    { ...collection, types: {} },
     (element) => {
       if (!isElementService(element) || !isServiceImplementation(element)) {
         return;
@@ -38,7 +35,8 @@ export function intercepts<T extends CollectionTree>(
       element.intercepts = opts.prepend
         ? intercepts.concat(element.intercepts || [])
         : (element.intercepts || []).concat(intercepts);
-    }
+    },
+    { deep: true, children: true, inline: true }
   );
 
   return collection;

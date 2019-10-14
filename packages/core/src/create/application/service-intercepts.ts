@@ -1,12 +1,12 @@
 import { Service, ServiceImplementation, TreeTypes, Type } from '~/types';
+import { mergeServiceErrors } from '~/utils';
+import { Observable, from } from 'rxjs';
+import { allof } from '../intercepts';
 import {
   isServiceImplementation,
   isTypeRequest,
-  isTypeResponse,
-  mergeServiceErrors
-} from '~/utils';
-import { Observable, from } from 'rxjs';
-import { allof } from '../intercepts';
+  isTypeResponse
+} from '~/inspect';
 
 export default function serviceIntercepts(
   name: string,

@@ -13,7 +13,7 @@ import {
 import { Observable, from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { request, response } from './types';
-import { isElement } from '~/utils';
+import { isElement } from '~/inspect';
 
 /**
  * Returns a new `collection` with services `services`.

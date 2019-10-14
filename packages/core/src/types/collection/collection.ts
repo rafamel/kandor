@@ -1,5 +1,4 @@
-import { ErrorCode } from '../error';
-import { Schema } from '../schema';
+import { ErrorCode, Schema } from '../types';
 
 // Groups
 export type Element<

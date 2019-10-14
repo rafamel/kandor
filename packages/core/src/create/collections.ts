@@ -1,7 +1,7 @@
 import { CollectionTreeImplementation, InputCollection } from '~/types';
 import { emptyCollection, mergeCollection } from '~/utils';
 
-export default collections;
+export { collections };
 
 function collections<
   C1 extends InputCollection = CollectionTreeImplementation<{}, {}, {}>,

@@ -1,5 +1,5 @@
 import { ErrorCode, CollectionTree } from '~/types';
-import { isTypeError } from './utils';
+import { isTypeError } from './inspect';
 
 export class PublicError extends Error {
   public id: string;
