@@ -4,7 +4,8 @@ import {
   Type,
   QueryService,
   MutationService,
-  SubscriptionService
+  SubscriptionService,
+  Element
 } from '~/types';
 import { isTreeCollection } from './is';
 
@@ -16,11 +17,7 @@ function traverse<
   S extends SubscriptionService
 >(
   tree: Tree<Q, M, S>,
-  cb: (
-    element: Service<Q, M, S> | Type<Q, S>,
-    path: string[],
-    route: string[]
-  ) => void
+  cb: (element: Element<Q, M, S>, path: string[], route: string[]) => void
 ): void;
 function traverse<
   Q extends QueryService,
@@ -29,17 +26,13 @@ function traverse<
 >(
   tree: Tree<Q, M, S>,
   options: { deep?: boolean; children?: boolean; inline?: boolean },
-  cb: (
-    element: Service<Q, M, S> | Type<Q, S>,
-    path: string[],
-    route: string[]
-  ) => void
+  cb: (element: Element<Q, M, S>, path: string[], route: string[]) => void
 ): void;
 function traverse(tree: Tree, b: any, c?: any): void {
   const options = c ? b : {};
   const cb = c || b;
 
-  return traverseEach(
+  return traverseTree(
     [],
     [],
     tree,
@@ -48,13 +41,15 @@ function traverse(tree: Tree, b: any, c?: any): void {
   );
 }
 
-export function traverseEach(
+export function traverseTree(
   path: string[],
   route: string[],
   tree: Tree,
   options: { deep: boolean; children: boolean; inline: boolean },
-  cb: (element: Service | Type, path: string[], route: string[]) => void
+  cb: (element: Element, path: string[], route: string[]) => void
 ): void {
+  cb(tree, path, route);
+
   if (isTreeCollection(tree)) {
     const typeKeys = Object.keys(tree.types);
     for (const key of typeKeys) {
@@ -82,7 +77,7 @@ export function traverseEach(
   if (options.deep && Object.hasOwnProperty.call(tree, 'scopes')) {
     const scopeNames = Object.keys(tree.scopes);
     for (const scopeName of scopeNames) {
-      traverseEach(
+      traverseTree(
         path.concat(['scopes', scopeName]),
         route.concat([scopeName]),
         tree.scopes[scopeName],
@@ -98,7 +93,7 @@ export function traverseType(
   route: string[],
   type: Type,
   options: { deep: boolean; children: boolean; inline: boolean },
-  cb: (element: Service | Type, path: string[], route: string[]) => void
+  cb: (element: Element, path: string[], route: string[]) => void
 ): void {
   cb(type, path, route);
 
@@ -127,7 +122,7 @@ export function traverseService(
   route: string[],
   service: Service,
   options: { deep: boolean; children: boolean; inline: boolean },
-  cb: (element: Service | Type, path: string[], route: string[]) => void
+  cb: (element: Element, path: string[], route: string[]) => void
 ): void {
   cb(service, path, route);
 

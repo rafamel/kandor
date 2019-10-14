@@ -7,7 +7,7 @@ import {
   ErrorType
 } from '~/types';
 import clone from 'lodash.clonedeep';
-import { traverse, isElementType } from '~/utils';
+import { traverse, isElementType, isElementService } from '~/utils';
 import camelcase from 'camelcase';
 import serviceIntercepts from './service-intercepts';
 import { mergeServiceTypes } from './merge';
@@ -19,6 +19,8 @@ import { error } from '../types';
 
 // TODO: validate collection object (ajv) + check schemas are valid
 // TODO: adapters rely on resolve() existing on all services. Separate normalization from application?
+// TODO: check scope names don't collide with services
+// TODO: check no service or type has empty name
 
 /**
  * Returns a new object instance of a collection; prepares a collection to be used by an adapter:
@@ -107,7 +109,7 @@ export default function application(
           serviceIntercepts(fullName, service, types.source);
           mergeServiceTypes(fullName, service, types, opts);
         }
-      } else {
+      } else if (isElementService(element)) {
         const fullName =
           opts.prefixScope && path[path.length - 3]
             ? opts.transform(path[path.length - 3], false) + name

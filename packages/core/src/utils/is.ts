@@ -11,12 +11,9 @@ import {
   ErrorType,
   RequestType,
   ResponseType,
-  TypeImplementation
+  TypeImplementation,
+  ScopeTree
 } from '~/types';
-
-export function isTreeCollection(tree: Tree): tree is CollectionTree {
-  return Object.hasOwnProperty.call(tree, 'types');
-}
 
 export function isElement(item: any): item is Element {
   return (
@@ -24,6 +21,20 @@ export function isElement(item: any): item is Element {
     item !== null &&
     Object.hasOwnProperty.call(item, 'kind')
   );
+}
+
+export function isElementTree(element: Element): element is Tree {
+  return ['collection', 'scope'].includes(element.kind);
+}
+
+export function isTreeCollection(tree: Tree): tree is CollectionTree {
+  return (
+    tree.kind === 'collection' && Object.hasOwnProperty.call(tree, 'types')
+  );
+}
+
+export function isTreeScope(tree: Tree): tree is ScopeTree {
+  return tree.kind === 'scope';
 }
 
 export function isElementService(element: Element): element is Service {
