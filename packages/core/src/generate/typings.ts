@@ -3,16 +3,19 @@ import { CollectionTreeApplication } from '~/types';
 import { compile } from 'json-schema-to-typescript';
 import camelcase from 'camelcase';
 
-export async function writeTypings(
-  dest: string,
-  collection: CollectionTreeApplication
-): Promise<void> {
-  fs.writeFileSync(dest, await generateTypings(collection));
+export interface TypingsGenerateOptions {
+  /**
+   * Path to optionally write the result into a file. Default: `null`.
+   */
+  write?: string | null;
 }
 
-export async function generateTypings(
-  collection: CollectionTreeApplication
+export async function typings(
+  collection: CollectionTreeApplication,
+  options?: TypingsGenerateOptions
 ): Promise<string> {
+  const opts = { write: null, ...options };
+
   let content =
     '/* eslint-disable */\n' +
     '/* tslint:disable */\n' +
@@ -29,5 +32,14 @@ export async function generateTypings(
     }
   }
 
-  return content.trim() + '\n';
+  content = content.trim() + '\n';
+
+  const { write } = opts;
+  if (write) {
+    await new Promise((resolve, reject) => {
+      fs.writeFile(write, content, (err) => (err ? reject(err) : resolve()));
+    });
+  }
+
+  return content;
 }
