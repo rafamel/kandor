@@ -46,19 +46,20 @@ export function application(
     options
   );
 
-  // clone collection and add global errors
-  collection = clone(collection);
+  // add global errors
   const errors: {
     [P in GenericError]: ErrorType;
   } = {
     ServerError: error({ code: 'ServerError' }),
     ClientError: error({ code: 'ClientError' })
   };
-  for (const [name, error] of Object.entries(errors)) {
-    if (!collection.types[name]) {
-      collection.types[name] = error;
+  collection = {
+    ...collection,
+    types: {
+      ...errors,
+      ...collection.types
     }
-  }
+  };
 
   const internal: GenericError = 'ServerError';
   collection = intercepts(
@@ -100,9 +101,10 @@ export function application(
     )
   };
 
+  collection = clone(collection);
   traverse(
     collection,
-    (element, path) => {
+    (element, { path }) => {
       const name = opts.transform(path.slice(-1)[0], true);
 
       if (isElementType(element)) {

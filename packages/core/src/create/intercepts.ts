@@ -6,9 +6,9 @@ import {
 } from '~/types';
 import { from, Observable } from 'rxjs';
 import { switchMap, mergeMap } from 'rxjs/operators';
-import clone from 'lodash.clonedeep';
 import { emptyIntercept, mergeServiceErrors } from '~/utils';
-import { traverse, isElementService, isServiceImplementation } from '~/inspect';
+import { isElementService, isServiceImplementation } from '~/inspect';
+import { replace } from '~/transform';
 
 export interface InterceptsCreateOptions {
   prepend?: boolean;
@@ -22,24 +22,22 @@ export function intercepts<T extends CollectionTree>(
   intercepts: InterceptImplementation[],
   options?: InterceptsCreateOptions
 ): T {
-  collection = clone(collection);
   const opts = Object.assign({ prepend: true }, options);
 
-  traverse(
+  return replace(
     { ...collection, types: {} },
     (element) => {
-      if (!isElementService(element) || !isServiceImplementation(element)) {
-        return;
-      }
-
-      element.intercepts = opts.prepend
-        ? intercepts.concat(element.intercepts || [])
-        : (element.intercepts || []).concat(intercepts);
+      return !isElementService(element) || !isServiceImplementation(element)
+        ? element
+        : {
+            ...element,
+            intercepts: opts.prepend
+              ? intercepts.concat(element.intercepts || [])
+              : (element.intercepts || []).concat(intercepts)
+          };
     },
     { deep: true, children: true, inline: true }
-  );
-
-  return collection;
+  ) as T;
 }
 
 /**
