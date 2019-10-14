@@ -20,7 +20,7 @@ import {
   CrudServices,
   ServiceErrors
 } from './collection';
-import { Observable } from '../observable';
+import { Observable } from 'rxjs';
 
 // Groups
 export type ElementApplication = Element<

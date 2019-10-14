@@ -7,11 +7,10 @@ import {
   InputSubscriptionService,
   TreeServicesImplementation,
   CollectionTreeImplementation,
-  Observable,
   InputServiceTypes,
   ServiceTypesImplementation
 } from '~/types';
-import { from } from 'rxjs';
+import { Observable, from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { request, response } from './types';
 import { isElement } from '~/utils';

@@ -1,17 +1,11 @@
-import {
-  Service,
-  ServiceImplementation,
-  TreeTypes,
-  Type,
-  Observable
-} from '~/types';
+import { Service, ServiceImplementation, TreeTypes, Type } from '~/types';
 import {
   isServiceImplementation,
   isTypeRequest,
   isTypeResponse,
   mergeServiceErrors
 } from '~/utils';
-import { from } from 'rxjs';
+import { Observable, from } from 'rxjs';
 import { allof } from '../intercepts';
 
 export default function serviceIntercepts(

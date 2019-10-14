@@ -14,7 +14,7 @@ import {
   SubscriptionService,
   ScopeTreeImplementation
 } from './collection';
-import { Observable } from './observable';
+import { Observable } from 'rxjs';
 import { Schema } from './schema';
 
 // Options
