@@ -5,66 +5,39 @@ import {
   Element,
   CollectionTree
 } from '~/types';
-import { replaceTree } from './helpers';
+import { next } from './helpers';
 
 export type ReplaceTransformFn<
-  IQ extends QueryService = QueryService,
-  IM extends MutationService = MutationService,
-  IS extends SubscriptionService = SubscriptionService,
-  OQ extends QueryService = IQ,
-  OM extends MutationService = IM,
-  OS extends SubscriptionService = IS
+  Q extends QueryService = QueryService,
+  M extends MutationService = MutationService,
+  S extends SubscriptionService = SubscriptionService
 > = (
-  element: Element<IQ, IM, IS>,
+  element: Element<Q, M, S>,
+  next: ReplaceTransformNextFn<Q, M, S>,
   data: ReplaceTransformData
-) => Element<OQ, OM, OS>;
+) => Element;
+
+export type ReplaceTransformNextFn<
+  Q extends QueryService = QueryService,
+  M extends MutationService = MutationService,
+  S extends SubscriptionService = SubscriptionService
+> = (element?: Element<Q, M, S>) => Element;
 
 export interface ReplaceTransformData {
   path: string[];
   route: string[];
 }
 
-export interface ReplaceTransformOptions {
-  /**
-   * Whether to traverse a collection's inner scopes. Default: `true`.
-   */
-  deep?: boolean;
-  /**
-   * Whether to traverse type's children services. Default: `false`.
-   */
-  children?: boolean;
-  /**
-   * Whether to traverse types within services. Default: `false`.
-   */
-  inline?: boolean;
-  /**
-   * Stops traversing deeper if an upper element is returned that is not shallow equal to the previous element. Default: `true`.
-   */
-  stop?: boolean;
-}
-
 /**
- * Returns a new collection where `Element`s are substituted by the ones returned by `cb`. Performs a traversal, with `cb` being called (top-down) for each `Element`.
+ * Returns a new collection where `Element`s are substituted by the ones returned by `cb`. Performs a traversal.
  */
 export function replace<
-  IQ extends QueryService,
-  IM extends MutationService,
-  IS extends SubscriptionService,
-  OQ extends QueryService,
-  OM extends MutationService,
-  OS extends SubscriptionService
+  Q extends QueryService,
+  M extends MutationService,
+  S extends SubscriptionService
 >(
-  collection: CollectionTree<IQ, IM, IS>,
-  cb: ReplaceTransformFn<IQ, IM, IS>,
-  options?: ReplaceTransformOptions
-): CollectionTree<OQ, OM, OS> {
-  return replaceTree(
-    collection,
-    { path: [], route: [] },
-    cb as any,
-    Object.assign(
-      { deep: true, children: false, inline: false, stop: true },
-      options
-    )
-  ) as CollectionTree<OQ, OM, OS>;
+  collection: CollectionTree<Q, M, S>,
+  cb: ReplaceTransformFn<Q, M, S>
+): CollectionTree {
+  return next(collection, { path: [], route: [] }, cb as any);
 }

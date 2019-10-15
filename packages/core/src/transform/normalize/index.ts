@@ -3,18 +3,12 @@ import {
   TreeTypes,
   QueryService,
   SubscriptionService,
-  CollectionTreeImplementation
+  NormalCollection
 } from '~/types';
-import { isElementType, isElementService } from '~/inspect';
 import camelcase from 'camelcase';
 import { normalizeServiceTypes } from './helpers';
 import { replace } from '../replace';
-
-export type NormalizeTransform<
-  T extends CollectionTree
-> = T extends CollectionTreeImplementation
-  ? CollectionTreeImplementation
-  : CollectionTree;
+import { isElementType, isElementService, isElementTree } from '~/inspect/is';
 
 /**
  * Extracts all service inline types of a collection to its top level `CollectionTree.types`, naming them according to their scope, service, and kind. It additionally transforms all type names to pascal case. It will throw if a collection:
@@ -25,7 +19,7 @@ export type NormalizeTransform<
  */
 export function normalize<T extends CollectionTree>(
   collection: T
-): NormalizeTransform<T> {
+): NormalCollection<T> {
   const transform = (str: string, isExplicit: boolean) => {
     return camelcase(str, { pascalCase: true });
   };
@@ -46,41 +40,43 @@ export function normalize<T extends CollectionTree>(
   };
 
   return {
-    ...replace(
-      collection,
-      (element, { route }) => {
-        const name = transform(route[route.length - 1], true);
+    ...replace(collection, (element, next, { route }) => {
+      if (isElementTree(element)) {
+        return next(element);
+      }
 
-        if (isElementType(element)) {
-          if (element.kind !== 'response' || !element.children) {
-            return element;
-          }
+      const name = transform(route[route.length - 1], true);
 
-          const response = { ...element, children: element.children };
-          for (const [key, service] of Object.entries(element.children)) {
-            response.children[key] = normalizeServiceTypes(
-              name + transform(key, false),
-              service,
-              types,
-              transform
-            ) as QueryService | SubscriptionService;
-          }
-          return response;
-        } else if (isElementService(element)) {
-          return normalizeServiceTypes(
-            route.length > 1
-              ? transform(route[route.length - 2], false) + name
-              : name,
-            element,
-            types,
-            transform
-          );
-        } else {
+      if (isElementType(element)) {
+        if (element.kind !== 'response' || !element.children) {
           return element;
         }
-      },
-      { deep: true, children: false, inline: false }
-    ),
+
+        const response = { ...element, children: element.children };
+        for (const [key, service] of Object.entries(element.children)) {
+          response.children[key] = normalizeServiceTypes(
+            name + transform(key, false),
+            service,
+            types,
+            transform
+          ) as QueryService | SubscriptionService;
+        }
+        return response;
+      }
+
+      if (isElementService(element)) {
+        return normalizeServiceTypes(
+          route.length > 1
+            ? transform(route[route.length - 2], false) + name
+            : name,
+          element,
+          types,
+          transform
+        );
+      }
+
+      return element;
+    }),
     types: types.normal
-  } as NormalizeTransform<T>;
+  } as NormalCollection<T>;
 }

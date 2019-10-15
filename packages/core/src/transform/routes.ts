@@ -3,7 +3,8 @@ import {
   traverse,
   isElementService,
   isElementTree,
-  isTreeScope
+  isTreeCollection,
+  isElementType
 } from '~/inspect';
 
 export interface RoutesTransformOptions {
@@ -15,9 +16,9 @@ export interface RoutesTransformOptions {
 
 /**
  * Given a collection, returns an object with *values* of all services, and *keys* of their full route. It will throw if a collection:
- * - Contains services with an empty name or with non word characters.
  * - Contains conflicting routes.
  * - Has a scope name equal to a service of its parent.
+ * - Contains services with an empty name or with non word characters.
  */
 export function routes<T extends CollectionTree>(
   collection: T,
@@ -30,42 +31,35 @@ export function routes<T extends CollectionTree>(
     throw Error(`Separator must contain a non word character`);
   }
 
-  traverse(
-    { ...collection, types: {} },
-    (element, { route }) => {
-      if (
-        !isElementService(element) &&
-        !(isElementTree(element) && isTreeScope(element))
-      ) {
-        return;
-      }
+  traverse({ ...collection, types: {} }, (element, next, { route }) => {
+    if (isElementTree(element) && isTreeCollection(element)) return next();
+    if (isElementType(element)) return;
 
-      const end = route[route.length - 1];
-      if (!end) {
-        throw Error(`Empty strings are not permitted as service names`);
-      }
-      if (/[^\w]/.exec(end)) {
+    const end = route[route.length - 1];
+    if (!end) {
+      throw Error(`Empty strings are not permitted as scope or service names`);
+    }
+    if (/[^\w]/.exec(end)) {
+      throw Error(
+        `Non word characters are not permitted for scope or service names: ${end}`
+      );
+    }
+
+    if (isElementTree(element)) {
+      if (Object.hasOwnProperty.call(element.services, end)) {
         throw Error(
-          `Non word characters are not permitted on a collection: ${end}`
+          `Scopes can't have the same name as one of the services of its parent: ${end}`
         );
       }
-
-      if (isElementTree(element)) {
-        if (Object.hasOwnProperty.call(element.services, end)) {
-          throw Error(
-            `Scopes can't have the same name as one of the services of its parent: ${end}`
-          );
-        }
-      } else if (isElementService(element)) {
-        const str = route.join(opts.separator);
-        if (Object.hasOwnProperty.call(routes, str)) {
-          throw Error(`Collection routes collision: ${str}`);
-        }
-        routes[str] = element;
+      return next();
+    } else if (isElementService(element)) {
+      const str = route.join(opts.separator);
+      if (Object.hasOwnProperty.call(routes, str)) {
+        throw Error(`Collection routes collision: ${str}`);
       }
-    },
-    { deep: true, children: false, inline: false }
-  );
+      routes[str] = element;
+    }
+  });
 
   return routes;
 }

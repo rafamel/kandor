@@ -14,7 +14,12 @@ import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { PublicError, CollectionError } from '~/errors';
 import { error } from '../types';
-import { traverse, isElementType, isElementService } from '~/inspect';
+import {
+  traverse,
+  isElementType,
+  isElementService,
+  isElementTree
+} from '~/inspect';
 
 // TODO: validate collection object (ajv) + check schemas are valid
 // TODO: adapters rely on resolve() existing on all services. Separate normalization from application?
@@ -102,30 +107,28 @@ export function application(
   };
 
   collection = clone(collection);
-  traverse(
-    collection,
-    (element, { path }) => {
-      const name = opts.transform(path.slice(-1)[0], true);
+  traverse(collection, (element, next, { path }) => {
+    if (isElementTree(element)) return next();
 
-      if (isElementType(element)) {
-        if (element.kind !== 'response' || !element.children) return;
-        for (const [key, service] of Object.entries(element.children)) {
-          const fullName = name + opts.transform(key, false);
-          serviceIntercepts(fullName, service, types.source);
-          mergeServiceTypes(fullName, service, types, opts);
-        }
-      } else if (isElementService(element)) {
-        const fullName =
-          opts.prefixScope && path[path.length - 3]
-            ? opts.transform(path[path.length - 3], false) + name
-            : name;
+    const name = opts.transform(path.slice(-1)[0], true);
 
-        serviceIntercepts(fullName, element, types.source);
-        mergeServiceTypes(fullName, element, types, opts);
+    if (isElementType(element)) {
+      if (element.kind !== 'response' || !element.children) return;
+      for (const [key, service] of Object.entries(element.children)) {
+        const fullName = name + opts.transform(key, false);
+        serviceIntercepts(fullName, service, types.source);
+        mergeServiceTypes(fullName, service, types, opts);
       }
-    },
-    { deep: true, children: false, inline: false }
-  );
+    } else if (isElementService(element)) {
+      const fullName =
+        opts.prefixScope && path[path.length - 3]
+          ? opts.transform(path[path.length - 3], false) + name
+          : name;
+
+      serviceIntercepts(fullName, element, types.source);
+      mergeServiceTypes(fullName, element, types, opts);
+    }
+  });
 
   return {
     ...collection,

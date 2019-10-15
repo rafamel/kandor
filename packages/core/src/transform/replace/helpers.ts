@@ -7,28 +7,50 @@ import {
   TreeScopes,
   ScopeTree,
   ResponseTypeChildren,
-  RequestType,
-  ResponseType,
-  ErrorType,
-  QueryService,
-  SubscriptionService
+  Element
 } from '~/types';
-import { isTreeCollection, isTypeResponse } from '~/inspect';
 import {
-  ReplaceTransformFn,
-  ReplaceTransformOptions,
-  ReplaceTransformData
-} from './replace';
+  isTreeCollection,
+  isTypeResponse,
+  isElementTree,
+  isElementType,
+  isElementService
+} from '~/inspect/is';
+import { ReplaceTransformFn, ReplaceTransformData } from './replace';
 
-export function replaceTree(
-  element: Tree,
+export function next<E extends Element>(
+  element: E,
   data: ReplaceTransformData,
-  cb: ReplaceTransformFn,
-  options: Required<ReplaceTransformOptions>
-): Tree {
-  let tree = cb(element, data) as Tree;
-  if (options.stop && tree !== element) return tree;
+  cb: ReplaceTransformFn
+): E {
+  return cb(
+    element,
+    (item) => routeNext(item === undefined ? element : item, data, cb),
+    data
+  ) as E;
+}
 
+export function routeNext<E extends Element>(
+  element: E,
+  data: ReplaceTransformData,
+  cb: ReplaceTransformFn
+): E {
+  if (isElementTree(element)) {
+    return nextTree(element, data, cb);
+  } else if (isElementType(element)) {
+    return nextType(element, data, cb);
+  } else if (isElementService(element)) {
+    return nextService(element, data, cb);
+  } else {
+    throw Error(`Couldn't identify element kind: ${element.kind}`);
+  }
+}
+
+export function nextTree<E extends Tree>(
+  tree: E,
+  data: ReplaceTransformData,
+  cb: ReplaceTransformFn
+): E {
   tree = { ...tree };
 
   if (isTreeCollection(tree)) {
@@ -36,7 +58,7 @@ export function replaceTree(
     for (const [key, value] of Object.entries(tree.types)) {
       const path = data.path.concat(['types', key]);
       const route = data.route.concat([key]);
-      types[key] = replaceType(value, { path, route }, cb, options);
+      types[key] = next(value, { path, route }, cb);
     }
     tree.types = types;
   }
@@ -45,16 +67,16 @@ export function replaceTree(
   for (const [key, value] of Object.entries(tree.services)) {
     const path = data.path.concat(['services', key]);
     const route = data.route.concat([key]);
-    services[key] = replaceService(value, { path, route }, cb, options);
+    services[key] = next(value, { path, route }, cb);
   }
   tree.services = services;
 
-  if (options.deep && Object.hasOwnProperty.call(tree, 'scopes')) {
+  if (Object.hasOwnProperty.call(tree, 'scopes')) {
     const scopes: TreeScopes = {};
     for (const [key, value] of Object.entries(tree.scopes)) {
       const path = data.path.concat(['scopes', key]);
       const route = data.route.concat([key]);
-      const scope = replaceTree(value, { path, route }, cb, options);
+      const scope = next(value, { path, route }, cb);
       scopes[key] = scope as ScopeTree;
     }
     tree.scopes = scopes;
@@ -63,84 +85,63 @@ export function replaceTree(
   return tree;
 }
 
-export function replaceType(
-  element: Type,
+export function nextType<E extends Type>(
+  type: E,
   data: ReplaceTransformData,
-  cb: ReplaceTransformFn,
-  options: Required<ReplaceTransformOptions>
-): Type {
-  let type = cb(element, data) as Type;
-  if (options.stop && type !== element) return type;
-
-  if (options.children && isTypeResponse(type) && type.children) {
-    type = { ...type };
-
+  cb: ReplaceTransformFn
+): E {
+  if (isTypeResponse(type) && type.children) {
     const children: ResponseTypeChildren = {};
     for (const [key, value] of Object.entries(type.children || {})) {
       const path = data.path.concat(['children', key]);
       const route = data.route.concat([key]);
-      children[key] = replaceService(value, { path, route }, cb, options) as
-        | QueryService
-        | SubscriptionService;
+      children[key] = next(value, { path, route }, cb);
     }
-    type.children = children;
+    type = { ...type, children };
   }
 
   return type;
 }
 
-export function replaceService(
-  element: Service,
+export function nextService<E extends Service>(
+  service: E,
   data: ReplaceTransformData,
-  cb: ReplaceTransformFn,
-  options: Required<ReplaceTransformOptions>
-): Service {
-  let service = cb(element, data) as Service;
-  if (options.stop && service !== element) return service;
-
-  if (options.inline) {
-    service = {
-      ...service,
-      types: {
-        ...service.types,
-        errors: {
-          ...service.types.errors
-        }
+  cb: ReplaceTransformFn
+): E {
+  service = {
+    ...service,
+    types: {
+      ...service.types,
+      errors: {
+        ...service.types.errors
       }
-    };
-
-    if (typeof service.types.request !== 'string') {
-      const path = data.path.concat(['types', 'request']);
-      const route = data.route.concat(['request']);
-      service.types.request = replaceType(
-        service.types.request,
-        { path, route },
-        cb,
-        options
-      ) as RequestType;
     }
+  };
 
-    if (typeof service.types.response !== 'string') {
-      const path = data.path.concat(['types', 'response']);
-      const route = data.route.concat(['response']);
-      service.types.response = replaceType(
-        service.types.response,
-        { path, route },
-        cb,
-        options
-      ) as ResponseType;
-    }
-    for (const [name, error] of Object.entries(service.types.errors)) {
-      if (typeof error !== 'string') {
-        const path = data.path.concat(['types', 'errors', name]);
-        const route = data.route.concat(['errors', name]);
-        service.types.errors[name] = replaceType(
-          error,
-          { path, route },
-          cb,
-          options
-        ) as ErrorType;
-      }
+  if (typeof service.types.request !== 'string') {
+    const path = data.path.concat(['types', 'request']);
+    const route = data.route.concat(['request']);
+    service.types.request = nextType(
+      service.types.request,
+      { path, route },
+      cb
+    );
+  }
+
+  if (typeof service.types.response !== 'string') {
+    const path = data.path.concat(['types', 'response']);
+    const route = data.route.concat(['response']);
+    service.types.response = nextType(
+      service.types.response,
+      { path, route },
+      cb
+    );
+  }
+  for (const [name, error] of Object.entries(service.types.errors)) {
+    if (typeof error !== 'string') {
+      const path = data.path.concat(['types', 'errors', name]);
+      const route = data.route.concat(['errors', name]);
+      service.types.errors[name] = nextType(error, { path, route }, cb);
     }
   }
 

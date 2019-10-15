@@ -11,6 +11,9 @@ import { isElementService, isServiceImplementation } from '~/inspect';
 import { replace } from '~/transform';
 
 export interface InterceptsCreateOptions {
+  /**
+   * Whether intercepts should be prepended or apended to the existing ones.
+   */
   prepend?: boolean;
 }
 
@@ -24,20 +27,18 @@ export function intercepts<T extends CollectionTree>(
 ): T {
   const opts = Object.assign({ prepend: true }, options);
 
-  return replace(
-    { ...collection, types: {} },
-    (element) => {
-      return !isElementService(element) || !isServiceImplementation(element)
-        ? element
-        : {
-            ...element,
-            intercepts: opts.prepend
-              ? intercepts.concat(element.intercepts || [])
-              : (element.intercepts || []).concat(intercepts)
-          };
-    },
-    { deep: true, children: true, inline: true }
-  ) as T;
+  return replace({ ...collection, types: {} }, (element, next) => {
+    element = next(element);
+
+    return !isElementService(element) || !isServiceImplementation(element)
+      ? element
+      : {
+          ...element,
+          intercepts: opts.prepend
+            ? intercepts.concat(element.intercepts || [])
+            : (element.intercepts || []).concat(intercepts)
+        };
+  }) as T;
 }
 
 /**
