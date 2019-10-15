@@ -48,6 +48,15 @@ export function normalize<T extends CollectionTree>(
       const name = transform(route[route.length - 1], true);
 
       if (isElementType(element)) {
+        if (!name) {
+          throw Error(`Empty strings are not permitted as type names`);
+        }
+        if (/[^\w]/.exec(name)) {
+          throw Error(
+            `Non word characters are not permitted for type names: ${name}`
+          );
+        }
+
         if (element.kind !== 'response' || !element.children) {
           return element;
         }
