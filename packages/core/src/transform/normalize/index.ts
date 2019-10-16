@@ -10,6 +10,13 @@ import { normalizeServiceTypes } from './helpers';
 import { replace } from '../replace';
 import { isElementType, isElementService, isElementTree } from '~/inspect/is';
 
+export interface NormalizeTransformOptions {
+  /**
+   * Doesn't check reference types do exist in a collection. Default: `false`.
+   */
+  skipReferences?: boolean | string[];
+}
+
 /**
  * Extracts all service inline types of a collection to its top level `CollectionTree.types`, naming them according to their scope, service, and kind. It additionally transforms all type names to pascal case. It will throw if a collection:
  * - Produces conflicting type names.
@@ -18,8 +25,11 @@ import { isElementType, isElementService, isElementTree } from '~/inspect/is';
  * - Contains services with inline types or type references of the wrong kind.
  */
 export function normalize<T extends CollectionTree>(
-  collection: T
+  collection: T,
+  options?: NormalizeTransformOptions
 ): NormalCollection<T> {
+  const opts = Object.assign({ skipReferences: false }, options);
+
   const transform = (str: string, _isExplicit: boolean): string => {
     return camelcase(str, { pascalCase: true });
   };
@@ -66,6 +76,7 @@ export function normalize<T extends CollectionTree>(
           response.children[key] = normalizeServiceTypes(
             name + transform(key, false),
             service,
+            opts.skipReferences,
             types,
             transform
           ) as QueryService | SubscriptionService;
@@ -79,6 +90,7 @@ export function normalize<T extends CollectionTree>(
             ? transform(route[route.length - 2], false) + name
             : name,
           element,
+          opts.skipReferences,
           types,
           transform
         );

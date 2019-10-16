@@ -13,6 +13,7 @@ import isequal from 'lodash.isequal';
 export function normalizeServiceTypes(
   name: string,
   service: Service,
+  skip: boolean | string[],
   types: { source: TreeTypes; normal: TreeTypes },
   transform: (str: string, isExplicit: boolean) => string
 ): Service {
@@ -21,16 +22,17 @@ export function normalizeServiceTypes(
   for (const kind of ['request', 'response'] as ['request', 'response']) {
     const type = service.types[kind];
     if (typeof type === 'string') {
-      service.types[kind] = checkSourceType(kind, type, types, transform);
+      service.types[kind] = checkSourceType(kind, type, skip, types, transform);
     } else {
       const pascal = name + transform('R' + kind.slice(1), false);
-      normalizeServiceType(kind, pascal, type, types, transform);
+      normalizeServiceType(kind, pascal, type, skip, types, transform);
       service.types[kind] = pascal;
     }
   }
 
   service.types.errors = normalizeErrors(
     service.types.errors,
+    skip,
     types,
     transform
   );
@@ -44,7 +46,7 @@ export function normalizeServiceTypes(
     for (const intercept of service.intercepts) {
       intercepts.push({
         ...intercept,
-        errors: normalizeErrors(intercept.errors, types, transform)
+        errors: normalizeErrors(intercept.errors, skip, types, transform)
       });
     }
     service.intercepts = intercepts;
@@ -55,19 +57,21 @@ export function normalizeServiceTypes(
 
 export function normalizeErrors(
   errors: ServiceErrors,
+  skip: boolean | string[],
   types: { source: TreeTypes; normal: TreeTypes },
   transform: (str: string, isExplicit: boolean) => string
 ): ServiceErrors {
   const result: ServiceErrors = {};
   for (const [key, error] of Object.entries(errors)) {
     if (typeof error === 'string') {
-      let id = checkSourceType('error', error, types, transform);
+      let id = checkSourceType('error', error, skip, types, transform);
       if (key !== error) {
         id = transform(key, true);
         normalizeServiceType(
           'error',
           id,
           types.source[error],
+          skip,
           types,
           transform
         );
@@ -75,7 +79,7 @@ export function normalizeErrors(
       result[id] = id;
     } else {
       const id = transform(key, true);
-      normalizeServiceType('error', id, error, types, transform);
+      normalizeServiceType('error', id, error, skip, types, transform);
       result[id] = id;
     }
   }
@@ -86,6 +90,7 @@ export function normalizeServiceType(
   kind: string,
   name: string,
   type: Type,
+  skip: boolean | string[],
   types: { source: TreeTypes; normal: TreeTypes },
   transform: (str: string, isExplicit: boolean) => string
 ): void {
@@ -131,6 +136,7 @@ export function normalizeServiceType(
         item.children[key] = normalizeServiceTypes(
           name + transform(key, false),
           service,
+          skip,
           types,
           transform
         ) as QueryService | SubscriptionService;
@@ -148,10 +154,16 @@ export function normalizeServiceType(
 export function checkSourceType(
   kind: string,
   name: string,
+  skip: boolean | string[],
   types: { source: TreeTypes; normal: TreeTypes },
   transform: (str: string, isExplicit: boolean) => string
 ): string {
   const pascal = transform(name, true);
+
+  if (skip && (typeof skip === 'boolean' || skip.includes(name))) {
+    return pascal;
+  }
+
   if (
     !Object.hasOwnProperty.call(types.source, name) ||
     !Object.hasOwnProperty.call(types.normal, pascal)
