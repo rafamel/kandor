@@ -11,12 +11,12 @@ export interface RoutesTransformOptions {
   /**
    * A non word character containing string. Default: `':'`.
    */
-  separator: string;
+  separator?: string;
   // TODO: (also check first-level/root service names don't collide with type names)
   /**
    * Whether to include response types with children as routes. Default: `true`.
    */
-  children: boolean;
+  children?: boolean;
 }
 
 /**
