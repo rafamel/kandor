@@ -12,7 +12,8 @@ import {
   isElementType,
   isElementService,
   isElementTree,
-  isTreeCollection
+  isTreeCollection,
+  isTypeResponse
 } from '~/inspect/is';
 
 export interface NormalizeTransformOptions {
@@ -90,11 +91,11 @@ export function normalize<T extends CollectionTree>(
       }
 
       if (isElementType(element)) {
-        if (element.kind !== 'response' || !element.children) {
+        if (!isTypeResponse(element) || !element.children) {
           return element;
         }
 
-        const response = { ...element, children: element.children };
+        const response = { ...element, children: { ...element.children } };
         for (const [key, service] of Object.entries(element.children)) {
           response.children[key] = normalizeServiceTypes(
             name + transform(key, false),
