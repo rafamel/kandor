@@ -69,7 +69,6 @@
     "@riseup/library": "^0.4.0",
     "@riseup/tooling": "^0.4.0",
     "@types/jest": "^24.0.13",
-    "@types/lodash.clonedeep": "^4.5.6",
     "@types/lodash.isequal": "^4.5.5",
     "@zerollup/ts-transform-paths": "^1.7.3",
     "kpo": "^0.11.0",
@@ -81,7 +80,6 @@
     "@types/json-schema": "^7.0.3",
     "camelcase": "^5.3.1",
     "json-schema-to-typescript": "^7.1.0",
-    "lodash.clonedeep": "^4.5.0",
     "lodash.isequal": "^4.5.0"
   },
   "peerDependencies": {
