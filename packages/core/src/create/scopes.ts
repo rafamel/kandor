@@ -26,6 +26,10 @@ export function extract<T extends CollectionTree, N extends keyof T['scopes']>(
   collection: T,
   name: N & string
 ): ExtractCollection<T, N> {
+  if (!Object.hasOwnProperty.call(collection.scopes, name)) {
+    throw Error(`Collection doesn't have scope: ${name}`);
+  }
+
   const { types } = collection;
   const { services, scopes } = collection.scopes[name];
   return {
