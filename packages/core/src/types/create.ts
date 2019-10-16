@@ -6,7 +6,6 @@ import {
   ServiceErrorsImplementation,
   InterceptImplementation,
   CollectionTreeImplementation,
-  CollectionTreeApplication,
   CollectionTree,
   ScopeTree,
   QueryService,
@@ -20,8 +19,7 @@ import { Schema } from './types';
 // Input
 export type InputCollection =
   | Partial<CollectionTree>
-  | Partial<CollectionTreeImplementation>
-  | Partial<CollectionTreeApplication>;
+  | Partial<CollectionTreeImplementation>;
 
 export interface InputQueryService<I = any, O = any> {
   types?: InputServiceTypes;

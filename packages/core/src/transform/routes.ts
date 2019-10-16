@@ -1,15 +1,15 @@
-import { CollectionTree, Routes } from '~/types';
+import { CollectionTree, CollectionRoutes } from '~/types';
+import { traverse } from '~/inspect/traverse';
 import {
-  traverse,
   isElementService,
   isElementTree,
   isTreeCollection,
   isElementType
-} from '~/inspect';
+} from '~/inspect/is';
 
 export interface RoutesTransformOptions {
   /**
-   * A non word character containing string that separates
+   * A non word character containing string. Default: `':'`.
    */
   separator: string;
 }
@@ -18,14 +18,14 @@ export interface RoutesTransformOptions {
  * Given a collection, returns an object with *values* of all services, and *keys* of their full route. It will throw if a collection:
  * - Contains conflicting routes.
  * - Has a scope name equal to a service of its parent.
- * - Contains services with an empty name or with non word characters.
+ * - Contains services or scopes with an empty name or with non word characters.
  */
 export function routes<T extends CollectionTree>(
   collection: T,
   options?: RoutesTransformOptions
-): Routes<T> {
+): CollectionRoutes<T> {
   const opts = Object.assign({ separator: ':' }, options);
-  const routes: Routes<any> = {};
+  const routes: CollectionRoutes<any> = {};
 
   if (!/[^\w]/.exec(opts.separator)) {
     throw Error(`Separator must contain a non word character`);

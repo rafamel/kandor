@@ -1,64 +1,28 @@
-import {
-  CollectionTreeApplication,
-  CollectionTree,
-  TreeTypes,
-  GenericError,
-  ErrorType
-} from '~/types';
-import clone from 'lodash.clonedeep';
-import camelcase from 'camelcase';
+import { CollectionTree, ApplicationCollection } from '~/types';
 import serviceIntercepts from './service-intercepts';
-import { mergeServiceTypes } from './merge';
 import { intercepts, intercept } from '../intercepts';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { PublicError, CollectionError } from '~/errors';
 import { error } from '../types';
-import {
-  traverse,
-  isElementType,
-  isElementService,
-  isElementTree
-} from '~/inspect';
-
-// TODO: validate collection object (ajv) + check schemas are valid
-// TODO: adapters rely on resolve() existing on all services. Separate normalization from application?
-// TODO: check no type has empty name
-
-export interface ApplicationCreateOptions {
-  prefixScope?: boolean;
-  prefixInlineError?: boolean;
-  transform?: (str: string, explicit: boolean) => string;
-}
+import { isElementService, validate, isServiceImplementation } from '~/inspect';
+import { replace } from '~/transform';
 
 /**
- * Returns a new object instance of a collection; prepares a collection to be used by an adapter:
- * - Pipes all services intercepts with their resolve function and merges their error types.
- * - Ensures all services throw with a `PublicError`.
- * - Checks for non-existent type references and references of the wrong kind.
- * - Moves all inline types to `CollectionTree.types`.
+ * Validates and prepares a collection to be used by an adapter. Returns a new collection with:
+ * - `ServerError` and `ClientError` error types, if non existent, for internal usage.
+ * - All of its services errors rethrown as a `PublicError`s, if they're not already one, for `CollectionImplementation`s.
+ * - Intercepts merged into their services, for `CollectionImplementation`s.
  */
-export function application(
-  collection: CollectionTree,
-  options?: ApplicationCreateOptions
-): CollectionTreeApplication {
-  const opts = Object.assign(
-    {
-      prefixScope: true,
-      prefixInlineError: false,
-      transform: (str: string) => camelcase(str, { pascalCase: true })
-    },
-    options
-  );
-
-  // add global errors
-  const errors: {
-    [P in GenericError]: ErrorType;
-  } = {
+export function application<T extends CollectionTree>(
+  collection: T
+): ApplicationCollection<T> {
+  // adds global errors
+  const errors = {
     ServerError: error({ code: 'ServerError' }),
     ClientError: error({ code: 'ClientError' })
   };
-  collection = {
+  let application: ApplicationCollection<T> = {
     ...collection,
     types: {
       ...errors,
@@ -66,9 +30,11 @@ export function application(
     }
   };
 
-  const internal: GenericError = 'ServerError';
-  collection = intercepts(
-    collection,
+  // if not an implementation, return as is
+  if (!validate(application)) return application;
+
+  application = intercepts(
+    application,
     [
       intercept({
         errors: Object.keys(errors).reduce(
@@ -81,7 +47,7 @@ export function application(
               throwError(
                 err instanceof PublicError
                   ? err
-                  : new CollectionError(collection, internal)
+                  : new CollectionError(application, 'ServerError')
               )
             )
           );
@@ -91,47 +57,10 @@ export function application(
     { prepend: true }
   );
 
-  const types = {
-    source: collection.types,
-    application: Object.entries(collection.types).reduce(
-      (acc: TreeTypes, [name, type]) => {
-        const pascal = opts.transform(name, true);
-        if (Object.hasOwnProperty.call(acc, pascal)) {
-          throw Error(`Type name collision: ${pascal}`);
-        }
-        acc[pascal] = type;
-        return acc;
-      },
-      {}
-    )
-  };
-
-  collection = clone(collection);
-  traverse(collection, (element, next, { path }) => {
-    if (isElementTree(element)) return next();
-
-    const name = opts.transform(path.slice(-1)[0], true);
-
-    if (isElementType(element)) {
-      if (element.kind !== 'response' || !element.children) return;
-      for (const [key, service] of Object.entries(element.children)) {
-        const fullName = name + opts.transform(key, false);
-        serviceIntercepts(fullName, service, types.source);
-        mergeServiceTypes(fullName, service, types, opts);
-      }
-    } else if (isElementService(element)) {
-      const fullName =
-        opts.prefixScope && path[path.length - 3]
-          ? opts.transform(path[path.length - 3], false) + name
-          : name;
-
-      serviceIntercepts(fullName, element, types.source);
-      mergeServiceTypes(fullName, element, types, opts);
-    }
-  });
-
-  return {
-    ...collection,
-    types: types.application
-  } as CollectionTreeApplication;
+  return replace(application, (element, next) => {
+    element = next(element);
+    return isElementService(element) && isServiceImplementation(element)
+      ? serviceIntercepts(element, application)
+      : element;
+  }) as ApplicationCollection<T>;
 }

@@ -131,6 +131,7 @@ export interface ServiceTypesImplementation extends ServiceTypes {
 
 export type ServiceErrorsImplementation = ServiceErrors;
 
+// Intercept
 export interface InterceptImplementation<I = any, O = any> {
   kind: 'intercept';
   errors: ServiceErrorsImplementation;
