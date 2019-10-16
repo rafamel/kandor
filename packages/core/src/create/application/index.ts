@@ -15,16 +15,18 @@ import { replace } from '~/transform';
 
 export interface ApplicationCreateOptions {
   /**
-   * Whether the collection should be validated. Default: `true`.
+   * Whether the collection should be validated - see `validate`. Default: `true`.
    */
   validate?: boolean;
 }
 
 /**
- * Validates and prepares a collection to be used by an adapter. Returns a new collection with:
- * - `ServerError` and `ClientError` error types, if non existent, for internal usage.
- * - All of its services errors rethrown as a `PublicError`s, if they're not already one, for `CollectionImplementation`s.
- * - Intercepts merged into their services, for `CollectionImplementation`s.
+ * Validates and prepares a collection to be used by an adapter.
+ * It should only be run once on any given collection and its services.
+ * Returns a new collection with:
+ * - Additional `ServerError` and `ClientError` error types, if non existent, for internal usage.
+ * - All of its services failing with `PublicError`s, if they don't already do, for `CollectionImplementation`s.
+ * - Service intercepts merged into their services, for `CollectionImplementation`s.
  */
 export function application<T extends CollectionTree>(
   collection: T,

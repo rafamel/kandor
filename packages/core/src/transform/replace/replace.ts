@@ -8,7 +8,7 @@ import { next } from './helpers';
 import { ReplaceTransformFn } from './types';
 
 /**
- * Returns a new collection where `Element`s are substituted by the ones returned by `cb`. Performs a traversal.
+ * Performs a traversal, returning a new collection where `Element`s are substituted by the ones returned by `cb`. Alternative to `traverse`.
  */
 export function replace<
   Q extends QueryService,
