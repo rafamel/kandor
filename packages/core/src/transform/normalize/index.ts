@@ -8,7 +8,12 @@ import {
 import camelcase from 'camelcase';
 import { normalizeServiceTypes } from './helpers';
 import { replace } from '../replace';
-import { isElementType, isElementService, isElementTree } from '~/inspect/is';
+import {
+  isElementType,
+  isElementService,
+  isElementTree,
+  isTreeCollection
+} from '~/inspect/is';
 
 export interface NormalizeTransformOptions {
   /**
@@ -21,7 +26,9 @@ export interface NormalizeTransformOptions {
  * Extracts all service inline types of a collection to its top level `CollectionTree.types`, naming them according to their scope, service, and kind. It additionally transforms all type names to pascal case. It will throw if a collection:
  * - Produces conflicting type names.
  * - Contains references to non existent types.
- * - Contains types with an empty name or with non word characters.
+ * - Has a scope name equal to a service of its parent.
+ * - Has a type name equal to a collection root service name.
+ * - Contains types, services, or scopes with an empty name or with non word characters.
  * - Contains services with inline types or type references of the wrong kind.
  */
 export function normalize<T extends CollectionTree>(
@@ -49,24 +56,40 @@ export function normalize<T extends CollectionTree>(
     )
   };
 
-  return {
+  const result = {
     ...replace(collection, (element, next, { route }) => {
-      if (isElementTree(element)) {
+      if (isElementTree(element) && isTreeCollection(element)) {
         return next(element);
       }
 
       const name = transform(route[route.length - 1], true);
+      if (!name) {
+        throw Error(
+          `Empty strings are not permitted as type, service, or scope names`
+        );
+      }
+      if (/[^\w]/.exec(name)) {
+        throw Error(
+          `Non word characters are not permitted for type, service, or scope names: ${name}`
+        );
+      }
 
-      if (isElementType(element)) {
-        if (!name) {
-          throw Error(`Empty strings are not permitted as type names`);
-        }
-        if (/[^\w]/.exec(name)) {
+      if (isElementTree(element)) {
+        const scopes = Object.keys(element.scopes);
+        const conflictingScopes = scopes.length
+          ? Object.keys(element.services).filter((name) =>
+              scopes.includes(name)
+            )
+          : [];
+        if (conflictingScopes.length) {
           throw Error(
-            `Non word characters are not permitted for type names: ${name}`
+            `Scopes can't have the same name as one of the services of its parent: ${conflictingScopes[0]}`
           );
         }
+        return next(element);
+      }
 
+      if (isElementType(element)) {
         if (element.kind !== 'response' || !element.children) {
           return element;
         }
@@ -100,4 +123,16 @@ export function normalize<T extends CollectionTree>(
     }),
     types: types.normal
   } as NormalCollection<T>;
+
+  const rootServices = Object.keys(result.services);
+  const conflictingTypes = rootServices.length
+    ? Object.keys(result.types).filter((name) => rootServices.includes(name))
+    : [];
+  if (conflictingTypes.length) {
+    throw Error(
+      `Types can't have a name equal to a collection root service name: ${conflictingTypes[0]}`
+    );
+  }
+
+  return result;
 }

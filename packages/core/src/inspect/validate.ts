@@ -1,6 +1,5 @@
 import { CollectionTree, CollectionTreeImplementation } from '~/types';
 import { normalize } from '~/transform/normalize';
-import { routes } from '~/transform/routes';
 import { isTreeImplementation } from './is';
 
 // TODO: validate collection object (ajv) + check schemas are valid
@@ -18,13 +17,8 @@ export interface ValidateInspectOptions {
 
 /**
  * It will throw if a collection:
- * - Is either fully a implementation or not at all.
- * - Contains conflicting routes.
- * - Has a scope name equal to a service of its parent.
- * - Contains references to non existent types.
- * - Contains types, services, or scopes with an empty name or with non word characters.
- * - Contains services with inline types or type references of the wrong kind.
- * - Contains services which inline type names would collide upon normalization - see `normalize`.
+ * - Is neither fully a implementation or not at all.
+ * - Can't be normalized - see `normalize`.
  * @returns `true` if a collection is a `CollectionTreeImplementation`.
  */
 export function validate(
@@ -33,7 +27,6 @@ export function validate(
 ): collection is CollectionTreeImplementation {
   const opts = Object.assign({ as: null, skipReferences: false }, options);
 
-  routes(collection);
   normalize(collection, opts);
 
   const isImplementation = isTreeImplementation(collection, true);
