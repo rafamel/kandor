@@ -4,19 +4,14 @@ import {
   Element,
   Service,
   Type,
-  ServiceImplementation,
   QueryService,
   MutationService,
   SubscriptionService,
   ErrorType,
   RequestType,
   ResponseType,
-  TypeImplementation,
-  ScopeTree,
-  TreeImplementation
+  ScopeTree
 } from '~/types';
-import { traverse } from './traverse';
-import { emptyCollection } from '~/utils';
 
 export function isElement(item: any): item is Element {
   return (
@@ -74,59 +69,4 @@ export function isTypeRequest(type: Type): type is RequestType {
 
 export function isTypeResponse(type: Type): type is ResponseType {
   return type.kind === 'response';
-}
-
-export function isTreeImplementation(
-  tree: Tree,
-  fail?: boolean
-): tree is TreeImplementation {
-  const collection = isTreeCollection(tree)
-    ? tree
-    : { ...emptyCollection(), scopes: { tree } };
-
-  let isImplementation: null | boolean = null;
-  try {
-    traverse(collection, (element, next) => {
-      next();
-
-      if (isElementService(element)) {
-        const is = isServiceImplementation(element);
-        if (isImplementation === null) {
-          isImplementation = is;
-        } else if (isImplementation !== is) {
-          throw Error(
-            `Both service implementations and declarations were found in tree`
-          );
-        }
-      }
-    });
-  } catch (err) {
-    if (fail) {
-      throw err;
-    } else {
-      isImplementation = false;
-    }
-  }
-
-  return isImplementation === null ? true : isImplementation;
-}
-
-export function isServiceImplementation(
-  service: Service
-): service is ServiceImplementation {
-  return (
-    Object.hasOwnProperty.call(service, 'resolve') &&
-    typeof (service as any).resolve === 'function'
-  );
-}
-
-export function isTypeImplementation(type: Type): type is TypeImplementation {
-  return (
-    isTypeError(type) ||
-    isTypeRequest(type) ||
-    !type.children ||
-    Object.values(type.children).reduce((acc: boolean, service) => {
-      return acc && isServiceImplementation(service);
-    }, true)
-  );
 }

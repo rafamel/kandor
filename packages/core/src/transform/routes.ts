@@ -12,6 +12,11 @@ export interface RoutesTransformOptions {
    * A non word character containing string. Default: `':'`.
    */
   separator: string;
+  // TODO: (also check first-level/root service names don't collide with type names)
+  /**
+   * Whether to include response types with children as routes. Default: `true`.
+   */
+  children: boolean;
 }
 
 /**
@@ -24,7 +29,7 @@ export function routes<T extends CollectionTree>(
   collection: T,
   options?: RoutesTransformOptions
 ): CollectionRoutes<T> {
-  const opts = Object.assign({ separator: ':' }, options);
+  const opts = Object.assign({ separator: ':', children: true }, options);
   const routes: CollectionRoutes<any> = {};
 
   if (!/[^\w]/.exec(opts.separator)) {

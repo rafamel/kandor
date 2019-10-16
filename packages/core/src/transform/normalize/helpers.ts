@@ -7,7 +7,7 @@ import {
   SubscriptionService,
   InterceptImplementation
 } from '~/types';
-import { isServiceImplementation } from '~/inspect';
+import { isServiceImplementation } from '~/inspect/is';
 import isequal from 'lodash.isequal';
 
 export function normalizeServiceTypes(

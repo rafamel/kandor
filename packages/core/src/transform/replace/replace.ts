@@ -2,31 +2,10 @@ import {
   QueryService,
   MutationService,
   SubscriptionService,
-  Element,
   CollectionTree
 } from '~/types';
 import { next } from './helpers';
-
-export type ReplaceTransformFn<
-  Q extends QueryService = QueryService,
-  M extends MutationService = MutationService,
-  S extends SubscriptionService = SubscriptionService
-> = (
-  element: Element<Q, M, S>,
-  next: ReplaceTransformNextFn<Q, M, S>,
-  data: ReplaceTransformData
-) => Element;
-
-export type ReplaceTransformNextFn<
-  Q extends QueryService = QueryService,
-  M extends MutationService = MutationService,
-  S extends SubscriptionService = SubscriptionService
-> = (element?: Element<Q, M, S>) => Element;
-
-export interface ReplaceTransformData {
-  path: string[];
-  route: string[];
-}
+import { ReplaceTransformFn } from './types';
 
 /**
  * Returns a new collection where `Element`s are substituted by the ones returned by `cb`. Performs a traversal.

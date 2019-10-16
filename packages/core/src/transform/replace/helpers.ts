@@ -15,8 +15,8 @@ import {
   isElementTree,
   isElementType,
   isElementService
-} from '~/inspect/is';
-import { ReplaceTransformFn, ReplaceTransformData } from './replace';
+} from '~/inspect/is/element';
+import { ReplaceTransformData, ReplaceTransformFn } from './types';
 
 export function next<E extends Element>(
   element: E,
