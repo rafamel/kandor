@@ -4,8 +4,11 @@ import {
   ServiceErrors,
   Type,
   QueryService,
-  SubscriptionService
+  SubscriptionService,
+  InterceptImplementation
 } from '~/types';
+import { isServiceImplementation } from '~/inspect';
+import isequal from 'lodash.isequal';
 
 export function normalizeServiceTypes(
   name: string,
@@ -26,8 +29,37 @@ export function normalizeServiceTypes(
     }
   }
 
-  const errors: ServiceErrors = {};
-  for (const [key, error] of Object.entries(service.types.errors)) {
+  service.types.errors = normalizeErrors(
+    service.types.errors,
+    types,
+    transform
+  );
+
+  if (
+    isServiceImplementation(service) &&
+    service.intercepts &&
+    service.intercepts.length
+  ) {
+    const intercepts: InterceptImplementation[] = [];
+    for (const intercept of service.intercepts) {
+      intercepts.push({
+        ...intercept,
+        errors: normalizeErrors(intercept.errors, types, transform)
+      });
+    }
+    service.intercepts = intercepts;
+  }
+
+  return service;
+}
+
+export function normalizeErrors(
+  errors: ServiceErrors,
+  types: { source: TreeTypes; normal: TreeTypes },
+  transform: (str: string, isExplicit: boolean) => string
+): ServiceErrors {
+  const result: ServiceErrors = {};
+  for (const [key, error] of Object.entries(errors)) {
     if (typeof error === 'string') {
       let id = checkSourceType('error', error, types, transform);
       if (key !== error) {
@@ -40,16 +72,14 @@ export function normalizeServiceTypes(
           transform
         );
       }
-      errors[id] = id;
+      result[id] = id;
     } else {
       const id = transform(key, true);
       normalizeServiceType('error', id, error, types, transform);
-      errors[id] = id;
+      result[id] = id;
     }
   }
-  service.types.errors = errors;
-
-  return service;
+  return result;
 }
 
 export function normalizeServiceType(
@@ -64,7 +94,19 @@ export function normalizeServiceType(
   }
 
   switch (type.kind) {
-    case 'error':
+    case 'error': {
+      // In the case of errors we'll check for deep equality.
+      // This is specially important for intercepts, which might
+      // make inline declarations repeat themselves.
+      if (
+        Object.hasOwnProperty.call(types.normal, name) &&
+        !isequal(types.normal[name], type)
+      ) {
+        throw Error(`Inline type name collision: ${name}`);
+      }
+      types.normal[name] = type;
+      return;
+    }
     case 'request': {
       if (Object.hasOwnProperty.call(types.normal, name)) {
         throw Error(`Inline type name collision: ${name}`);
