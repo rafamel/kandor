@@ -1,4 +1,4 @@
-import { ScopeCreate, CollectionTree, ExtractScopeCreate } from '~/types';
+import { CollectionTree, ScopeCollection, ExtractCollection } from '~/types';
 import { emptyCollection, emptyScope } from '~/utils';
 
 /**
@@ -7,7 +7,7 @@ import { emptyCollection, emptyScope } from '~/utils';
 export function scope<T extends CollectionTree, N extends string>(
   name: N,
   collection: T
-): ScopeCreate<T, N> {
+): ScopeCollection<T, N> {
   const { types, ...other } = collection;
 
   return {
@@ -25,7 +25,7 @@ export function scope<T extends CollectionTree, N extends string>(
 export function extract<T extends CollectionTree, N extends keyof T['scopes']>(
   collection: T,
   name: N & string
-): ExtractScopeCreate<T, N> {
+): ExtractCollection<T, N> {
   const { types } = collection;
   const { services, scopes } = collection.scopes[name];
   return {

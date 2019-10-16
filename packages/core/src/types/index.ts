@@ -1,4 +1,4 @@
 export * from './collection';
-export * from './create';
+export * from './implementation';
 export * from './maps';
 export * from './types';

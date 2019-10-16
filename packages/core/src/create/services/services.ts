@@ -2,18 +2,20 @@ import {
   QueryServiceImplementation,
   MutationServiceImplementation,
   SubscriptionServiceImplementation,
-  InputQueryService,
-  InputMutationService,
-  InputSubscriptionService,
   TreeServicesImplementation,
   CollectionTreeImplementation,
-  InputServiceTypes,
   ServiceTypesImplementation
 } from '~/types';
 import { Observable, from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { request, response } from './types';
+import {
+  QueryServiceInput,
+  MutationServiceInput,
+  SubscriptionServiceInput,
+  ServiceInputTypes
+} from './types';
 import { isElement } from '~/inspect';
+import { request, response } from '../types';
 
 /**
  * Returns a new `collection` with services `services`.
@@ -35,7 +37,7 @@ export function services<T extends TreeServicesImplementation>(
  * Creates a `QueryServiceImplementation`.
  */
 export function query<I, O>(
-  query: InputQueryService<I, O>
+  query: QueryServiceInput<I, O>
 ): QueryServiceImplementation<I, O> {
   return {
     ...query,
@@ -52,7 +54,7 @@ export function query<I, O>(
  * Creates a `MutationServiceImplementation`.
  */
 export function mutation<I, O>(
-  mutation: InputMutationService<I, O>
+  mutation: MutationServiceInput<I, O>
 ): MutationServiceImplementation<I, O> {
   return {
     ...mutation,
@@ -69,7 +71,7 @@ export function mutation<I, O>(
  * Creates a `MutationServiceImplementation`.
  */
 export function subscription<I, O>(
-  subscription: InputSubscriptionService<I, O>
+  subscription: SubscriptionServiceInput<I, O>
 ): SubscriptionServiceImplementation<I, O> {
   return {
     ...subscription,
@@ -85,7 +87,7 @@ export function subscription<I, O>(
   };
 }
 
-function parseTypes(types: InputServiceTypes = {}): ServiceTypesImplementation {
+function parseTypes(types: ServiceInputTypes = {}): ServiceTypesImplementation {
   return {
     errors: types.errors || {},
     request:

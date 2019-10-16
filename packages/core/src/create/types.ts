@@ -1,13 +1,14 @@
 import {
-  InputErrorType,
   ErrorTypeImplementation,
-  InputRequestType,
   RequestTypeImplementation,
-  InputResponseType,
   ResponseTypeImplementation,
   TreeTypesImplementation,
   CollectionTreeImplementation
 } from '~/types';
+
+export type ErrorTypeInput = Omit<ErrorTypeImplementation, 'kind'>;
+export type RequestTypeInput = Omit<RequestTypeImplementation, 'kind'>;
+export type ResponseTypeInput = Omit<ResponseTypeImplementation, 'kind'>;
 
 /**
  * Returns a new `collection` with types `types`.
@@ -26,7 +27,7 @@ export function types<T extends TreeTypesImplementation>(
 /**
  * Creates an `ErrorTypeImplementation`.
  */
-export function error(error: InputErrorType): ErrorTypeImplementation {
+export function error(error: ErrorTypeInput): ErrorTypeImplementation {
   return {
     kind: 'error',
     ...error
@@ -36,7 +37,7 @@ export function error(error: InputErrorType): ErrorTypeImplementation {
 /**
  * Creates a `RequestTypeImplementation`.
  */
-export function request(request: InputRequestType): RequestTypeImplementation {
+export function request(request: RequestTypeInput): RequestTypeImplementation {
   return {
     kind: 'request',
     ...request
@@ -47,7 +48,7 @@ export function request(request: InputRequestType): RequestTypeImplementation {
  * Creates a `ResponseTypeImplementation`.
  */
 export function response(
-  response: InputResponseType
+  response: ResponseTypeInput
 ): ResponseTypeImplementation {
   return {
     kind: 'response',

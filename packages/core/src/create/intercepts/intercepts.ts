@@ -1,14 +1,10 @@
-import {
-  InputInterceptHook,
-  InterceptImplementation,
-  InputIntercept,
-  CollectionTree
-} from '~/types';
+import { InterceptImplementation, CollectionTree } from '~/types';
 import { from, Observable } from 'rxjs';
 import { switchMap, mergeMap } from 'rxjs/operators';
 import { emptyIntercept, mergeServiceErrors } from '~/utils';
 import { isElementService, isServiceImplementation } from '~/inspect';
 import { replace } from '~/transform';
+import { InterceptCreateInput, HookCreateInput } from './types';
 
 export interface InterceptsCreateOptions {
   /**
@@ -45,7 +41,7 @@ export function intercepts<T extends CollectionTree>(
  * Creates an intercept.
  */
 export function intercept<I, O>(
-  intercept: InputIntercept<I, O>
+  intercept: InterceptCreateInput<I, O>
 ): InterceptImplementation<I, O> {
   return {
     kind: 'intercept',
@@ -68,7 +64,7 @@ export function intercept<I, O>(
  * Exposes a simpler api to create intercepts to be run *before* the `resolve` function of a `ServiceImplementation` has been called to act on the incoming `data`.
  */
 export function before<T>(
-  hook: InputInterceptHook<T>
+  hook: HookCreateInput<T>
 ): InterceptImplementation<T, any> {
   return {
     kind: 'intercept',
@@ -89,7 +85,7 @@ export function before<T>(
  * Exposes a simpler api to create intercepts to be run *after* the `resolve` function of a `ServiceImplementation` has been called to act on the outgoing `data`.
  */
 export function after<T>(
-  hook: InputInterceptHook<T>
+  hook: HookCreateInput<T>
 ): InterceptImplementation<any, T> {
   return {
     kind: 'intercept',

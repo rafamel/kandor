@@ -20,7 +20,7 @@ import { isElementType, isElementService, isElementTree } from '~/inspect/is';
 export function normalize<T extends CollectionTree>(
   collection: T
 ): NormalCollection<T> {
-  const transform = (str: string, isExplicit: boolean) => {
+  const transform = (str: string, _isExplicit: boolean): string => {
     return camelcase(str, { pascalCase: true });
   };
 
