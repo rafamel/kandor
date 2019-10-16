@@ -1,59 +1,81 @@
-import { CollectionTreeImplementation, InputCollection } from '~/types';
+import {
+  CollectionTreeImplementation,
+  QueryService,
+  MutationService,
+  SubscriptionService,
+  CollectionTree
+} from '~/types';
 import { emptyCollection, mergeCollection } from '~/utils';
+
+export type CollectionsCreateInput<
+  Q extends QueryService = QueryService,
+  M extends MutationService = MutationService,
+  S extends SubscriptionService = SubscriptionService
+> = Partial<CollectionTree<Q, M, S>>;
 
 export { collections };
 
 function collections<
-  C1 extends InputCollection = CollectionTreeImplementation<{}, {}, {}>,
-  C2 extends InputCollection = C1,
-  C3 extends InputCollection = C1,
-  C4 extends InputCollection = C1,
-  C5 extends InputCollection = C1,
-  C6 extends InputCollection = C1,
-  C7 extends InputCollection = C1,
-  C8 extends InputCollection = C1,
-  C9 extends InputCollection = C1,
-  C10 extends InputCollection = C1,
-  C11 extends InputCollection = C1,
-  C12 extends InputCollection = C1,
-  C13 extends InputCollection = C1,
-  C14 extends InputCollection = C1,
-  C15 extends InputCollection = C1,
-  C16 extends InputCollection = C1,
-  C17 extends InputCollection = C1,
-  C18 extends InputCollection = C1,
-  C19 extends InputCollection = C1,
-  C20 extends InputCollection = C1,
-  C21 extends InputCollection = C1,
-  C22 extends InputCollection = C1,
-  C23 extends InputCollection = C1,
-  C24 extends InputCollection = C1,
-  C25 extends InputCollection = C1,
-  C26 extends InputCollection = C1,
-  C27 extends InputCollection = C1,
-  C28 extends InputCollection = C1,
-  C29 extends InputCollection = C1,
-  C30 extends InputCollection = C1,
-  C31 extends InputCollection = C1,
-  C32 extends InputCollection = C1,
-  C33 extends InputCollection = C1,
-  C34 extends InputCollection = C1,
-  C35 extends InputCollection = C1,
-  C36 extends InputCollection = C1,
-  C37 extends InputCollection = C1,
-  C38 extends InputCollection = C1,
-  C39 extends InputCollection = C1,
-  C40 extends InputCollection = C1,
-  C41 extends InputCollection = C1,
-  C42 extends InputCollection = C1,
-  C43 extends InputCollection = C1,
-  C44 extends InputCollection = C1,
-  C45 extends InputCollection = C1,
-  C46 extends InputCollection = C1,
-  C47 extends InputCollection = C1,
-  C48 extends InputCollection = C1,
-  C49 extends InputCollection = C1,
-  C50 extends InputCollection = C1
+  Q extends QueryService = QueryService,
+  M extends MutationService = MutationService,
+  S extends SubscriptionService = SubscriptionService,
+  C1 extends CollectionsCreateInput<Q, M, S> = CollectionTree<
+    Q,
+    M,
+    S,
+    {},
+    {},
+    {}
+  >,
+  C2 extends CollectionsCreateInput<Q, M, S> = C1,
+  C3 extends CollectionsCreateInput<Q, M, S> = C1,
+  C4 extends CollectionsCreateInput<Q, M, S> = C1,
+  C5 extends CollectionsCreateInput<Q, M, S> = C1,
+  C6 extends CollectionsCreateInput<Q, M, S> = C1,
+  C7 extends CollectionsCreateInput<Q, M, S> = C1,
+  C8 extends CollectionsCreateInput<Q, M, S> = C1,
+  C9 extends CollectionsCreateInput<Q, M, S> = C1,
+  C10 extends CollectionsCreateInput<Q, M, S> = C1,
+  C11 extends CollectionsCreateInput<Q, M, S> = C1,
+  C12 extends CollectionsCreateInput<Q, M, S> = C1,
+  C13 extends CollectionsCreateInput<Q, M, S> = C1,
+  C14 extends CollectionsCreateInput<Q, M, S> = C1,
+  C15 extends CollectionsCreateInput<Q, M, S> = C1,
+  C16 extends CollectionsCreateInput<Q, M, S> = C1,
+  C17 extends CollectionsCreateInput<Q, M, S> = C1,
+  C18 extends CollectionsCreateInput<Q, M, S> = C1,
+  C19 extends CollectionsCreateInput<Q, M, S> = C1,
+  C20 extends CollectionsCreateInput<Q, M, S> = C1,
+  C21 extends CollectionsCreateInput<Q, M, S> = C1,
+  C22 extends CollectionsCreateInput<Q, M, S> = C1,
+  C23 extends CollectionsCreateInput<Q, M, S> = C1,
+  C24 extends CollectionsCreateInput<Q, M, S> = C1,
+  C25 extends CollectionsCreateInput<Q, M, S> = C1,
+  C26 extends CollectionsCreateInput<Q, M, S> = C1,
+  C27 extends CollectionsCreateInput<Q, M, S> = C1,
+  C28 extends CollectionsCreateInput<Q, M, S> = C1,
+  C29 extends CollectionsCreateInput<Q, M, S> = C1,
+  C30 extends CollectionsCreateInput<Q, M, S> = C1,
+  C31 extends CollectionsCreateInput<Q, M, S> = C1,
+  C32 extends CollectionsCreateInput<Q, M, S> = C1,
+  C33 extends CollectionsCreateInput<Q, M, S> = C1,
+  C34 extends CollectionsCreateInput<Q, M, S> = C1,
+  C35 extends CollectionsCreateInput<Q, M, S> = C1,
+  C36 extends CollectionsCreateInput<Q, M, S> = C1,
+  C37 extends CollectionsCreateInput<Q, M, S> = C1,
+  C38 extends CollectionsCreateInput<Q, M, S> = C1,
+  C39 extends CollectionsCreateInput<Q, M, S> = C1,
+  C40 extends CollectionsCreateInput<Q, M, S> = C1,
+  C41 extends CollectionsCreateInput<Q, M, S> = C1,
+  C42 extends CollectionsCreateInput<Q, M, S> = C1,
+  C43 extends CollectionsCreateInput<Q, M, S> = C1,
+  C44 extends CollectionsCreateInput<Q, M, S> = C1,
+  C45 extends CollectionsCreateInput<Q, M, S> = C1,
+  C46 extends CollectionsCreateInput<Q, M, S> = C1,
+  C47 extends CollectionsCreateInput<Q, M, S> = C1,
+  C48 extends CollectionsCreateInput<Q, M, S> = C1,
+  C49 extends CollectionsCreateInput<Q, M, S> = C1,
+  C50 extends CollectionsCreateInput<Q, M, S> = C1
 >(
   c1?: C1,
   c2?: C2,
@@ -105,7 +127,7 @@ function collections<
   c48?: C48,
   c49?: C49,
   c50?: C50
-): CollectionTreeImplementation<{}, {}, {}> &
+): CollectionTree<Q, M, S, {}, {}, {}> &
   C1 &
   C2 &
   C3 &
@@ -161,7 +183,7 @@ function collections<
  * Merges collections.
  */
 function collections(
-  ...collections: InputCollection[]
+  ...collections: CollectionsCreateInput[]
 ): CollectionTreeImplementation {
   let collection = emptyCollection() as CollectionTreeImplementation;
 

@@ -17,10 +17,6 @@ import { Observable } from 'rxjs';
 import { Schema } from './types';
 
 // Input
-export type InputCollection =
-  | Partial<CollectionTree>
-  | Partial<CollectionTreeImplementation>;
-
 export interface InputQueryService<I = any, O = any> {
   types?: InputServiceTypes;
   intercepts?: Array<InterceptImplementation<I, O>>;
