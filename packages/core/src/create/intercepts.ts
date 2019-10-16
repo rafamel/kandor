@@ -27,7 +27,7 @@ export function intercepts<T extends CollectionTree>(
 ): T {
   const opts = Object.assign({ prepend: true }, options);
 
-  return replace({ ...collection, types: {} }, (element, next) => {
+  return replace(collection, (element, next) => {
     element = next(element);
 
     return !isElementService(element) || !isServiceImplementation(element)
