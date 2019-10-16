@@ -1,6 +1,5 @@
 import {
   CollectionTree,
-  TreeTypes,
   QueryService,
   SubscriptionService,
   NormalCollection
@@ -28,7 +27,7 @@ export interface NormalizeTransformOptions {
  * - Produces conflicting type names.
  * - Contains references to non existent types.
  * - Has a scope name equal to a service of its parent.
- * - Has a type name equal to a collection root service name.
+ * - Has a type name starting with a lowercase letter or equal to a collection root service name.
  * - Contains types, services, or scopes with an empty name or with non word characters.
  * - Contains services with inline types or type references of the wrong kind.
  */
@@ -44,18 +43,15 @@ export function normalize<T extends CollectionTree>(
 
   const types = {
     source: collection.types,
-    normal: Object.entries(collection.types).reduce(
-      (acc: TreeTypes, [name, type]) => {
-        const pascal = transform(name, true);
-        if (Object.hasOwnProperty.call(acc, pascal)) {
-          throw Error(`Type name collision: ${pascal}`);
-        }
-        acc[pascal] = type;
-        return acc;
-      },
-      {}
-    )
+    normal: { ...collection.types }
   };
+
+  const lowercase = Object.keys(collection.types).filter(
+    (x) => x[0] && x[0] !== x[0].toUpperCase()
+  );
+  if (lowercase.length) {
+    throw Error(`Types must start with an uppercase letter`);
+  }
 
   const result = {
     ...replace(collection, (element, next, { route }) => {

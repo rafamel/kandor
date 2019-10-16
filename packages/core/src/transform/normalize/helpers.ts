@@ -22,7 +22,7 @@ export function normalizeServiceTypes(
   for (const kind of ['request', 'response'] as ['request', 'response']) {
     const type = service.types[kind];
     if (typeof type === 'string') {
-      service.types[kind] = checkSourceType(kind, type, skip, types, transform);
+      service.types[kind] = checkSourceType(kind, type, skip, types);
     } else {
       const pascal = name + transform('R' + kind.slice(1), false);
       normalizeServiceType(kind, pascal, type, skip, types, transform);
@@ -64,7 +64,7 @@ export function normalizeErrors(
   const result: ServiceErrors = {};
   for (const [key, error] of Object.entries(errors)) {
     if (typeof error === 'string') {
-      let id = checkSourceType('error', error, skip, types, transform);
+      let id = checkSourceType('error', error, skip, types);
       if (key !== error) {
         id = transform(key, true);
         normalizeServiceType(
@@ -155,24 +155,19 @@ export function checkSourceType(
   kind: string,
   name: string,
   skip: boolean | string[],
-  types: { source: TreeTypes; normal: TreeTypes },
-  transform: (str: string, isExplicit: boolean) => string
+  types: { source: TreeTypes; normal: TreeTypes }
 ): string {
-  const pascal = transform(name, true);
-
   if (skip && (typeof skip === 'boolean' || skip.includes(name))) {
-    return pascal;
+    return name;
   }
-
-  if (
-    !Object.hasOwnProperty.call(types.source, name) ||
-    !Object.hasOwnProperty.call(types.normal, pascal)
-  ) {
+  if (!Object.hasOwnProperty.call(types.normal, name)) {
     throw Error(`Collection lacks referenced type: ${name}`);
   }
-  if (types.normal[pascal].kind !== kind) {
-    throw Error(`Invalid type kind reference: ${pascal}`);
+  if (types.normal[name].kind !== kind) {
+    throw Error(
+      `Invalid type kind reference -expected "${kind}" but got "${types.normal[name].kind}": ${name}`
+    );
   }
 
-  return pascal;
+  return name;
 }
