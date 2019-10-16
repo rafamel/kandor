@@ -1,6 +1,6 @@
 import { CollectionTree, CollectionRoutes } from '~/types';
 import { traverse } from '~/inspect/traverse';
-import { isElementService } from '~/inspect/is';
+import { isElementService, isElementType, isTypeResponse } from '~/inspect/is';
 import { normalize } from './normalize';
 
 export interface RoutesTransformOptions {
@@ -29,13 +29,27 @@ export function routes<T extends CollectionTree>(
   }
 
   traverse(normalize(collection), (element, next, { route }) => {
-    if (!isElementService(element)) return next();
-
-    const str = route.join(opts.separator);
-    if (Object.hasOwnProperty.call(routes, str)) {
-      throw Error(`Collection routes collision: ${str}`);
+    if (isElementService(element)) {
+      const str = route.join(opts.separator);
+      if (Object.hasOwnProperty.call(routes, str)) {
+        throw Error(`Collection routes collision: ${str}`);
+      }
+      routes[str] = element;
+    } else if (isElementType(element)) {
+      if (opts.children && isTypeResponse(element) && element.children) {
+        const name = route[route.length - 1];
+        const entries = Object.entries(element.children);
+        for (const [key, service] of entries) {
+          const str = name + opts.separator + key;
+          if (Object.hasOwnProperty.call(routes, str)) {
+            throw Error(`Collection routes collision: ${str}`);
+          }
+          routes[str] = service;
+        }
+      }
+    } else {
+      return next();
     }
-    routes[str] = element;
   });
 
   return routes;
