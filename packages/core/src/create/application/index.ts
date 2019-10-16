@@ -5,8 +5,20 @@ import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { PublicError, CollectionError } from '~/errors';
 import { error } from '../types';
-import { isElementService, validate, isServiceImplementation } from '~/inspect';
+import {
+  isElementService,
+  validate,
+  isServiceImplementation,
+  isTreeImplementation
+} from '~/inspect';
 import { replace } from '~/transform';
+
+export interface ApplicationCreateOptions {
+  /**
+   * Whether the collection should be validated. Default: `true`.
+   */
+  validate?: boolean;
+}
 
 /**
  * Validates and prepares a collection to be used by an adapter. Returns a new collection with:
@@ -15,8 +27,11 @@ import { replace } from '~/transform';
  * - Intercepts merged into their services, for `CollectionImplementation`s.
  */
 export function application<T extends CollectionTree>(
-  collection: T
+  collection: T,
+  options?: ApplicationCreateOptions
 ): ApplicationCollection<T> {
+  const opts = Object.assign({ validate: true }, options);
+
   // adds global errors
   const errors = {
     ServerError: error({ code: 'ServerError' }),
@@ -31,7 +46,11 @@ export function application<T extends CollectionTree>(
   };
 
   // if not an implementation, return as is
-  if (!validate(application)) return application;
+  if (opts.validate) {
+    if (!validate(application)) return application;
+  } else {
+    if (!isTreeImplementation(application)) return application;
+  }
 
   application = intercepts(
     application,
