@@ -5,16 +5,18 @@ import {
   Type,
   QueryService,
   SubscriptionService,
-  InterceptImplementation
+  InterceptImplementation,
+  ErrorType
 } from '~/types';
 import { isServiceImplementation } from '~/inspect/is';
 import isequal from 'lodash.isequal';
+import { NormalizeTransformOptions } from './types';
 
 export function normalizeServiceTypes(
   name: string,
   service: Service,
-  skip: boolean | string[],
   types: { source: TreeTypes; normal: TreeTypes },
+  options: Required<NormalizeTransformOptions>,
   transform: (str: string, isExplicit: boolean) => string
 ): Service {
   service = { ...service, types: { ...service.types } };
@@ -22,18 +24,21 @@ export function normalizeServiceTypes(
   for (const kind of ['request', 'response'] as ['request', 'response']) {
     const type = service.types[kind];
     if (typeof type === 'string') {
-      service.types[kind] = checkSourceType(kind, type, skip, types);
+      checkSourceType(kind, type, types, options);
     } else {
-      const pascal = name + transform('R' + kind.slice(1), false);
-      normalizeServiceType(kind, pascal, type, skip, types, transform);
-      service.types[kind] = pascal;
+      checkServiceType(kind, type);
+      if (options.liftInlineType(type)) {
+        const pascal = name + transform('R' + kind.slice(1), false);
+        normalizeServiceType(pascal, type, types, options, transform);
+        service.types[kind] = pascal;
+      }
     }
   }
 
   service.types.errors = normalizeErrors(
     service.types.errors,
-    skip,
     types,
+    options,
     transform
   );
 
@@ -46,7 +51,7 @@ export function normalizeServiceTypes(
     for (const intercept of service.intercepts) {
       intercepts.push({
         ...intercept,
-        errors: normalizeErrors(intercept.errors, skip, types, transform)
+        errors: normalizeErrors(intercept.errors, types, options, transform)
       });
     }
     service.intercepts = intercepts;
@@ -57,47 +62,59 @@ export function normalizeServiceTypes(
 
 export function normalizeErrors(
   errors: ServiceErrors,
-  skip: boolean | string[],
   types: { source: TreeTypes; normal: TreeTypes },
+  options: Required<NormalizeTransformOptions>,
   transform: (str: string, isExplicit: boolean) => string
 ): ServiceErrors {
   const result: ServiceErrors = {};
   for (const [key, error] of Object.entries(errors)) {
+    if (!key || /[^\w]/.exec(key) || key[0] !== key[0].toUpperCase()) {
+      throw Error(
+        `Inline error names must start with an uppercase letter and consist entirely of word characters: ${key}`
+      );
+    }
+
     if (typeof error === 'string') {
-      let id = checkSourceType('error', error, skip, types);
+      checkSourceType('error', error, types, options);
       if (key !== error) {
-        id = transform(key, true);
-        normalizeServiceType(
-          'error',
-          id,
-          types.source[error],
-          skip,
-          types,
-          transform
-        );
+        checkServiceType('error', types.source[error]);
+        if (options.liftInlineType(types.source[error])) {
+          normalizeServiceType(
+            key,
+            types.source[error],
+            types,
+            options,
+            transform
+          );
+          result[key] = key;
+        } else {
+          result[key] = types.source[error] as ErrorType;
+        }
       }
-      result[id] = id;
     } else {
-      const id = transform(key, true);
-      normalizeServiceType('error', id, error, skip, types, transform);
-      result[id] = id;
+      checkServiceType('error', error);
+      if (options.liftInlineType(error)) {
+        normalizeServiceType(key, error, types, options, transform);
+        result[key] = key;
+      }
     }
   }
   return result;
 }
 
+export function checkServiceType(kind: string, type: Type) {
+  if (type.kind !== kind) {
+    throw Error(`Invalid inline type kind.`);
+  }
+}
+
 export function normalizeServiceType(
-  kind: string,
   name: string,
   type: Type,
-  skip: boolean | string[],
   types: { source: TreeTypes; normal: TreeTypes },
+  options: Required<NormalizeTransformOptions>,
   transform: (str: string, isExplicit: boolean) => string
 ): void {
-  if (type.kind !== kind) {
-    throw Error(`Invalid inline type kind: ${name}`);
-  }
-
   switch (type.kind) {
     case 'error': {
       // In the case of errors we'll check for deep equality.
@@ -136,8 +153,8 @@ export function normalizeServiceType(
         item.children[key] = normalizeServiceTypes(
           name + transform(key, false),
           service,
-          skip,
           types,
+          options,
           transform
         ) as QueryService | SubscriptionService;
       }
@@ -154,20 +171,21 @@ export function normalizeServiceType(
 export function checkSourceType(
   kind: string,
   name: string,
-  skip: boolean | string[],
-  types: { source: TreeTypes; normal: TreeTypes }
-): string {
-  if (skip && (typeof skip === 'boolean' || skip.includes(name))) {
-    return name;
-  }
-  if (!Object.hasOwnProperty.call(types.normal, name)) {
+  types: { source: TreeTypes; normal: TreeTypes },
+  options: Required<NormalizeTransformOptions>
+): void {
+  const skip =
+    options.skipReferences &&
+    (typeof options.skipReferences === 'boolean' ||
+      options.skipReferences.includes(name));
+
+  if (Object.hasOwnProperty.call(types.normal, name)) {
+    if (types.normal[name].kind !== kind) {
+      throw Error(
+        `Invalid type kind reference -expected "${kind}" but got "${types.normal[name].kind}": ${name}`
+      );
+    }
+  } else if (!skip) {
     throw Error(`Collection lacks referenced type: ${name}`);
   }
-  if (types.normal[name].kind !== kind) {
-    throw Error(
-      `Invalid type kind reference -expected "${kind}" but got "${types.normal[name].kind}": ${name}`
-    );
-  }
-
-  return name;
 }
