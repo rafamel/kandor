@@ -121,27 +121,19 @@ export function nextService<E extends Service>(
   if (typeof service.types.request !== 'string') {
     const path = data.path.concat(['types', 'request']);
     const route = data.route.concat(['request']);
-    service.types.request = nextType(
-      service.types.request,
-      { path, route },
-      cb
-    );
+    service.types.request = next(service.types.request, { path, route }, cb);
   }
 
   if (typeof service.types.response !== 'string') {
     const path = data.path.concat(['types', 'response']);
     const route = data.route.concat(['response']);
-    service.types.response = nextType(
-      service.types.response,
-      { path, route },
-      cb
-    );
+    service.types.response = next(service.types.response, { path, route }, cb);
   }
   for (const [name, error] of Object.entries(service.types.errors)) {
     if (typeof error !== 'string') {
       const path = data.path.concat(['types', 'errors', name]);
       const route = data.route.concat(['errors', name]);
-      service.types.errors[name] = nextType(error, { path, route }, cb);
+      service.types.errors[name] = next(error, { path, route }, cb);
     }
   }
 
