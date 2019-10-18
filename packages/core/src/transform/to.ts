@@ -2,7 +2,7 @@ import { CollectionTree, CollectionTreeImplementation, Service } from '~/types';
 import { replace } from './replace';
 import { isElementService, isServiceImplementation } from '~/inspect';
 
-export function asImplementation<T extends CollectionTree>(
+export function toImplementation<T extends CollectionTree>(
   collection: T,
   fn: (service: Service, data: { path: string[]; route: string[] }) => Service
 ): T & CollectionTreeImplementation {
@@ -12,7 +12,7 @@ export function asImplementation<T extends CollectionTree>(
   }) as T & CollectionTreeImplementation;
 }
 
-export function asDeclaration(collection: CollectionTree): CollectionTree {
+export function toDeclaration(collection: CollectionTree): CollectionTree {
   return replace(collection, (element, next) => {
     element = next(element);
 
