@@ -10,7 +10,9 @@ import {
 import {
   CollectionTreeImplementation,
   ServiceImplementation,
-  ScopeTreeImplementation
+  ScopeTreeImplementation,
+  QueryServiceImplementation,
+  MutationServiceImplementation
 } from './implementation';
 import { GenericError } from './types';
 
@@ -19,6 +21,22 @@ export type GenericCollection<
 > = T extends CollectionTreeImplementation
   ? CollectionTreeImplementation
   : CollectionTree;
+
+export type UnaryCollection<
+  T extends CollectionTree
+> = T extends CollectionTreeImplementation
+  ? CollectionTree<
+      QueryServiceImplementation,
+      MutationServiceImplementation,
+      never
+    >
+  : CollectionTree<QueryService, MutationService, never>;
+
+export type ApplicationCollection<
+  T extends CollectionTree = CollectionTree
+> = T & {
+  types: { [P in GenericError]: ErrorType };
+};
 
 export type GenericService<
   T extends CollectionTree
@@ -32,12 +50,6 @@ export interface ServicesRoutes<T extends CollectionTree = CollectionTree>
   extends ServicesTree<T> {
   [key: string]: GenericService<T>;
 }
-
-export type ApplicationCollection<
-  T extends CollectionTree = CollectionTree
-> = T & {
-  types: { [P in GenericError]: ErrorType };
-};
 
 export type ScopeCollection<
   T extends CollectionTree,

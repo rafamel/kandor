@@ -1,6 +1,15 @@
-import { CollectionTree, CollectionTreeImplementation, Service } from '~/types';
+import {
+  CollectionTree,
+  CollectionTreeImplementation,
+  Service,
+  UnaryCollection
+} from '~/types';
 import { replace } from './replace';
-import { isElementService, isServiceImplementation } from '~/inspect';
+import {
+  isElementService,
+  isServiceImplementation,
+  isServiceSubscription
+} from '~/inspect';
 
 export function toImplementation<T extends CollectionTree>(
   collection: T,
@@ -23,4 +32,29 @@ export function toDeclaration(collection: CollectionTree): CollectionTree {
 
     return element;
   });
+}
+
+export function toUnary<T extends CollectionTree>(
+  collection: T
+): UnaryCollection<T> {
+  return replace(collection, (element, next) => {
+    element = next(element);
+
+    if (!isElementService(element) || !isServiceSubscription(element)) {
+      return element;
+    }
+
+    if (!isServiceImplementation(element)) {
+      return { ...element, kind: 'query' };
+    }
+
+    const resolve: any = element.resolve;
+    return {
+      ...element,
+      kind: 'query',
+      resolve(...args: any): Promise<any> {
+        return resolve.apply(this, args).toPromise();
+      }
+    };
+  }) as UnaryCollection<T>;
 }
