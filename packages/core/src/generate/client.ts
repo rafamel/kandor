@@ -5,7 +5,7 @@ import {
   CollectionTreeImplementation
 } from '~/types';
 import { typings } from './typings';
-import { replace, ReplaceTransformData, normalize, routes } from '~/transform';
+import { replace, ReplaceTransformData, normalize, route } from '~/transform';
 import { isElementService, isServiceSubscription } from '~/inspect';
 
 export interface ClientGenerateOptions {
@@ -69,7 +69,7 @@ export async function client<T extends CollectionTree>(
   const [start, end] = [0, 1].map(() =>
     (String(Math.random()) + String(Math.random())).replace(/\./g, '')
   );
-  const { tree } = routes(normalize(source), {
+  const { tree } = route(normalize(source), {
     children: true,
     map(service): any {
       let resolve = '';

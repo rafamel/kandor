@@ -102,7 +102,7 @@ export function normalizeErrors(
   return result;
 }
 
-export function checkServiceType(kind: string, type: Type) {
+export function checkServiceType(kind: string, type: Type): void {
   if (type.kind !== kind) {
     throw Error(`Invalid inline type kind.`);
   }

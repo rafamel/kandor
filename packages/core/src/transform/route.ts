@@ -16,13 +16,13 @@ import {
 import { normalize } from './normalize';
 import { replace, ReplaceTransformData } from './replace';
 
-export interface RoutesTransform<T extends CollectionTree> {
+export interface RouteTransform<T extends CollectionTree> {
   collection: GenericCollection<T>;
   routes: ServicesRoutes<T>;
   tree: ServicesTree<T>;
 }
 
-export interface RoutesTransformOptions<
+export interface RouteTransformOptions<
   T extends CollectionTree = CollectionTree
 > {
   /**
@@ -42,10 +42,10 @@ export interface RoutesTransformOptions<
 /**
  * Given a collection, it will return an object with *values* of all services, and *keys* of their full route.
  */
-export function routes<T extends CollectionTree>(
+export function route<T extends CollectionTree>(
   collection: T,
-  options?: RoutesTransformOptions<T>
-): RoutesTransform<T> {
+  options?: RouteTransformOptions<T>
+): RouteTransform<T> {
   const opts = Object.assign(
     {
       children: true,
