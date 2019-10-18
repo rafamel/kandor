@@ -16,7 +16,7 @@ import {
   isElementType,
   isElementService
 } from '~/inspect/is/element';
-import { ReplaceTransformData, ReplaceTransformFn } from './types';
+import { ReplaceTransformFn, ReplaceTransformData } from './index';
 
 export function next<E extends Element>(
   element: E,
