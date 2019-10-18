@@ -8,20 +8,26 @@ export interface TypingsGenerateOptions {
    * Path to optionally write the result into a file. Default: `null`.
    */
   write?: string | null;
+  /**
+   * Enables head comments disabling *tslint* and *eslint*. Default: `true`.
+   */
+  headComments?: boolean;
 }
 
 export async function typings(
   collection: CollectionTree,
   options?: TypingsGenerateOptions
 ): Promise<string> {
-  const opts = { write: null, ...options };
+  const opts = { write: null, headComments: true, ...options };
 
   let content = '';
 
-  content +=
-    '/* eslint-disable */\n' +
-    '/* tslint:disable */\n' +
-    '/* This file was automatically generated. DO NOT MODIFY IT BY HAND. */\n\n';
+  if (opts.headComments) {
+    content +=
+      '/* eslint-disable */\n' +
+      '/* tslint:disable */\n' +
+      '/* This file was automatically generated. DO NOT MODIFY IT BY HAND. */\n\n';
+  }
 
   const { types } = normalize(collection);
   for (const [key, value] of Object.entries(types)) {
