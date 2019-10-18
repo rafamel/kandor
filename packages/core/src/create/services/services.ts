@@ -43,7 +43,6 @@ export function query<I, O>(
     ...query,
     kind: 'query',
     types: parseTypes(query.types),
-    intercepts: query.intercepts || [],
     async resolve(...args: any) {
       return query.resolve.apply(this, args);
     }
@@ -60,7 +59,6 @@ export function mutation<I, O>(
     ...mutation,
     kind: 'mutation',
     types: parseTypes(mutation.types),
-    intercepts: mutation.intercepts || [],
     async resolve(...args: any) {
       return mutation.resolve.apply(this, args);
     }
@@ -77,7 +75,6 @@ export function subscription<I, O>(
     ...subscription,
     kind: 'subscription',
     types: parseTypes(subscription.types),
-    intercepts: subscription.intercepts || [],
     resolve(...args: any) {
       const get = async (): Promise<Observable<O>> => {
         return subscription.resolve.apply(this, args);
