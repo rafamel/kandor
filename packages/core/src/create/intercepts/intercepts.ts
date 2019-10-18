@@ -18,10 +18,12 @@ export interface InterceptsCreateOptions {
  */
 export function intercepts<T extends CollectionTree>(
   collection: T,
-  intercepts: InterceptImplementation[],
+  intercepts: InterceptImplementation | InterceptImplementation[],
   options?: InterceptsCreateOptions
 ): T {
   const opts = Object.assign({ prepend: true }, options);
+  const arr =
+    intercepts && !Array.isArray(intercepts) ? [intercepts] : intercepts;
 
   return replace(collection, (element, next) => {
     element = next(element);
@@ -31,8 +33,8 @@ export function intercepts<T extends CollectionTree>(
       : {
           ...element,
           intercepts: opts.prepend
-            ? intercepts.concat(element.intercepts || [])
-            : (element.intercepts || []).concat(intercepts)
+            ? arr.concat(element.intercepts || [])
+            : (element.intercepts || []).concat(arr)
         };
   }) as T;
 }
