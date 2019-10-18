@@ -8,7 +8,7 @@ export function scope<T extends CollectionTree, N extends string>(
   name: N,
   collection: T
 ): ScopeCollection<T, N> {
-  const { types, ...other } = collection;
+  const { kind, types, ...other } = collection;
 
   return {
     ...emptyCollection(),
