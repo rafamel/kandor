@@ -1,8 +1,7 @@
 import fs from 'fs';
 import { CollectionTree } from '~/types';
 import { compile } from 'json-schema-to-typescript';
-import camelcase from 'camelcase';
-import { normalize } from '~/transform';
+import { normalize } from '~/transform/normalize';
 
 export interface TypingsGenerateOptions {
   /**
@@ -17,7 +16,9 @@ export async function typings(
 ): Promise<string> {
   const opts = { write: null, ...options };
 
-  let content =
+  let content = '';
+
+  content +=
     '/* eslint-disable */\n' +
     '/* tslint:disable */\n' +
     '/* This file was automatically generated. DO NOT MODIFY IT BY HAND. */\n\n';
@@ -25,11 +26,7 @@ export async function typings(
   const { types } = normalize(collection);
   for (const [key, value] of Object.entries(types)) {
     if (value.kind !== 'error') {
-      content += await compile(
-        value.schema,
-        camelcase(key, { pascalCase: true }),
-        { bannerComment: '' }
-      );
+      content += await compile(value.schema, key, { bannerComment: '' });
       content += '\n';
     }
   }
