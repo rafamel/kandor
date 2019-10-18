@@ -14,21 +14,30 @@ import {
 } from './implementation';
 import { GenericError } from './types';
 
-export type ApplicationCollection<T extends CollectionTree> = T & {
-  types: { [P in GenericError]: ErrorType };
-};
-
-export type NormalCollection<
+export type GenericCollection<
   T extends CollectionTree
 > = T extends CollectionTreeImplementation
   ? CollectionTreeImplementation
   : CollectionTree;
 
-export interface CollectionRoutes<T extends CollectionTree> {
-  [key: string]: T extends CollectionTreeImplementation
-    ? ServiceImplementation
-    : Service;
+export type GenericService<
+  T extends CollectionTree
+> = T extends CollectionTreeImplementation ? ServiceImplementation : Service;
+
+export interface ServicesTree<T extends CollectionTree = CollectionTree> {
+  [key: string]: GenericService<T> | ServicesTree<T>;
 }
+
+export interface ServicesRoutes<T extends CollectionTree = CollectionTree>
+  extends ServicesTree<T> {
+  [key: string]: GenericService<T>;
+}
+
+export type ApplicationCollection<
+  T extends CollectionTree = CollectionTree
+> = T & {
+  types: { [P in GenericError]: ErrorType };
+};
 
 export type ScopeCollection<
   T extends CollectionTree,

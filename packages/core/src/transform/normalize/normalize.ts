@@ -2,7 +2,7 @@ import {
   CollectionTree,
   QueryService,
   SubscriptionService,
-  NormalCollection
+  GenericCollection
 } from '~/types';
 import camelcase from 'camelcase';
 import { normalizeServiceTypes } from './helpers';
@@ -28,7 +28,7 @@ import { NormalizeTransformOptions } from './types';
 export function normalize<T extends CollectionTree>(
   collection: T,
   options?: NormalizeTransformOptions
-): NormalCollection<T> {
+): GenericCollection<T> {
   const opts = Object.assign(
     { skipReferences: false, liftInlineType: () => true },
     options
@@ -116,7 +116,7 @@ export function normalize<T extends CollectionTree>(
       return element;
     }),
     types: types.normal
-  } as NormalCollection<T>;
+  } as GenericCollection<T>;
 
   const rootServices = Object.keys(result.services);
   const conflictingTypes = rootServices.length

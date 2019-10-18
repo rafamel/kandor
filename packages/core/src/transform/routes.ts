@@ -1,4 +1,4 @@
-import { CollectionTree, CollectionRoutes } from '~/types';
+import { CollectionTree, ServicesRoutes } from '~/types';
 import { traverse } from '~/inspect/traverse';
 import { isElementService, isElementType, isTypeResponse } from '~/inspect/is';
 import { normalize } from './normalize';
@@ -20,9 +20,9 @@ export interface RoutesTransformOptions {
 export function routes<T extends CollectionTree>(
   collection: T,
   options?: RoutesTransformOptions
-): CollectionRoutes<T> {
+): ServicesRoutes<T> {
   const opts = Object.assign({ separator: ':', children: true }, options);
-  const routes: CollectionRoutes<any> = {};
+  const routes: ServicesRoutes<any> = {};
 
   if (!/[^\w]/.exec(opts.separator)) {
     throw Error(`Separator must contain a non word character`);
