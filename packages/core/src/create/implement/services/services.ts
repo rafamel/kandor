@@ -9,9 +9,8 @@ import {
 import { Observable, from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import {
-  QueryServiceInput,
-  MutationServiceInput,
-  SubscriptionServiceInput,
+  UnaryServiceImplementationInput,
+  StreamServiceImplementationInput,
   ServiceInputTypes
 } from './types';
 import { isElement } from '~/inspect';
@@ -36,13 +35,14 @@ export function services<T extends TreeServicesImplementation>(
 /**
  * Creates a `QueryServiceImplementation`.
  */
-export function query<I, O>(
-  query: QueryServiceInput<I, O>
-): QueryServiceImplementation<I, O> {
+export function query<I = any, O = any, C = any>(
+  query: UnaryServiceImplementationInput<I, O, C>
+): QueryServiceImplementation<I, O, C> {
   return {
     ...query,
     kind: 'query',
     types: parseTypes(query.types),
+    intercepts: query.intercepts || [],
     async resolve(...args: any) {
       return query.resolve.apply(this, args);
     }
@@ -52,13 +52,14 @@ export function query<I, O>(
 /**
  * Creates a `MutationServiceImplementation`.
  */
-export function mutation<I, O>(
-  mutation: MutationServiceInput<I, O>
-): MutationServiceImplementation<I, O> {
+export function mutation<I = any, O = any, C = any>(
+  mutation: UnaryServiceImplementationInput<I, O, C>
+): MutationServiceImplementation<I, O, C> {
   return {
     ...mutation,
     kind: 'mutation',
     types: parseTypes(mutation.types),
+    intercepts: mutation.intercepts || [],
     async resolve(...args: any) {
       return mutation.resolve.apply(this, args);
     }
@@ -66,17 +67,18 @@ export function mutation<I, O>(
 }
 
 /**
- * Creates a `MutationServiceImplementation`.
+ * Creates a `SubscriptionServiceImplementation`.
  */
-export function subscription<I, O>(
-  subscription: SubscriptionServiceInput<I, O>
-): SubscriptionServiceImplementation<I, O> {
+export function subscription<I = any, O = any, C = any>(
+  subscription: StreamServiceImplementationInput<I, O, C>
+): SubscriptionServiceImplementation<I, O, C> {
   return {
     ...subscription,
     kind: 'subscription',
     types: parseTypes(subscription.types),
+    intercepts: subscription.intercepts || [],
     resolve(...args: any) {
-      const get = async (): Promise<Observable<O>> => {
+      const get = async (): Promise<Observable<any>> => {
         return subscription.resolve.apply(this, args);
       };
       return from(get()).pipe(switchMap((obs) => obs));

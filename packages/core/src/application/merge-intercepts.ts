@@ -1,10 +1,32 @@
-import { ServiceImplementation, Type, CollectionTree } from '~/types';
+import {
+  ServiceImplementation,
+  Type,
+  CollectionTree,
+  CollectionTreeImplementation
+} from '~/types';
 import { mergeServiceErrors } from '~/utils';
 import { Observable, from } from 'rxjs';
-import { allof } from '../intercepts';
-import { isTypeRequest, isTypeResponse } from '~/inspect';
+import {
+  isTypeRequest,
+  isTypeResponse,
+  isElementService,
+  isServiceImplementation
+} from '~/inspect';
+import { replace } from '~/transform';
+import { allof } from '~/create';
 
-export default function serviceIntercepts(
+export function mergeIntercepts(
+  collection: CollectionTreeImplementation
+): CollectionTreeImplementation {
+  return replace(collection, (element, info, next) => {
+    element = next(element);
+    return isElementService(element) && isServiceImplementation(element)
+      ? serviceIntercepts(element, collection)
+      : element;
+  }) as CollectionTreeImplementation;
+}
+
+export function serviceIntercepts(
   service: ServiceImplementation,
   collection: CollectionTree
 ): ServiceImplementation {
@@ -40,9 +62,9 @@ export default function serviceIntercepts(
           ...service.types,
           errors: mergeServiceErrors(service.types.errors, intercept.errors)
         },
-        resolve(data: any, context: any): Promise<any> {
-          return interceptFn(data, context, (data: any) => {
-            return from(resolve.call(this, data, context));
+        resolve(data: any, context, info): Promise<any> {
+          return interceptFn(data, context, info, (data: any) => {
+            return from(resolve.call(this, data, context, info));
           }).toPromise();
         }
       };
@@ -55,9 +77,9 @@ export default function serviceIntercepts(
           ...service.types,
           errors: mergeServiceErrors(service.types.errors, intercept.errors)
         },
-        resolve(data: any, context: any): Observable<any> {
-          return interceptFn(data, context, (data: any) => {
-            return resolve.call(this, data, context);
+        resolve(data: any, context, info): Observable<any> {
+          return interceptFn(data, context, info, (data: any) => {
+            return resolve.call(this, data, context, info);
           });
         }
       };

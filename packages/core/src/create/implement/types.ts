@@ -1,9 +1,9 @@
 import {
-  ErrorTypeImplementation,
-  RequestTypeImplementation,
   ResponseTypeImplementation,
+  CollectionTreeImplementation,
   TreeTypesImplementation,
-  CollectionTreeImplementation
+  ErrorTypeImplementation,
+  RequestTypeImplementation
 } from '~/types';
 
 export type ErrorTypeInput = Omit<ErrorTypeImplementation, 'kind'>;

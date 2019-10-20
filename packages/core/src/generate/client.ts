@@ -1,12 +1,14 @@
 import fs from 'fs';
 import {
   CollectionTree,
-  GenericService,
-  CollectionTreeImplementation
+  CollectionTreeImplementation,
+  Service,
+  ElementInfo
 } from '~/types';
 import { typings } from './typings';
-import { replace, ReplaceTransformData, normalize, route } from '~/transform';
+import { replace, normalize } from '~/transform';
 import { isElementService, isServiceSubscription } from '~/inspect';
+import { application } from '~/application';
 
 export interface ClientGenerateOptions {
   /**
@@ -25,16 +27,15 @@ export interface ClientGenerateOptions {
    * An additional string to include at the top of the file.
    */
   headInclude?: string;
+  /**
+   * Maps collection default export.
+   */
+  mapDefault?: (str: string) => string;
 }
 
-export type ClientGenerateFn<T extends CollectionTree = CollectionTree> = (
-  service: GenericService<T>,
-  data: ReplaceTransformData
-) => string;
-
-export async function client<T extends CollectionTree>(
-  collection: T,
-  resolver: ClientGenerateFn<T>,
+export async function client(
+  collection: CollectionTree,
+  resolver: (service: Service, info: ElementInfo) => string,
   options?: ClientGenerateOptions
 ): Promise<string> {
   const opts = {
@@ -42,6 +43,7 @@ export async function client<T extends CollectionTree>(
     write: null,
     headComments: true,
     headInclude: '',
+    mapDefault: (str: string): string => str,
     ...options
   };
 
@@ -55,41 +57,44 @@ export async function client<T extends CollectionTree>(
     content += `\n`;
   }
 
-  const source = replace(collection, (element, next, data) => {
+  const source = replace(collection, (element, info, next): any => {
     element = next(element);
     if (!isElementService(element)) return element;
-
     return {
       ...element,
-      resolve: resolver(element as any, data)
+      resolve: resolver(element as any, info)
     };
-  }) as CollectionTreeImplementation;
+  });
 
   let importObservable = false;
   const [start, end] = [0, 1].map(() =>
     (String(Math.random()) + String(Math.random())).replace(/\./g, '')
   );
-  const { tree } = route(normalize(source), {
-    children: true,
-    map(service): any {
-      let resolve = '';
-      resolve += start + `function resolve(data`;
-      resolve += opts.typescript ? `: ${service.types.request}` : ``;
-      resolve += `)`;
-      if (opts.typescript) {
-        const isSubscription = isServiceSubscription(service);
-        if (isSubscription) importObservable = true;
-        resolve += isSubscription
-          ? `: Observable<${service.types.response}>`
-          : `: Promise<${service.types.response}>`;
-      }
-      resolve += ` { `;
-      resolve += service.resolve;
-      resolve += ` }` + end;
+  const { routes } = application(
+    normalize(source) as CollectionTreeImplementation,
+    {
+      validate: false,
+      children: true,
+      map(service): any {
+        let resolve = '';
+        resolve += start + `function resolve(data`;
+        resolve += opts.typescript ? `: ${service.types.request}` : ``;
+        resolve += `)`;
+        if (opts.typescript) {
+          const isSubscription = isServiceSubscription(service);
+          if (isSubscription) importObservable = true;
+          resolve += isSubscription
+            ? `: Observable<${service.types.response}>`
+            : `: Promise<${service.types.response}>`;
+        }
+        resolve += ` { `;
+        resolve += service.resolve;
+        resolve += ` }` + end;
 
-      return resolve;
+        return resolve;
+      }
     }
-  });
+  );
 
   let head = '';
   if (opts.headComments) {
@@ -104,9 +109,11 @@ export async function client<T extends CollectionTree>(
 
   content = head + content;
   content += `export default `;
-  content += JSON.stringify(tree, null, 2)
-    .replace(new RegExp('"' + start, 'g'), '')
-    .replace(new RegExp(end + '"', 'g'), '');
+  content += opts.mapDefault(
+    JSON.stringify(routes, null, 2)
+      .replace(new RegExp('"' + start, 'g'), '')
+      .replace(new RegExp(end + '"', 'g'), '')
+  );
   content += `;`;
 
   content = content.trim() + '\n';

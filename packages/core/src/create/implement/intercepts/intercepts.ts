@@ -1,4 +1,4 @@
-import { InterceptImplementation, CollectionTree } from '~/types';
+import { InterceptImplementation, CollectionTreeImplementation } from '~/types';
 import { from, Observable } from 'rxjs';
 import { switchMap, mergeMap } from 'rxjs/operators';
 import { emptyIntercept, mergeServiceErrors } from '~/utils';
@@ -16,7 +16,7 @@ export interface InterceptsCreateOptions {
 /**
  * Adds `intercepts` to all `ServiceImplementation`s of a given collection.
  */
-export function intercepts<T extends CollectionTree>(
+export function intercepts<T extends CollectionTreeImplementation>(
   collection: T,
   intercepts: InterceptImplementation | InterceptImplementation[],
   options?: InterceptsCreateOptions
@@ -25,7 +25,7 @@ export function intercepts<T extends CollectionTree>(
   const arr =
     intercepts && !Array.isArray(intercepts) ? [intercepts] : intercepts;
 
-  return replace(collection, (element, next) => {
+  return replace(collection, (element, info, next) => {
     element = next(element);
 
     return !isElementService(element) || !isServiceImplementation(element)
@@ -50,9 +50,9 @@ export function intercept<I, O>(
     errors: intercept.errors || {},
     factory(...args: any) {
       const fn = intercept.factory.apply(this, args);
-      return function(data, context, next) {
+      return function(data, context, info, next) {
         const get = async (): Promise<Observable<O>> => {
-          return fn(data, context, (input?: I) => {
+          return fn(data, context, info, (input?: I) => {
             return input === undefined ? next(data) : next(input);
           });
         };
@@ -73,8 +73,8 @@ export function before<T>(
     errors: hook.errors || {},
     factory(...args: any) {
       const fn = hook.factory.apply(this, args);
-      return function(data, context, next) {
-        const get = async (): Promise<T> => fn(data, context);
+      return function(data, context, info, next) {
+        const get = async (): Promise<T> => fn(data, context, info);
         return from(get()).pipe(
           switchMap((value) => next(value === undefined ? data : value))
         );
@@ -94,9 +94,9 @@ export function after<T>(
     errors: hook.errors || {},
     factory(...args: any) {
       const fn = hook.factory.apply(this, args);
-      return function(data, context, next) {
+      return function(data, context, info, next) {
         const get = async (value: T): Promise<T> => {
-          const result = await fn(value, context);
+          const result = await fn(value, context, info);
           return result === undefined ? value : result;
         };
         return next(data).pipe(mergeMap((value) => get(value)));
@@ -118,9 +118,9 @@ export function allof(
       factory(...args: any) {
         const aFn = a.factory.apply(this, args);
         const bFn = b.factory.apply(this, args);
-        return function(data, context, next) {
-          return aFn(data, context, (data) => {
-            return bFn(data, context, next);
+        return function(data, context, info, next) {
+          return aFn(data, context, info, (data) => {
+            return bFn(data, context, info, next);
           });
         };
       }

@@ -2,7 +2,12 @@ import {
   CollectionTree,
   CollectionTreeImplementation,
   Service,
-  UnaryCollection
+  CollectionTreeDeclaration,
+  AbstractCollectionTree,
+  QueryService,
+  MutationService,
+  SubscriptionService,
+  ElementInfo
 } from '~/types';
 import { replace } from './replace';
 import {
@@ -13,31 +18,37 @@ import {
 
 export function toImplementation<T extends CollectionTree>(
   collection: T,
-  fn: (service: Service, data: { path: string[]; route: string[] }) => Service
+  fn: (service: Service, info: ElementInfo) => Service
 ): T & CollectionTreeImplementation {
-  return replace(collection, (element, next, data) => {
+  return replace(collection, (element, info, next) => {
     element = next(element);
-    return isElementService(element) ? fn(element, data) : element;
+    return isElementService(element) ? fn(element, info) : element;
   }) as T & CollectionTreeImplementation;
 }
 
-export function toDeclaration(collection: CollectionTree): CollectionTree {
-  return replace(collection, (element, next) => {
+export function toDeclaration(
+  collection: CollectionTree
+): CollectionTreeDeclaration {
+  return replace(collection, (element, info, next): any => {
     element = next(element);
 
     if (isElementService(element) && isServiceImplementation(element)) {
-      const { resolve, ...service } = element;
+      const { resolve, intercepts, ...service } = element;
       return service;
     }
 
     return element;
-  });
+  }) as CollectionTreeDeclaration;
 }
 
-export function toUnary<T extends CollectionTree>(
-  collection: T
-): UnaryCollection<T> {
-  return replace(collection, (element, next) => {
+export function toUnary<
+  Q extends QueryService,
+  M extends MutationService,
+  T extends AbstractCollectionTree<Q, M, SubscriptionService>
+>(
+  collection: T & AbstractCollectionTree<Q, M, SubscriptionService>
+): AbstractCollectionTree<Q, M, never> {
+  return replace(collection, (element, info, next): any => {
     element = next(element);
 
     if (!isElementService(element) || !isServiceSubscription(element)) {
@@ -56,5 +67,5 @@ export function toUnary<T extends CollectionTree>(
         return resolve.apply(this, args).toPromise();
       }
     };
-  }) as UnaryCollection<T>;
+  }) as AbstractCollectionTree<Q, M, never>;
 }

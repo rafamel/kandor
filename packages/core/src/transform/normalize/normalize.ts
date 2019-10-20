@@ -1,8 +1,8 @@
 import {
-  CollectionTree,
   QueryService,
   SubscriptionService,
-  GenericCollection
+  AbstractCollectionTree,
+  MutationService
 } from '~/types';
 import camelcase from 'camelcase';
 import { normalizeServiceTypes } from './helpers';
@@ -25,10 +25,14 @@ import { NormalizeTransformOptions } from './types';
  * - Contains types, services, or scopes with an empty name or with non word characters.
  * - Contains services with inline types or type references of the wrong kind.
  */
-export function normalize<T extends CollectionTree>(
-  collection: T,
+export function normalize<
+  Q extends QueryService,
+  M extends MutationService,
+  S extends SubscriptionService
+>(
+  collection: AbstractCollectionTree<Q, M, S>,
   options?: NormalizeTransformOptions
-): GenericCollection<T> {
+): AbstractCollectionTree<Q, M, S> {
   const opts = Object.assign(
     { skipReferences: false, liftInlineType: () => true },
     options
@@ -51,7 +55,7 @@ export function normalize<T extends CollectionTree>(
   }
 
   const result = {
-    ...replace(collection, (element, next, { route }) => {
+    ...replace(collection, (element, { route }, next): any => {
       if (isElementTree(element) && isTreeCollection(element)) {
         return next(element);
       }
@@ -96,7 +100,7 @@ export function normalize<T extends CollectionTree>(
             types,
             opts,
             transform
-          ) as QueryService | SubscriptionService;
+          ) as any;
         }
         return response;
       }
@@ -116,7 +120,7 @@ export function normalize<T extends CollectionTree>(
       return element;
     }),
     types: types.normal
-  } as GenericCollection<T>;
+  };
 
   const rootServices = Object.keys(result.services);
   const conflictingTypes = rootServices.length

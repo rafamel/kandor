@@ -1,3 +1,4 @@
+export * from './application';
 export * from './create';
 export * from './generate';
 export * from './inspect';

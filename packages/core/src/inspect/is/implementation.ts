@@ -25,7 +25,7 @@ export function isTreeImplementation(
 
   let isImplementation: null | boolean = null;
   try {
-    traverse(collection, (element, next) => {
+    traverse(collection, (element, info, next) => {
       next();
 
       if (isElementService(element)) {

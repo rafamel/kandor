@@ -19,7 +19,7 @@ export function normalizeServiceTypes(
   options: Required<NormalizeTransformOptions>,
   transform: (str: string, isExplicit: boolean) => string
 ): Service {
-  service = { ...service, types: { ...service.types } };
+  service = { ...service, types: { ...service.types } } as Service;
 
   for (const kind of ['request', 'response'] as ['request', 'response']) {
     const type = service.types[kind];

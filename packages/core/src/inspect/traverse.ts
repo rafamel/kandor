@@ -2,8 +2,9 @@ import {
   QueryService,
   MutationService,
   SubscriptionService,
-  Element,
-  CollectionTree
+  ElementInfo,
+  AbstractCollectionTree,
+  AbstractElement
 } from '~/types';
 import { replace } from '~/transform/replace';
 
@@ -12,28 +13,24 @@ export type TraverseInspectFn<
   M extends MutationService = MutationService,
   S extends SubscriptionService = SubscriptionService
 > = (
-  element: Element<Q, M, S>,
-  next: TraverseInspectNextFn,
-  data: TraverseInspectData
+  element: AbstractElement<Q, M, S>,
+  info: ElementInfo,
+  next: () => void
 ) => void;
 
-export type TraverseInspectNextFn = () => void;
-
-export interface TraverseInspectData {
-  path: string[];
-  route: string[];
-}
-
 /**
- * Performs a collection traversal. Alternative to `replace`.
+ * Performs a tree traversal. Alternative to `replace`.
  */
 export function traverse<
   Q extends QueryService = QueryService,
   M extends MutationService = MutationService,
   S extends SubscriptionService = SubscriptionService
->(collection: CollectionTree<Q, M, S>, cb: TraverseInspectFn<Q, M, S>): void {
-  replace(collection, (element, next, data) => {
-    cb(element, () => next(), data);
+>(
+  collection: AbstractCollectionTree<Q, M, S>,
+  cb: TraverseInspectFn<Q, M, S>
+): void {
+  replace(collection, (element, info, next) => {
+    cb(element as any, info, () => next());
     return element;
   });
 }

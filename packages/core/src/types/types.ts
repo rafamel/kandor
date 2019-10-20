@@ -20,4 +20,9 @@ export type ServerErrorCode =
   | 'ServerUnavailable'
   | 'ServerTimeout';
 
-export type GenericError = 'ClientError' | 'ServerError';
+export type GeneralError = 'ClientError' | 'ServerError';
+
+export interface ElementInfo {
+  path: string[];
+  route: string[];
+}

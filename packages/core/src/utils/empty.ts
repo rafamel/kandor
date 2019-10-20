@@ -20,8 +20,6 @@ export function emptyIntercept(): InterceptImplementation {
   return {
     kind: 'intercept',
     errors: {},
-    factory: () => (data, context, next) => {
-      return next(data);
-    }
+    factory: () => (data, context, info, next) => next(data)
   };
 }
