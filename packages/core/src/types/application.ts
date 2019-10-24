@@ -1,16 +1,24 @@
-import { CollectionTreeDeclaration } from './collection';
+import { CollectionTreeDeclaration, ServiceDeclaration } from './collection';
 import { Observable } from 'rxjs';
 
 export interface Application {
   declaration: CollectionTreeDeclaration;
   routes: ApplicationRoutes;
+  flatten(delimiter: string): ApplicationServices;
 }
 
 export interface ApplicationRoutes {
-  [key: string]: ApplicationRouteItem;
+  [key: string]: ApplicationResolve | ApplicationRoutes;
 }
 
-export type ApplicationRouteItem = ApplicationResolve | ApplicationRoutes;
+export interface ApplicationServices {
+  [key: string]: ApplicationService;
+}
+
+export interface ApplicationService {
+  declaration: ServiceDeclaration;
+  resolve: ApplicationResolve;
+}
 
 export type ApplicationResolve<I = any, O = any, C = any> =
   | UnaryApplicationResolve<I, O, C>

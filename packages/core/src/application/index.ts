@@ -3,9 +3,10 @@ import {
   ApplicationResolve,
   ServiceImplementation,
   ElementInfo,
-  Application
+  Application,
+  ApplicationServices
 } from '~/types';
-import { validate } from '~/inspect';
+import { validate, traverse, isElementService, atPath } from '~/inspect';
 import { addInterceptErrors } from './intercept-errors';
 import { mergeIntercepts } from './merge-intercepts';
 import { handleChildren } from './handle-children';
@@ -61,8 +62,35 @@ export function application<T extends CollectionTreeImplementation>(
   tree = addInterceptErrors(tree);
   tree = mergeIntercepts(tree);
 
+  const declaration = toDeclaration(tree);
+  const routes = getRoutes(tree, opts.map);
+
   return {
-    declaration: toDeclaration(tree),
-    routes: getRoutes(tree, opts.map)
+    declaration,
+    routes,
+    flatten(delimiter: string): ApplicationServices {
+      if (!/[^\w]/.exec(delimiter)) {
+        throw Error(
+          `Delimiter must include at least a non wod character: ${delimiter}`
+        );
+      }
+
+      const services: ApplicationServices = {};
+      traverse(declaration, (element, info, next) => {
+        next();
+        if (isElementService(element)) {
+          services[info.route.join(delimiter)] = {
+            declaration: element,
+            resolve: atPath(
+              routes,
+              info.route,
+              (x: any): x is ApplicationResolve => typeof x === 'function'
+            )
+          };
+        }
+      });
+
+      return services;
+    }
   };
 }
