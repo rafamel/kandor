@@ -29,6 +29,7 @@
     "validate": "kpo validate --",
     "bootstrap": "kpo bootstrap --",
     "link": "kpo link --",
+    "build": "kpo build --",
     "postinstall": "kpo postinstall --"
   },
   "license": "MIT",
@@ -41,11 +42,13 @@
     "url": "https://github.com/rafamel/karmic/issues"
   },
   "devDependencies": {
+    "@babel/core": "^7.6.4",
+    "@babel/node": "^7.6.3",
     "@riseup/monorepo": "^0.4.0",
-    "kpo": "^0.11.0",
-    "lerna": "^3.15.0",
+    "coveralls": "^3.0.4",
     "husky": "^3.0.0",
-    "coveralls": "^3.0.4"
+    "kpo": "^0.11.0",
+    "lerna": "^3.15.0"
   },
   "dependencies": {},
   "husky": {
