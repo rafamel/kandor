@@ -9,3 +9,4 @@
 ## Packages
 
 * [*@karmic/core:*](https://github.com/rafamel/karmic/tree/master/packages/core) core package.
+* [*@karmic/rest-adapter:*](https://github.com/rafamel/karmic/tree/master/packages/rest-adapter) *REST* adapter.
