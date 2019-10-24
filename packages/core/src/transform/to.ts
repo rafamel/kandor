@@ -15,6 +15,7 @@ import {
   isServiceImplementation,
   isServiceSubscription
 } from '~/inspect';
+import { take } from 'rxjs/operators';
 
 export function toImplementation<T extends CollectionTree>(
   collection: T,
@@ -64,7 +65,10 @@ export function toUnary<
       ...element,
       kind: 'query',
       resolve(...args: any): Promise<any> {
-        return resolve.apply(this, args).toPromise();
+        return resolve
+          .apply(this, args)
+          .pipe(take(1))
+          .toPromise();
       }
     };
   }) as AbstractCollectionTree<Q, M, never>;

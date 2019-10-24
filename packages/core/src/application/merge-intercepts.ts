@@ -14,6 +14,7 @@ import {
 } from '~/inspect';
 import { replace } from '~/transform';
 import { allof } from '~/create';
+import { take } from 'rxjs/operators';
 
 export function mergeIntercepts(
   collection: CollectionTreeImplementation
@@ -65,7 +66,9 @@ export function serviceIntercepts(
         resolve(data: any, context, info): Promise<any> {
           return interceptFn(data, context, info, (data: any) => {
             return from(resolve.call(this, data, context, info));
-          }).toPromise();
+          })
+            .pipe(take(1))
+            .toPromise();
         }
       };
     }
