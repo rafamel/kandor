@@ -17,6 +17,7 @@ export type ClientErrorCode =
 export type ServerErrorCode =
   | 'ServerError'
   | 'ServerNotImplemented'
+  | 'ServerGateway'
   | 'ServerUnavailable'
   | 'ServerTimeout';
 
