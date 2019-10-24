@@ -34,7 +34,7 @@ export interface ClientGenerateOptions {
 }
 
 export async function client(
-  collection: CollectionTree,
+  collection: CollectionTree | Promise<CollectionTree>,
   resolver: (service: Service, info: ElementInfo) => string,
   options?: ClientGenerateOptions
 ): Promise<string> {
@@ -48,6 +48,7 @@ export async function client(
   };
 
   let content = '';
+  collection = await collection;
 
   if (opts.typescript) {
     content += await typings(collection, {

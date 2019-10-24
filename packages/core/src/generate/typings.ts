@@ -15,7 +15,7 @@ export interface TypingsGenerateOptions {
 }
 
 export async function typings(
-  collection: CollectionTree,
+  collection: CollectionTree | Promise<CollectionTree>,
   options?: TypingsGenerateOptions
 ): Promise<string> {
   const opts = { write: null, headComments: true, ...options };
@@ -29,7 +29,7 @@ export async function typings(
       '/* This file was automatically generated. DO NOT MODIFY IT BY HAND. */\n\n';
   }
 
-  const { types } = normalize(collection);
+  const { types } = normalize(await collection);
   for (const [key, value] of Object.entries(types)) {
     if (value.kind !== 'error') {
       content += await compile(value.schema, key, { bannerComment: '' });
