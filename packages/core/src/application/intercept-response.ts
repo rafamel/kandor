@@ -1,10 +1,10 @@
 import { CollectionTreeImplementation } from '~/types';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { PublicError, CollectionError } from '~/errors';
 import { error, intercepts, intercept } from '~/create';
 
-export function addInterceptErrors(
+export function addInterceptResponse(
   collection: CollectionTreeImplementation
 ): CollectionTreeImplementation {
   const errors = {
@@ -27,6 +27,7 @@ export function addInterceptErrors(
         ),
         factory: () => (data, context, info, next) => {
           return next(data).pipe(
+            map((value) => (value === undefined ? null : value)),
             catchError((err) =>
               throwError(
                 err instanceof PublicError

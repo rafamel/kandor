@@ -92,10 +92,10 @@ function parseTypes(types: ServiceInputTypes = {}): ServiceTypesImplementation {
     request:
       isElement(types.request) || typeof types.request === 'string'
         ? types.request
-        : request({ schema: types.request || {} }),
+        : request({ schema: types.request || { type: 'object' } }),
     response:
       isElement(types.response) || typeof types.response === 'string'
         ? types.response
-        : response({ schema: types.response || {} })
+        : response({ schema: types.response || { type: 'null' } })
   };
 }

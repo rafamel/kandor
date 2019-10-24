@@ -7,7 +7,7 @@ import {
   ApplicationServices
 } from '~/types';
 import { validate, traverse, isElementService, atPath } from '~/inspect';
-import { addInterceptErrors } from './intercept-errors';
+import { addInterceptResponse } from './intercept-response';
 import { mergeIntercepts } from './merge-intercepts';
 import { handleChildren } from './handle-children';
 import { getRoutes } from './get-routes';
@@ -35,9 +35,10 @@ export type ApplicationCreateMapFn<I = any, O = any, C = any> = (
 
 /**
  * Validates and prepares a collection to be used:
- * - Adds `ServerError` and `ClientError` error types, if non existent, to the collection declaration.
- * - Handles children adequately according to whether they have children services.
- * - Merges service intercepts into each route resolver, and makes them fail with `PublicError`s, if they don't already do.
+ * - Merges service intercepts into each route resolver.
+ * - Ensures services fail with a `PublicError` and resolve with `null` for empty responses.
+ * - Ensures `ServerError` and `ClientError` error types exist on the collection declaration.
+ * - Names and lifts inline types to the collection root if they have children services.
  */
 export function application<T extends CollectionTreeImplementation>(
   collection: T,
@@ -59,7 +60,7 @@ export function application<T extends CollectionTreeImplementation>(
   let tree: CollectionTreeImplementation = collection;
   if (opts.validate) validate(tree, { as: 'implementation' });
   tree = handleChildren(tree, opts.children ? 'lift' : 'remove');
-  tree = addInterceptErrors(tree);
+  tree = addInterceptResponse(tree);
   tree = mergeIntercepts(tree);
 
   const declaration = toDeclaration(tree);
