@@ -74,7 +74,7 @@ export function before<T>(
     factory(...args: any) {
       const fn = hook.factory.apply(this, args);
       return function(data, context, info, next) {
-        const get = async (): Promise<T> => fn(data, context, info);
+        const get = async (): Promise<T | void> => fn(data, context, info);
         return from(get()).pipe(
           switchMap((value) => next(value === undefined ? data : value))
         );

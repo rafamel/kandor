@@ -34,4 +34,4 @@ export type HookCreateInputResolve<T = any, C = any> = (
   data: T,
   context: C,
   info: ElementInfo
-) => T | Promise<T>;
+) => T | void | Promise<T | void>;
