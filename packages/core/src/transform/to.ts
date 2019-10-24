@@ -7,7 +7,8 @@ import {
   QueryService,
   MutationService,
   SubscriptionService,
-  ElementInfo
+  ElementInfo,
+  ServiceImplementation
 } from '~/types';
 import { replace } from './replace';
 import {
@@ -19,7 +20,7 @@ import { take } from 'rxjs/operators';
 
 export function toImplementation<T extends CollectionTree>(
   collection: T,
-  fn: (service: Service, info: ElementInfo) => Service
+  fn: (service: Service, info: ElementInfo) => ServiceImplementation
 ): T & CollectionTreeImplementation {
   return replace(collection, (element, info, next) => {
     element = next(element);
