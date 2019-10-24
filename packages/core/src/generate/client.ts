@@ -3,12 +3,18 @@ import {
   CollectionTree,
   CollectionTreeImplementation,
   Service,
-  ElementInfo
+  ElementInfo,
+  RequestType
 } from '~/types';
 import { typings } from './typings';
 import { replace, normalize } from '~/transform';
 import { isElementService, isServiceSubscription } from '~/inspect';
 import { application } from '~/application';
+import Ajv from 'ajv';
+import draft04 from 'ajv/lib/refs/json-schema-draft-04.json';
+
+const ajv = new Ajv({ schemaId: 'id', logger: false });
+ajv.addMetaSchema(draft04);
 
 export interface ClientGenerateOptions {
   /**
@@ -23,6 +29,9 @@ export interface ClientGenerateOptions {
    * Enables head comments disabling *tslint* and *eslint*. Default: `true`.
    */
   headComments?: boolean;
+}
+
+export interface ClientGenerateCustomize {
   /**
    * An additional string to include at the top of the file.
    */
@@ -31,21 +40,50 @@ export interface ClientGenerateOptions {
    * Maps collection default export.
    */
   mapDefault?: (str: string) => string;
+  /**
+   * Maps function bodies for each service.
+   */
+  mapService: (service: Service, info: ElementInfo) => string;
 }
 
 export async function client(
   collection: CollectionTree | Promise<CollectionTree>,
-  resolver: (service: Service, info: ElementInfo) => string,
-  options?: ClientGenerateOptions
+  options?: ClientGenerateOptions | null,
+  customize?: ClientGenerateCustomize
 ): Promise<string> {
   const opts = {
     typescript: true,
     write: null,
     headComments: true,
-    headInclude: '',
-    mapDefault: (str: string): string => str,
     ...options
   };
+  const custom = customize
+    ? Object.assign(
+        { headInclude: '', mapDefault: (x: string) => x },
+        customize
+      )
+    : {
+        headInclude: opts.typescript
+          ? `import { Application } from '@karmic/core';`
+          : undefined,
+        mapDefault(str: string): string {
+          let fn = `function createClient(application`;
+          fn += opts.typescript ? `: Application, ` : `, `;
+          fn += `getContext`;
+          if (opts.typescript) fn += `: () => any`;
+          fn += ` = () => ({})) {\n`;
+          fn += `  const app = application.flatten(':');\n\n`;
+          fn += `  return ` + str.replace(/\n/g, '\n  ');
+          fn += `}`;
+          return fn;
+        },
+        mapService(service: Service, info: ElementInfo): string {
+          let body = `return app['${info.route.join(':')}']`;
+          body += `.resolve(data, getContext())`;
+          body += opts.typescript ? ` as any;` : `;`;
+          return body;
+        }
+      };
 
   let content = '';
   collection = await collection;
@@ -63,7 +101,7 @@ export async function client(
     if (!isElementService(element)) return element;
     return {
       ...element,
-      resolve: resolver(element as any, info)
+      resolve: custom.mapService(element as any, info)
     };
   });
 
@@ -71,31 +109,37 @@ export async function client(
   const [start, end] = [0, 1].map(() =>
     (String(Math.random()) + String(Math.random())).replace(/\./g, '')
   );
-  const { routes } = application(
-    normalize(source) as CollectionTreeImplementation,
-    {
-      validate: false,
-      children: true,
-      map(service): any {
-        let resolve = '';
-        resolve += start + `function resolve(data`;
-        resolve += opts.typescript ? `: ${service.types.request}` : ``;
-        resolve += `)`;
-        if (opts.typescript) {
-          const isSubscription = isServiceSubscription(service);
-          if (isSubscription) importObservable = true;
-          resolve += isSubscription
-            ? `: Observable<${service.types.response}>`
-            : `: Promise<${service.types.response}>`;
-        }
-        resolve += ` { `;
-        resolve += service.resolve;
-        resolve += ` }` + end;
 
-        return resolve;
+  const normal = normalize(source) as CollectionTreeImplementation;
+  const { routes } = application(normal, {
+    validate: false,
+    children: true,
+    map(service): any {
+      const requestType = normal.types[
+        service.types.request as string
+      ] as RequestType;
+      const emptyObjectValid = ajv.compile(requestType.schema)({});
+
+      let resolve = '';
+      resolve += start + `function resolve(data`;
+      resolve += opts.typescript ? `: ${service.types.request}` : ``;
+      resolve += emptyObjectValid ? ` = {}` : ``;
+
+      resolve += `)`;
+      if (opts.typescript) {
+        const isSubscription = isServiceSubscription(service);
+        if (isSubscription) importObservable = true;
+        resolve += isSubscription
+          ? `: Observable<${service.types.response}>`
+          : `: Promise<${service.types.response}>`;
       }
+      resolve += ` { `;
+      resolve += service.resolve;
+      resolve += ` }` + end;
+
+      return resolve;
     }
-  );
+  });
 
   let head = '';
   if (opts.headComments) {
@@ -104,13 +148,13 @@ export async function client(
       '/* tslint:disable */\n' +
       '/* This file was automatically generated. DO NOT MODIFY IT BY HAND. */\n';
   }
-  if (opts.headInclude) head += `\n` + opts.headInclude;
+  if (custom.headInclude) head += `\n` + custom.headInclude;
   if (importObservable) head += `\nimport { Observable } from 'rxjs';`;
-  head += opts.headInclude || importObservable ? `\n\n` : `\n`;
+  head += custom.headInclude || importObservable ? `\n\n` : `\n`;
 
   content = head + content;
   content += `export default `;
-  content += opts.mapDefault(
+  content += custom.mapDefault(
     JSON.stringify(routes, null, 2)
       .replace(new RegExp('"' + start, 'g'), '')
       .replace(new RegExp(end + '"', 'g'), '')
