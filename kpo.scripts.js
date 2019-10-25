@@ -7,6 +7,7 @@ module.exports.scripts = {
   link: 'lerna link',
   build: [
     kpo`@core build`,
+    kpo`@intercepts build`,
     kpo`@rest-adapter build`,
     kpo`@rpc-adapter build`,
     kpo`@rpc-client build`
