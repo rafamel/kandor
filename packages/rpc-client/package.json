@@ -78,7 +78,8 @@
     "ws": "^7.1.2"
   },
   "dependencies": {
-    "isomorphic-ws": "^4.0.1"
+    "isomorphic-ws": "^4.0.1",
+    "promist": "^1.0.0"
   },
   "peerDependencies": {
     "@karmic/core": "0.0.0",
