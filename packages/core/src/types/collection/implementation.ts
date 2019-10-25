@@ -21,7 +21,7 @@ import {
   AbstractServiceErrors
 } from './abstract';
 import { Observable } from 'rxjs';
-import { Schema, ElementInfo } from '../types';
+import { Schema, ElementInfo, ServiceInfo } from '../types';
 
 // Groups
 export type ElementImplementation = AbstractElement<
@@ -156,7 +156,7 @@ export type InterceptFactoryImplementation<I = any, O = any, C = any> = (
 export type InterceptResolveImplementation<I = any, O = any, C = any> = (
   data: I,
   context: C,
-  info: ElementInfo,
+  info: ServiceInfo,
   next: (data: I) => Observable<O>
 ) => Observable<O>;
 

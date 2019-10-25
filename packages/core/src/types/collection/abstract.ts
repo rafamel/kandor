@@ -1,4 +1,14 @@
 import { ErrorCode, Schema } from '../types';
+import {
+  CollectionTreeKind,
+  ScopeTreeKind,
+  QueryServiceKind,
+  MutationServiceKind,
+  SubscriptionServiceKind,
+  ErrorTypeKind,
+  RequestTypeKind,
+  ResponseTypeKind
+} from './kind';
 
 // Groups
 export type AbstractElement<
@@ -33,7 +43,7 @@ export interface AbstractCollectionTree<
   B extends AbstractTreeServices<Q, M, S> = AbstractTreeServices<Q, M, S>,
   C extends AbstractTreeScopes<Q, M, S> = AbstractTreeScopes<Q, M, S>
 > {
-  kind: 'collection';
+  kind: CollectionTreeKind;
   types: A;
   services: B;
   scopes: C;
@@ -46,7 +56,7 @@ export interface AbstractScopeTree<
   B extends AbstractTreeServices<Q, M, S> = AbstractTreeServices<Q, M, S>,
   C extends AbstractTreeScopes<Q, M, S> = AbstractTreeScopes<Q, M, S>
 > {
-  kind: 'scope';
+  kind: ScopeTreeKind;
   services: B;
   scopes: C;
 }
@@ -95,7 +105,7 @@ export interface AbstractTreeScopes<
 
 // Services
 export interface AbstractQueryService {
-  kind: 'query';
+  kind: QueryServiceKind;
   types: AbstractServiceTypes<
     AbstractQueryService,
     AbstractSubscriptionService
@@ -103,7 +113,7 @@ export interface AbstractQueryService {
 }
 
 export interface AbstractMutationService {
-  kind: 'mutation';
+  kind: MutationServiceKind;
   types: AbstractServiceTypes<
     AbstractQueryService,
     AbstractSubscriptionService
@@ -111,7 +121,7 @@ export interface AbstractMutationService {
 }
 
 export interface AbstractSubscriptionService {
-  kind: 'subscription';
+  kind: SubscriptionServiceKind;
   types: AbstractServiceTypes<
     AbstractQueryService,
     AbstractSubscriptionService
@@ -133,13 +143,13 @@ export interface AbstractServiceErrors {
 
 // Types
 export interface AbstractErrorType {
-  kind: 'error';
+  kind: ErrorTypeKind;
   code: ErrorCode;
   description?: string;
 }
 
 export interface AbstractRequestType {
-  kind: 'request';
+  kind: RequestTypeKind;
   schema: Schema;
 }
 
@@ -147,7 +157,7 @@ export interface AbstractResponseType<
   Q extends AbstractQueryService,
   S extends AbstractSubscriptionService
 > {
-  kind: 'response';
+  kind: ResponseTypeKind;
   schema: Schema;
   children?: AbstractResponseTypeChildren<Q, S>;
 }

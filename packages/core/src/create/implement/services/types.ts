@@ -3,19 +3,24 @@ import {
   Schema,
   ResponseTypeImplementation,
   ServiceErrors,
-  RequestType
+  RequestType,
+  ElementInfo
 } from '~/types';
 import { Observable } from 'rxjs';
 
 export interface UnaryServiceImplementationInput<I = any, O = any, C = any> {
   types?: ServiceInputTypes;
-  resolve: (data: I, context: C) => Promise<O> | O;
+  resolve: (data: I, context: C, info: ElementInfo) => Promise<O> | O;
   intercepts?: Array<InterceptImplementation<I, O, C>>;
 }
 
 export interface StreamServiceImplementationInput<I = any, O = any, C = any> {
   types?: ServiceInputTypes;
-  resolve: (data: I, context: C) => Observable<O> | Promise<Observable<O>>;
+  resolve: (
+    data: I,
+    context: C,
+    info: ElementInfo
+  ) => Observable<O> | Promise<Observable<O>>;
   intercepts?: Array<InterceptImplementation<I, O, C>>;
 }
 

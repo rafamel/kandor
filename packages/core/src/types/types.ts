@@ -1,4 +1,5 @@
 import { JSONSchema4 } from 'json-schema';
+import { ServiceKind } from './collection';
 
 export type Schema = JSONSchema4;
 
@@ -26,4 +27,8 @@ export type GeneralError = 'ClientError' | 'ServerError';
 export interface ElementInfo {
   path: string[];
   route: string[];
+}
+
+export interface ServiceInfo extends ElementInfo {
+  kind: ServiceKind;
 }

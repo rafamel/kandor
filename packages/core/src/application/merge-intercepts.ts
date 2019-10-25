@@ -65,9 +65,14 @@ export function serviceIntercepts(
         },
         resolve(data: any, context, info): Promise<any> {
           return toSafePromise(
-            interceptFn(data, context, info, (data: any) => {
-              return from(resolve.call(this, data, context, info));
-            })
+            interceptFn(
+              data,
+              context,
+              { ...info, kind: service.kind },
+              (data: any) => {
+                return from(resolve.call(this, data, context, info));
+              }
+            )
           );
         }
       };
@@ -81,9 +86,14 @@ export function serviceIntercepts(
           errors: mergeServiceErrors(service.types.errors, intercept.errors)
         },
         resolve(data: any, context, info): Observable<any> {
-          return interceptFn(data, context, info, (data: any) => {
-            return resolve.call(this, data, context, info);
-          });
+          return interceptFn(
+            data,
+            context,
+            { ...info, kind: service.kind },
+            (data: any) => {
+              return resolve.call(this, data, context, info);
+            }
+          );
         }
       };
     }
