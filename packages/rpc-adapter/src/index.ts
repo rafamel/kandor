@@ -1,3 +1,2 @@
-export default function main(): null {
-  return null;
-}
+export { default } from './adapter';
+export * from './types';
