@@ -78,6 +78,7 @@
     "ws": "^7.1.2"
   },
   "dependencies": {
+    "@pika/plugin-build-web": "^0.7.1",
     "isomorphic-ws": "^4.0.1",
     "promist": "^1.0.0"
   },
@@ -96,6 +97,9 @@
             "__tests__/**/*"
           ]
         }
+      ],
+      [
+        "@pika/plugin-build-web"
       ]
     ]
   }
