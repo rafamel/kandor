@@ -5,10 +5,10 @@ import {
   isServiceQuery,
   isServiceMutation,
   isServiceSubscription,
-  ApplicationService
+  ApplicationService,
+  toSafePromise
 } from '@karmic/core';
 import { Observable } from 'rxjs';
-import { take } from 'rxjs/operators';
 
 export default function resolve(
   request: Partial<RPCRequest> & Pick<RPCRequest, 'id'>,
@@ -52,7 +52,7 @@ export default function resolve(
       if (isServiceSubscription(service.declaration)) {
         if (action === 'query') {
           const obs = service.resolve(data || {}, context) as Observable<any>;
-          return channels.open(id, obs.pipe(take(1)).toPromise());
+          return channels.open(id, toSafePromise(obs));
         }
         if (action === 'subscribe') {
           return channels.open(id, service.resolve(data || {}, context));

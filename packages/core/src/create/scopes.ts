@@ -5,7 +5,7 @@ import {
   AbstractCollectionTree,
   AbstractScopeTree
 } from '~/types';
-import { emptyCollection, emptyScope } from '~/utils';
+import { emptyCollection, emptyScope } from '~/helpers';
 
 export type ScopeCreate<
   Q extends QueryService,

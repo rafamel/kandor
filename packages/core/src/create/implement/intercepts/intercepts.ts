@@ -1,7 +1,7 @@
 import { InterceptImplementation, CollectionTreeImplementation } from '~/types';
 import { from, Observable } from 'rxjs';
 import { switchMap, mergeMap } from 'rxjs/operators';
-import { emptyIntercept, mergeServiceErrors } from '~/utils';
+import { emptyIntercept, mergeServiceErrors } from '~/helpers';
 import { isElementService, isServiceImplementation } from '~/inspect';
 import { replace } from '~/transform';
 import { InterceptCreateInput, HookCreateInput } from './types';

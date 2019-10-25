@@ -5,7 +5,7 @@ import {
   MutationService,
   SubscriptionService
 } from '~/types';
-import { emptyCollection, mergeCollection } from '~/utils';
+import { emptyCollection, mergeCollection } from '~/helpers';
 
 export { collections };
 

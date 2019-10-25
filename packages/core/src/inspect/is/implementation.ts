@@ -12,7 +12,7 @@ import {
   isTypeError,
   isTypeRequest
 } from './element';
-import { emptyCollection } from '~/utils';
+import { emptyCollection } from '~/helpers';
 import { traverse } from '../traverse';
 
 export function isTreeImplementation(

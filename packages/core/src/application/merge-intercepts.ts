@@ -4,7 +4,7 @@ import {
   CollectionTree,
   CollectionTreeImplementation
 } from '~/types';
-import { mergeServiceErrors } from '~/utils';
+import { mergeServiceErrors } from '~/helpers';
 import { Observable, from } from 'rxjs';
 import {
   isTypeRequest,
@@ -14,7 +14,7 @@ import {
 } from '~/inspect';
 import { replace } from '~/transform';
 import { allof } from '~/create';
-import { take } from 'rxjs/operators';
+import { toSafePromise } from '~/utils';
 
 export function mergeIntercepts(
   collection: CollectionTreeImplementation
@@ -64,11 +64,11 @@ export function serviceIntercepts(
           errors: mergeServiceErrors(service.types.errors, intercept.errors)
         },
         resolve(data: any, context, info): Promise<any> {
-          return interceptFn(data, context, info, (data: any) => {
-            return from(resolve.call(this, data, context, info));
-          })
-            .pipe(take(1))
-            .toPromise();
+          return toSafePromise(
+            interceptFn(data, context, info, (data: any) => {
+              return from(resolve.call(this, data, context, info));
+            })
+          );
         }
       };
     }
