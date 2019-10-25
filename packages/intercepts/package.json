@@ -72,7 +72,9 @@
     "rxjs": "^6.5.3",
     "typescript": "^3.6.4"
   },
-  "dependencies": {},
+  "dependencies": {
+    "errorish": "^0.4.0"
+  },
   "peerDependencies": {
     "@karmic/core": "0.0.0",
     "rxjs": "6.x"
