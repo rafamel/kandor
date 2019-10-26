@@ -47,9 +47,10 @@ export interface RESTAdapterOptions {
    */
   envelope?: RESTEnvelopeFn;
   /**
-   * A service handling not found routes.
+   * A default service for adapters to use when the route is non existent.
+   * Defaults to a `ClientNotFound` error throwing service.
    */
-  notFound?: QueryServiceImplementation;
+  default?: QueryServiceImplementation;
 }
 
 export type RESTContextFn<C = any> = (req: Request) => Promise<C> | Partial<C>;

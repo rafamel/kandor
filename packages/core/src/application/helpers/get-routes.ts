@@ -10,7 +10,7 @@ import {
   isTypeResponse,
   isElementTree
 } from '~/inspect';
-import { ApplicationCreateMapFn } from './index';
+import { ApplicationCreateMapFn } from '../types';
 
 export function getRoutes(
   collection: CollectionTreeImplementation,

@@ -10,10 +10,9 @@ import {
   isElementService,
   filter
 } from '@karmic/core';
-import createDefaults from './defaults';
+import { createDefaults } from './defaults';
 import mapError from './helpers/map-error';
 import parseService from './parse-service';
-import mergeNotFound from './helpers/merge';
 import { RESTAdapterOptions, RESTAdapter } from './types';
 
 export default function adapter(
@@ -23,9 +22,6 @@ export default function adapter(
   const opts = Object.assign(createDefaults(), options);
   const router = express.Router();
 
-  const { notFound, ...other } = mergeNotFound(collection, opts.notFound);
-  collection = other.collection;
-
   const app = application(
     opts.subscriptions
       ? toUnary(collection)
@@ -33,7 +29,8 @@ export default function adapter(
           collection,
           (element) =>
             !isElementService(element) || !isServiceSubscription(element)
-        )
+        ),
+    opts.default ? { default: opts.default } : {}
   );
 
   const internal: GeneralError = 'ServerError';
@@ -71,7 +68,7 @@ export default function adapter(
   router.use(async (req, res) => {
     try {
       const context = await opts.context(req);
-      const data = await notFound(req.body, context);
+      const data = await app.default(req.body, context);
       return res.json(opts.envelope(null, data));
     } catch (err) {
       const { error, status } = mapError(err, errors.server);

@@ -9,10 +9,10 @@ export class PublicError extends Error {
     id: string,
     label: ErrorLabel,
     source?: Error | null,
-    message?: string,
+    message?: string | null,
     clear?: boolean
   ) {
-    super(message);
+    super(message || '');
     this.id = id;
     this.label = label;
     this.source = source || undefined;

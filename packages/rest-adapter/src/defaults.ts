@@ -1,7 +1,8 @@
-import { query, error, PublicError } from '@karmic/core';
 import { RESTAdapterOptions } from './types';
 
-export default function createDefaults(): Required<RESTAdapterOptions> {
+export function createDefaults(): Required<
+  Omit<RESTAdapterOptions, 'default'>
+> {
   return {
     crud: true,
     children: true,
@@ -22,16 +23,6 @@ export default function createDefaults(): Required<RESTAdapterOptions> {
             status: 'success',
             data: data
           };
-    },
-    notFound: query({
-      types: {
-        errors: {
-          NotFoundError: error({ label: 'ClientNotFound' })
-        }
-      },
-      async resolve() {
-        throw new PublicError('NotFoundError', 'ClientNotFound');
-      }
-    })
+    }
   };
 }
