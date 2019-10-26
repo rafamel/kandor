@@ -8,7 +8,6 @@ import {
   query,
   mutation,
   subscription,
-  ErrorTypeImplementation,
   error,
   intercepts,
   intercept,
@@ -16,19 +15,16 @@ import {
   CollectionError,
   collections,
   types,
-  references
+  references,
+  ElementItem,
+  ErrorType
 } from '@karmic/core';
 import RPCClient from './client';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 
 export interface RPCReproduceOptions {
-  proxyError: RPCReproduceProxyError;
-}
-
-export interface RPCReproduceProxyError {
-  name: string;
-  type: ErrorTypeImplementation;
+  proxyError: ElementItem<ErrorType<'ServerGateway'>>;
 }
 
 /**
@@ -44,7 +40,7 @@ export async function reproduce(
     {
       proxyError: {
         name: 'ProxyError',
-        type: error({ code: 'ServerGateway' })
+        item: error({ label: 'ServerGateway' })
       }
     },
     options
@@ -72,7 +68,7 @@ export async function reproduce(
         throw Error(`Invalid service kind: ${JSON.stringify(service)}`);
       }
     }),
-    types({ [opts.proxyError.name]: opts.proxyError.type })
+    types({ [opts.proxyError.name]: opts.proxyError.item })
   );
 
   return intercepts(

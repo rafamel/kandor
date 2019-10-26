@@ -3,10 +3,14 @@ import {
   CollectionTreeImplementation,
   TreeTypesImplementation,
   ErrorTypeImplementation,
-  RequestTypeImplementation
+  RequestTypeImplementation,
+  ErrorLabel
 } from '~/types';
 
-export type ErrorTypeInput = Omit<ErrorTypeImplementation, 'kind'>;
+export type ErrorTypeInput<L extends ErrorLabel> = Omit<
+  ErrorTypeImplementation<L>,
+  'kind'
+>;
 export type RequestTypeInput = Omit<RequestTypeImplementation, 'kind'>;
 export type ResponseTypeInput = Omit<ResponseTypeImplementation, 'kind'>;
 
@@ -27,7 +31,9 @@ export function types<T extends TreeTypesImplementation>(
 /**
  * Creates an `ErrorTypeImplementation`.
  */
-export function error(error: ErrorTypeInput): ErrorTypeImplementation {
+export function error<L extends ErrorLabel>(
+  error: ErrorTypeInput<L>
+): ErrorTypeImplementation<L> {
   return {
     kind: 'error',
     ...error

@@ -2,22 +2,23 @@ import {
   PublicError,
   CollectionError,
   GeneralError,
-  CollectionTree
+  CollectionTree,
+  ElementItem,
+  ErrorType
 } from '@karmic/core';
-import { RPCAdapterRouteError } from '~/types';
 
 export function createErrors(
   collection: CollectionTree,
-  routeError: RPCAdapterRouteError
+  routeError: ElementItem<ErrorType<'ClientNotFound'>>
 ): { [P in GeneralError | 'RouteError']: PublicError } {
   return {
     ServerError: new CollectionError(collection, 'ServerError'),
     ClientError: new CollectionError(collection, 'ClientError'),
     RouteError: new PublicError(
       routeError.name,
-      routeError.type.code,
+      routeError.item.label,
       null,
-      routeError.type.description
+      routeError.item.description
     )
   };
 }

@@ -8,8 +8,8 @@ export function addInterceptResponse(
   collection: CollectionTreeImplementation
 ): CollectionTreeImplementation {
   const errors = {
-    ServerError: error({ code: 'ServerError' }),
-    ClientError: error({ code: 'ClientError' })
+    ServerError: error({ label: 'ServerError' }),
+    ClientError: error({ label: 'ClientError' })
   };
 
   const tree = {

@@ -63,7 +63,7 @@ export function logging(
       ? {
           name: err.name,
           id: err.id,
-          code: err.code,
+          label: err.label,
           description: err.message,
           stack: err.stack,
           source: err.source

@@ -47,7 +47,7 @@ export interface RESTAdapterOptions {
    */
   envelope?: RESTEnvelopeFn;
   /**
-   * A service handling not found errors.
+   * A service handling not found routes.
    */
   notFound?: QueryServiceImplementation;
 }

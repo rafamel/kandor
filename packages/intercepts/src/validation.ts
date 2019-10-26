@@ -1,10 +1,11 @@
 import {
   InterceptImplementation,
   intercept,
-  ErrorTypeImplementation,
   error,
   ServiceErrorsImplementation,
-  PublicError
+  PublicError,
+  ElementItem,
+  ErrorType
 } from '@karmic/core';
 import Ajv from 'ajv';
 import draft04 from 'ajv/lib/refs/json-schema-draft-04.json';
@@ -18,19 +19,14 @@ export interface ValidationOptions {
    * If a `ValidationError` is passed, it will be used to fail instead.
    * Default: `true`.
    */
-  request?: ValidationError | boolean;
+  request?: ElementItem<ErrorType<'ClientInvalid'>> | boolean;
   /**
    * If `false`, it won't validate responses.
    * If `true`, it will validate responses and use a default `ValidationError` to fail.
    * If a `ValidationError` is passed, it will be used to fail instead.
    * Default: `false`.
    */
-  response?: ValidationError | boolean;
-}
-
-export interface ValidationError {
-  name: string;
-  type: ErrorTypeImplementation;
+  response?: ElementItem<ErrorType> | boolean;
 }
 
 const ajv = new Ajv({ schemaId: 'id', logger: false });
@@ -44,27 +40,33 @@ export function validation(
 ): InterceptImplementation<any, any, any> {
   const opts = Object.assign({ request: true, response: false }, options);
 
-  const requestError: ValidationError | null = opts.request
+  const requestError: ElementItem<ErrorType> | null = opts.request
     ? opts.request === true
       ? {
           name: 'RequestValidationError',
-          type: error({ code: 'ClientError' })
+          item: error({ label: 'ClientInvalid' })
         }
       : opts.request
     : null;
-  const responseError: ValidationError | null = opts.response
+  const responseError: ElementItem<ErrorType> | null = opts.response
     ? opts.response === true
       ? {
           name: 'ResponseValidationError',
-          type: error({ code: 'ServerError' })
+          item: error({ label: 'ServerError' })
         }
       : opts.response
     : null;
 
+  if (requestError && requestError.item.label !== 'ClientInvalid') {
+    throw Error(
+      `Request error must have label ClientInvalid: ${requestError.item.label}`
+    );
+  }
+
   return intercept({
     errors: [requestError, responseError].reduce(
       (acc: ServiceErrorsImplementation, error) => {
-        if (error) acc[error.name] = error.type;
+        if (error) acc[error.name] = error.item;
         return acc;
       },
       {}
@@ -78,9 +80,9 @@ export function validation(
           if (!valid) {
             throw new PublicError(
               requestError.name,
-              requestError.type.code,
+              requestError.item.label,
               null,
-              requestError.type.description,
+              requestError.item.description,
               true
             );
           }
@@ -94,9 +96,9 @@ export function validation(
                   : throwError(
                       new PublicError(
                         responseError.name,
-                        responseError.type.code,
+                        responseError.item.label,
                         null,
-                        responseError.type.description,
+                        responseError.item.description,
                         true
                       )
                     );

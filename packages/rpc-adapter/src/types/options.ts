@@ -1,8 +1,9 @@
 import http from 'http';
 import WebSocket from 'ws';
 import {
-  ErrorTypeImplementation,
-  CollectionTreeDeclaration
+  CollectionTreeDeclaration,
+  ElementItem,
+  ErrorType
 } from '@karmic/core';
 
 /**
@@ -43,12 +44,7 @@ export interface RPCAdapterOptions {
   /**
    * An error definition for route errors.
    */
-  routeError?: RPCAdapterRouteError;
-}
-
-export interface RPCAdapterRouteError {
-  name: string;
-  type: ErrorTypeImplementation;
+  routeError?: ElementItem<ErrorType<'ClientNotFound'>>;
 }
 
 export type ContextFn<T extends object = object> = (

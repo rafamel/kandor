@@ -90,12 +90,12 @@ export default class ChannelMananger {
     return err instanceof PublicError
       ? {
           id: err.id,
-          code: err.code,
+          label: err.label,
           message: err.message || undefined
         }
       : {
           id: this.errors.ServerError.id,
-          code: this.errors.ServerError.code,
+          label: this.errors.ServerError.label,
           message: this.errors.ServerError.message || undefined
         };
   }

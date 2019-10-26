@@ -9,7 +9,7 @@ import {
 import { BehaviorSubject, Observable, throwError, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import WebSocket from 'isomorphic-ws';
-import { PublicError, ErrorCode } from '@karmic/core';
+import { PublicError, ErrorLabel } from '@karmic/core';
 import { connect, Connection } from '../connect';
 import { createConnectionManager } from './connection-manager';
 import { RPCClientStatus } from '../types';
@@ -210,7 +210,7 @@ export class ClientManager {
             json.id,
             new PublicError(
               json.data.id,
-              json.data.code as ErrorCode,
+              json.data.label as ErrorLabel,
               null,
               json.data.message,
               true

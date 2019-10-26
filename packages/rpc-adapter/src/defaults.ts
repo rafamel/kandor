@@ -11,7 +11,7 @@ export default function createDefaults(): Required<RPCAdapterOptions> {
     context: () => ({}),
     routeError: {
       name: 'RouteError',
-      type: error({ code: 'ClientNotFound' })
+      item: error({ label: 'ClientNotFound' })
     }
   };
 }

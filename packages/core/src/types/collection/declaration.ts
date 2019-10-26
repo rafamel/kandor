@@ -20,6 +20,7 @@ import {
   AbstractErrorType,
   AbstractServiceErrors
 } from './abstract';
+import { ErrorLabel } from '../types';
 
 // Groups
 export type ElementDeclaration = AbstractElement<
@@ -127,7 +128,9 @@ export type ServiceTypesDeclaration = AbstractServiceTypes<
 export type ServiceErrorsDeclaration = AbstractServiceErrors;
 
 // Types
-export type ErrorTypeDeclaration = AbstractErrorType;
+export type ErrorTypeDeclaration<
+  L extends ErrorLabel = ErrorLabel
+> = AbstractErrorType<L>;
 
 export type RequestTypeDeclaration = AbstractRequestType;
 

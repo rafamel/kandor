@@ -1,4 +1,4 @@
-import { ErrorCode, Schema } from '../types';
+import { ErrorLabel, Schema } from '../types';
 import {
   CollectionTreeKind,
   ScopeTreeKind,
@@ -142,9 +142,9 @@ export interface AbstractServiceErrors {
 }
 
 // Types
-export interface AbstractErrorType {
+export interface AbstractErrorType<L extends ErrorLabel = ErrorLabel> {
   kind: ErrorTypeKind;
-  code: ErrorCode;
+  label: L;
   description?: string;
 }
 

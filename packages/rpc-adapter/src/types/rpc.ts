@@ -49,6 +49,6 @@ export interface RPCStreamFinalResponse {
 
 export interface RPCError {
   id: string;
-  code: string;
+  label: string;
   message?: string;
 }

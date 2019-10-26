@@ -14,7 +14,7 @@ export default function createDefaults(): Required<RESTAdapterOptions> {
             status: 'error',
             error: {
               id: error.id,
-              code: error.code,
+              label: error.label,
               description: error.message || null
             }
           }
@@ -26,7 +26,7 @@ export default function createDefaults(): Required<RESTAdapterOptions> {
     notFound: query({
       types: {
         errors: {
-          NotFoundError: error({ code: 'ClientNotFound' })
+          NotFoundError: error({ label: 'ClientNotFound' })
         }
       },
       async resolve() {

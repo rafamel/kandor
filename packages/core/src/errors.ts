@@ -1,20 +1,20 @@
-import { ErrorCode, CollectionTree } from '~/types';
+import { ErrorLabel, CollectionTree } from '~/types';
 import { isTypeError } from './inspect';
 
 export class PublicError extends Error {
   public id: string;
-  public code: ErrorCode;
+  public label: ErrorLabel;
   public source?: Error;
   public constructor(
     id: string,
-    code: ErrorCode,
+    label: ErrorLabel,
     source?: Error | null,
     message?: string,
     clear?: boolean
   ) {
     super(message);
     this.id = id;
-    this.code = code;
+    this.label = label;
     this.source = source || undefined;
     if (clear) this.stack = `${this.name}: ${this.message}`;
   }
@@ -46,6 +46,6 @@ export class CollectionError<
     if (!isTypeError(error)) {
       throw Error(`Type "${id}" is not an error on collection`);
     }
-    super(id as string, error.code, source, error.description, clear);
+    super(id as string, error.label, source, error.description, clear);
   }
 }

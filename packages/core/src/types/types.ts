@@ -1,21 +1,23 @@
 import { JSONSchema4 } from 'json-schema';
-import { ServiceKind } from './collection';
+import { ServiceKind, Element } from './collection';
 
 export type Schema = JSONSchema4;
 
-export type ErrorCode = ClientErrorCode | ServerErrorCode;
+export type ErrorLabel = ClientErrorLabel | ServerErrorLabel;
 
-export type ClientErrorCode =
+export type ClientErrorLabel =
   | 'ClientError'
   | 'ClientUnauthorized'
   | 'ClientForbidden'
   | 'ClientNotFound'
-  | 'ClientConflict'
   | 'ClientUnsupported'
+  | 'ClientConflict'
+  | 'ClientInvalid'
   | 'ClientTooEarly'
-  | 'ClientRateLimit';
+  | 'ClientRateLimit'
+  | 'ClientLegal';
 
-export type ServerErrorCode =
+export type ServerErrorLabel =
   | 'ServerError'
   | 'ServerNotImplemented'
   | 'ServerGateway'
@@ -31,4 +33,12 @@ export interface ElementInfo {
 
 export interface ServiceInfo extends ElementInfo {
   kind: ServiceKind;
+}
+
+export interface ElementItem<
+  E extends Element = Element,
+  N extends string = string
+> {
+  name: N;
+  item: E;
 }

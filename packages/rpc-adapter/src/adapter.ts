@@ -30,7 +30,7 @@ export default function adapter(
   const app = application(
     collections(
       collection,
-      types({ [opts.routeError.name]: opts.routeError.type })
+      types({ [opts.routeError.name]: opts.routeError.item })
     ),
     { children: opts.children }
   );

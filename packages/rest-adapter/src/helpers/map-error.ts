@@ -1,15 +1,17 @@
-import { ErrorCode, PublicError } from '@karmic/core';
+import { ErrorLabel, PublicError } from '@karmic/core';
 
-export const hash: { [P in ErrorCode]: number } = {
+export const hash: { [P in ErrorLabel]: number } = {
   // Client
   ClientError: 400,
   ClientUnauthorized: 401,
   ClientForbidden: 403,
   ClientNotFound: 404,
-  ClientConflict: 409,
   ClientUnsupported: 406,
+  ClientConflict: 409,
+  ClientInvalid: 422,
   ClientTooEarly: 425,
   ClientRateLimit: 429,
+  ClientLegal: 451,
   // Server
   ServerError: 500,
   ServerNotImplemented: 501,
@@ -22,7 +24,7 @@ export default function mapError(
   error: PublicError,
   serverError: PublicError
 ): { error: PublicError; status: number } {
-  const status = hash[error.code];
+  const status = hash[error.label];
 
   return status ? { error, status } : { error: serverError, status: 500 };
 }

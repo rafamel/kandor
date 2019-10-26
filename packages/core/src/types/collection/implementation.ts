@@ -21,7 +21,7 @@ import {
   AbstractServiceErrors
 } from './abstract';
 import { Observable } from 'rxjs';
-import { Schema, ElementInfo, ServiceInfo } from '../types';
+import { Schema, ElementInfo, ServiceInfo, ErrorLabel } from '../types';
 
 // Groups
 export type ElementImplementation = AbstractElement<
@@ -166,7 +166,9 @@ export interface InterceptSchemasImplementation {
 }
 
 // Types
-export type ErrorTypeImplementation = AbstractErrorType;
+export type ErrorTypeImplementation<
+  L extends ErrorLabel = ErrorLabel
+> = AbstractErrorType<L>;
 
 export type RequestTypeImplementation = AbstractRequestType;
 
