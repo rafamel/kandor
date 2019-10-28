@@ -1,5 +1,6 @@
 import { Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
+import { safeTrigger } from './safe-trigger';
 
 /**
  * Converts an *Observable* into a *Promise* that will throw if the observable
@@ -10,15 +11,24 @@ export function toSafePromise<T>(observable: Observable<T>): Promise<T> {
     const subscription = observable.pipe(take(1)).subscribe({
       next(value) {
         resolve(value);
-        setTimeout(() => subscription.unsubscribe, 0);
+        safeTrigger(
+          () => Boolean(subscription),
+          () => subscription.unsubscribe()
+        );
       },
       error(err) {
         reject(err);
-        setTimeout(() => subscription.unsubscribe, 0);
+        safeTrigger(
+          () => Boolean(subscription),
+          () => subscription.unsubscribe()
+        );
       },
       complete() {
         reject(Error(`Source completed before emitting a result`));
-        setTimeout(() => subscription.unsubscribe, 0);
+        safeTrigger(
+          () => Boolean(subscription),
+          () => subscription.unsubscribe()
+        );
       }
     });
   });

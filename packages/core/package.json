@@ -81,7 +81,8 @@
     "ajv": "^6.10.2",
     "camelcase": "^5.3.1",
     "json-schema-to-typescript": "^7.1.0",
-    "lodash.isequal": "^4.5.0"
+    "lodash.isequal": "^4.5.0",
+    "promist": "^1.0.0"
   },
   "peerDependencies": {
     "rxjs": "6.x"

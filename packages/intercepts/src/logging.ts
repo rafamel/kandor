@@ -2,7 +2,8 @@ import {
   intercept,
   PublicError,
   InterceptImplementation,
-  ServiceKind
+  ServiceKind,
+  safeTrigger
 } from '@karmic/core';
 import { tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
@@ -133,11 +134,11 @@ export function logging(
           error: opts.skip.includes('error')
             ? (err: Error) => {
                 self.error(err);
-                setTimeout(() => subscription.unsubscribe(), 0);
+                unsubscribe();
               }
             : (err: Error) => {
                 self.error(err);
-                setTimeout(() => subscription.unsubscribe(), 0);
+                unsubscribe();
                 fn({
                   status: 'error',
                   ...base,
@@ -148,11 +149,11 @@ export function logging(
           complete: opts.skip.includes('complete')
             ? () => {
                 self.complete();
-                setTimeout(() => subscription.unsubscribe(), 0);
+                unsubscribe();
               }
             : () => {
                 self.complete();
-                setTimeout(() => subscription.unsubscribe(), 0);
+                unsubscribe();
                 fn({
                   status: 'complete',
                   ...base,
@@ -162,10 +163,17 @@ export function logging(
               }
         });
 
+        function unsubscribe(): void {
+          return safeTrigger(
+            () => Boolean(subscription),
+            () => subscription.unsubscribe()
+          );
+        }
+
         return opts.skip.includes('unsubscribe')
-          ? () => subscription.unsubscribe()
+          ? unsubscribe
           : () => {
-              subscription.unsubscribe();
+              unsubscribe();
               fn({
                 status: 'unsubscribe',
                 ...base,
