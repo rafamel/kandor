@@ -1,7 +1,7 @@
 import { Subscription, Observable } from 'rxjs';
 import { PublicError } from '@karmic/core';
 import { RPCNotification, RPCErrorResponse, RPCSingleResponse } from '~/types';
-import { getError } from './errors';
+import { getError } from '../errors';
 
 export class ChannelManager {
   private active: { [key: string]: boolean };

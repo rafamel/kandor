@@ -3,12 +3,17 @@ import WebSocket from 'ws';
 import { RPCServerOptions } from '@karmic/rpc';
 import { CollectionTreeDeclaration } from '@karmic/core';
 
-export interface RPCAdapter {
+export interface WSAdapter {
   /**
    * Resulting collection declaration, including the necessary
    * modifications made by the adapter.
    */
   declaration: CollectionTreeDeclaration;
+  /**
+   * Closes the WebSockets server and releases reasources
+   * being used by all current connections.
+   */
+  terminate: () => void;
 }
 
 export type RPCAdapterOptions = RPCServerOptions & RPCAdapterOptionsOnly;

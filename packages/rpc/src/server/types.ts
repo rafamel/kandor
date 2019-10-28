@@ -1,5 +1,6 @@
 import { QueryServiceImplementation } from '@karmic/core';
 import { DataOutput, DataInput, DataParser } from '~/types';
+import { Observable } from 'rxjs';
 
 export interface RPCServerOptions {
   /**
@@ -18,14 +19,36 @@ export interface RPCServerOptions {
   default?: QueryServiceImplementation;
 }
 
-export interface RPCServerConnect {
-  send: (data: DataOutput) => void | Promise<void>;
-  fatal: (error: Error) => void;
+export interface RPCServerConnection {
+  /**
+   * A function to be run to provide context.
+   */
+  context?: RPCServerConnectionContextFn;
+  /**
+   * Connection actions.
+   */
+  actions: RPCServerConnectionActions;
+  /**
+   * It must *complete* if the connection has been closed.
+   */
+  data$: Observable<DataInput>;
 }
 
-export type RPCServerProvideContext<T = any> = () => Promise<T> | T;
-
-export interface RPCServerConnection {
-  request: (data: DataInput) => void;
+export interface RPCServerConnectionActions {
+  /**
+   * Fatal errors will be reported via the `report` callback.
+   * It is the connection's responsibility to close
+   * itself in response, if deemed adequate.
+   */
+  report: (error: Error) => void;
+  /**
+   * Data to be sent to this client will be passed to `send`.
+   */
+  send: (data: DataOutput) => void | Promise<void>;
+  /**
+   * Should close the connection.
+   */
   close: () => void;
 }
+
+export type RPCServerConnectionContextFn<T = any> = () => Promise<T> | T;
