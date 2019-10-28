@@ -1,9 +1,9 @@
 {
-  "name": "@karmic/rpc-client",
+  "name": "@karmic/ws-adapter",
   "version": "0.0.0",
   "private": true,
   "author": "Rafa Mel",
-  "description": "Karmic RPC client",
+  "description": "Karmic WebSockets adapter",
   "keywords": [
     "rpc",
     "api",
@@ -14,6 +14,7 @@
     "realtime",
     "transport",
     "websockets",
+    "ws",
     "http",
     "RPC"
   ],
@@ -53,7 +54,7 @@
     "watch:test": "kpo watch:test --"
   },
   "license": "MIT",
-  "homepage": "https://github.com/rafamel/karmic/packages/rpc-client",
+  "homepage": "https://github.com/rafamel/karmic/packages/ws-adapter",
   "repository": {
     "type": "git",
     "url": "https://github.com/rafamel/karmic"
@@ -62,8 +63,6 @@
     "url": "https://github.com/rafamel/karmic/issues"
   },
   "devDependencies": {
-    "@karmic/core": "0.0.0",
-    "@karmic/rpc-adapter": "0.0.0",
     "@pika/pack": "^0.4.0",
     "@pika/plugin-standard-pkg": "^0.6.1",
     "@riseup/library": "^0.4.0",
@@ -78,12 +77,11 @@
     "ws": "^7.1.2"
   },
   "dependencies": {
-    "@pika/plugin-build-web": "^0.7.1",
-    "isomorphic-ws": "^4.0.1",
+    "@karmic/core": "0.0.0",
+    "@karmic/rpc": "0.0.0",
     "promist": "^1.0.0"
   },
   "peerDependencies": {
-    "@karmic/core": "0.0.0",
     "rxjs": "6.x",
     "ws": "^7.x"
   },
@@ -97,9 +95,6 @@
             "__tests__/**/*"
           ]
         }
-      ],
-      [
-        "@pika/plugin-build-web"
       ]
     ]
   }

@@ -1,34 +1,39 @@
 import WebSocket from 'isomorphic-ws';
-import { BehaviorSubject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { deferred } from 'promist';
 import { filter, take } from 'rxjs/operators';
-import { Connection, ConnectionStatus, ConnectionEvent } from './types';
-import { resolvableWait } from '../helpers';
+import { resolvableWait } from '@karmic/core';
+import {
+  RPCClientConnection,
+  RPCClientConnectionStatus,
+  RPCClientConnectionEvent,
+  DataOutput
+} from '@karmic/rpc';
 
 export function connectEach(
   address: string,
   wsco: WebSocket.ClientOptions,
   timeout?: number,
   delay?: number
-): Connection {
+): RPCClientConnection {
+  let active = true;
   let socket: null | WebSocket = null;
-  let status: ConnectionStatus = 'pending';
-  const events$ = new BehaviorSubject<ConnectionEvent>({ event: 'pending' });
+  let status: RPCClientConnectionStatus = 'close';
+  const events$ = new Subject<RPCClientConnectionEvent>();
 
-  const earlyClose = deferred<ConnectionEvent>();
-
+  const earlyClose = deferred<RPCClientConnectionEvent>();
   const delayWait = resolvableWait(delay ? Math.max(0, delay) : 0);
   earlyClose.then(() => delayWait.resolve());
 
   delayWait.promise.then(() => {
-    if (status === 'close') return;
+    if (!active) return;
 
     socket = new WebSocket(address, wsco);
     if (timeout && timeout > 0) {
       const timeoutWait = resolvableWait(timeout);
       earlyClose.then(() => timeoutWait.resolve());
       timeoutWait.promise.then(() => {
-        if (status !== 'pending') return;
+        if (!active || status === 'open') return;
         close(
           Error(`Connection didn't open by timeout: ${timeout}ms`),
           true,
@@ -38,7 +43,7 @@ export function connectEach(
     }
 
     socket.on('open', () => {
-      if (status !== 'pending') return;
+      if (!active) return;
       status = 'open';
       events$.next({ event: 'open' });
     });
@@ -50,13 +55,14 @@ export function connectEach(
     });
     socket.on('message', (message) => {
       if (status !== 'open') return;
-      events$.next({ event: 'message', data: message });
+      events$.next({ event: 'data', data: message });
     });
   });
 
   function close(error: Error | null, explicit: boolean, early: boolean): void {
-    if (status === 'close') return;
+    if (!active) return;
 
+    active = false;
     status = 'close';
     events$.next({ event: 'close', data: error });
     events$.complete();
@@ -73,7 +79,7 @@ export function connectEach(
     earlyClose,
     events$
       .pipe(
-        filter((x) => x.event === 'open' || x.event === 'close'),
+        filter((x) => x.event === 'open'),
         take(1)
       )
       .toPromise()
@@ -84,7 +90,7 @@ export function connectEach(
       return status;
     },
     actions: {
-      send: (data) => {
+      send: (data: DataOutput) => {
         return new Promise((resolve, reject) => {
           ready
             .then((x) => {

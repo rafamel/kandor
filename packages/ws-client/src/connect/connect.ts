@@ -1,13 +1,15 @@
 import { Subject } from 'rxjs';
 import WebSocket from 'isomorphic-ws';
 import { connectEach } from './each';
-import {
-  ConnectionActions,
-  ConnectionStatus,
-  ConnectionEvent,
-  Connection
-} from './types';
 import { createTracker } from './tracker';
+import {
+  RPCClientConnectionEvent,
+  RPCClientConnectionActions,
+  RPCClientConnectionStatus,
+  RPCClientConnection,
+  DataOutput
+} from '@karmic/rpc';
+import { safeTrigger } from '@karmic/core';
 
 export const RECONNECT_DELAY = 5000;
 
@@ -16,14 +18,17 @@ export function connect(
   wsco: WebSocket.ClientOptions,
   attempts: number,
   timeout: number
-): Connection {
+): RPCClientConnection {
   let retries = 0;
-  const events$ = new Subject<ConnectionEvent>();
+  const events$ = new Subject<RPCClientConnectionEvent>();
 
   let child = trunk();
   function trunk(
     delay?: number
-  ): { actions: ConnectionActions; status: ConnectionStatus } {
+  ): {
+    actions: RPCClientConnectionActions;
+    status: RPCClientConnectionStatus;
+  } {
     retries++;
     let active = true;
     // Reset retries when a request and a response have been successful
@@ -37,7 +42,7 @@ export function connect(
         if (!active) return;
         events$.next(value);
 
-        if (value.event === 'message') tracker.response();
+        if (value.event === 'data') tracker.response();
         else if (value.event === 'close') close(true);
       },
       error(error) {
@@ -62,7 +67,10 @@ export function connect(
       active = false;
 
       connection.actions.close();
-      setTimeout(() => subscription.unsubscribe(), 0);
+      safeTrigger(
+        () => Boolean(subscription),
+        () => subscription.unsubscribe()
+      );
 
       if (retry && (attempts <= 0 || attempts > retries)) {
         child = trunk(RECONNECT_DELAY);
@@ -71,8 +79,11 @@ export function connect(
       }
     }
 
+    const send = async (data: DataOutput): Promise<void> => {
+      return connection.actions.send(data);
+    };
     return {
-      get status(): ConnectionStatus {
+      get status() {
         return active ? connection.status : 'close';
       },
       actions: {
@@ -81,8 +92,8 @@ export function connect(
           events$.next({ event: 'close', data: null });
           close(false);
         },
-        send: (data: string) => {
-          return connection.actions.send(data).then(() => tracker.request());
+        send: (data: DataOutput) => {
+          return send(data).then(() => tracker.request());
         }
       }
     };
@@ -93,7 +104,7 @@ export function connect(
       return child.status;
     },
     actions: {
-      send: (data: string) => child.actions.send(data),
+      send: (data: DataOutput) => child.actions.send(data),
       close: () => child.actions.close()
     },
     events$: events$.asObservable()

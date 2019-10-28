@@ -58,7 +58,6 @@
     "url": "https://github.com/rafamel/karmic/issues"
   },
   "devDependencies": {
-    "@karmic/core": "0.0.0",
     "@pika/pack": "^0.4.0",
     "@pika/plugin-standard-pkg": "^0.6.1",
     "@riseup/library": "^0.4.0",
@@ -72,9 +71,10 @@
     "rxjs": "^6.5.3",
     "typescript": "^3.6.4"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@karmic/core": "0.0.0"
+  },
   "peerDependencies": {
-    "@karmic/core": "0.0.0",
     "express": "4.x",
     "rxjs": "6.x"
   },

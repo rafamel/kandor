@@ -8,9 +8,10 @@ module.exports.scripts = {
   build: [
     kpo`@core build`,
     kpo`@intercepts build`,
+    kpo`@rpc build`,
     kpo`@rest-adapter build`,
-    kpo`@rpc-adapter build`,
-    kpo`@rpc-client build`
+    kpo`@ws-adapter build`,
+    kpo`@ws-client build`
   ],
 
   /* Hooks */

@@ -6,10 +6,20 @@
 
 > A transport agnostic API framework
 
-## Packages
+## Creation
 
 * [*@karmic/core:*](https://github.com/rafamel/karmic/tree/master/packages/core) core package.
 * [*@karmic/intercepts:*](https://github.com/rafamel/karmic/tree/master/packages/rpc-client) a collection of intercept factories.
+
+## Adapters
+
 * [*@karmic/rest-adapter:*](https://github.com/rafamel/karmic/tree/master/packages/rest-adapter) *REST* adapter.
-* [*@karmic/rpc-adapter:*](https://github.com/rafamel/karmic/tree/master/packages/rpc-adapter) *RPC* adapter.
-* [*@karmic/rpc-client:*](https://github.com/rafamel/karmic/tree/master/packages/rpc-client) *RPC* client.
+* [*@karmic/ws-adapter:*](https://github.com/rafamel/karmic/tree/master/packages/ws-adapter) *RPC* adapter.
+
+## Clients
+
+* [*@karmic/ws-client:*](https://github.com/rafamel/karmic/tree/master/packages/ws-client) *RPC* client.
+
+## Common
+
+* [*@karmic/rpc:*](https://github.com/rafamel/karmic/tree/master/packages/rpc) *RPC* common package.
