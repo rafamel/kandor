@@ -15,7 +15,7 @@ export interface ApplicationCreateOptions {
    */
   children?: boolean;
   /**
-   * Maps a service to its route resolver.
+   * Maps a service to its route resolver. It's not applied to `default`.
    */
   map?: ApplicationCreateMapFn;
   /**

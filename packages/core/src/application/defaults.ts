@@ -28,10 +28,15 @@ export function createDefaults(): Required<ApplicationCreateOptions> {
         );
       }
     }),
-    map(service: ServiceImplementation, info: ElementInfo): ApplicationResolve {
-      return (data: any, context: any): Promise<any> | Observable<any> => {
-        return service.resolve(data, context, info);
-      };
-    }
+    map: defaultMap
+  };
+}
+
+export function defaultMap(
+  service: ServiceImplementation,
+  info: ElementInfo
+): ApplicationResolve {
+  return (data: any, context: any): Promise<any> | Observable<any> => {
+    return service.resolve(data, context, info);
   };
 }

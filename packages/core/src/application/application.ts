@@ -11,7 +11,7 @@ import { handleChildren } from './helpers/handle-children';
 import { getRoutes } from './helpers/get-routes';
 import { toDeclaration } from '~/transform';
 import { ApplicationCreateOptions } from './types';
-import { createDefaults } from './defaults';
+import { createDefaults, defaultMap } from './defaults';
 import { mergeDefault } from './helpers/merge-default';
 
 /**
@@ -27,7 +27,7 @@ export function application<T extends CollectionTreeImplementation>(
 ): Application {
   const opts = Object.assign(createDefaults(), options);
 
-  const merge = mergeDefault(collection, opts.default, opts.map);
+  const merge = mergeDefault(collection, opts.default, defaultMap);
 
   let tree: CollectionTreeImplementation = merge.collection;
   if (opts.validate) validate(tree, { as: 'implementation' });
