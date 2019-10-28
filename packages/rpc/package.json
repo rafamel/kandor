@@ -74,7 +74,8 @@
     "typescript": "^3.6.4"
   },
   "dependencies": {
-    "@karmic/core": "0.0.0"
+    "@karmic/core": "0.0.0",
+    "ajv": "^6.10.2"
   },
   "peerDependencies": {
     "rxjs": "6.x"

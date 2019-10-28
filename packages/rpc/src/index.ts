@@ -1,3 +1,2 @@
-export default function main(): null {
-  return null;
-}
+export * from './validate';
+export * from './types';
