@@ -63,6 +63,7 @@
   },
   "devDependencies": {
     "@pika/pack": "^0.4.0",
+    "@pika/plugin-build-web": "^0.7.1",
     "@pika/plugin-standard-pkg": "^0.6.1",
     "@riseup/library": "^0.4.0",
     "@riseup/tooling": "^0.4.0",
@@ -91,6 +92,9 @@
             "__tests__/**/*"
           ]
         }
+      ],
+      [
+        "@pika/plugin-build-web"
       ]
     ]
   }
