@@ -75,7 +75,8 @@
   },
   "dependencies": {
     "@karmic/core": "0.0.0",
-    "ajv": "^6.10.2"
+    "ajv": "^6.10.2",
+    "promist": "^1.0.0"
   },
   "peerDependencies": {
     "rxjs": "6.x"
