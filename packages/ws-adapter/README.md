@@ -8,7 +8,7 @@
 [![License](https://img.shields.io/github/license/rafamel/karmic.svg)](https://github.com/rafamel/karmic/blob/master/LICENSE)
 [![Types](https://img.shields.io/npm/types/@karmic/ws-adapter.svg)](https://www.npmjs.com/package/@karmic/ws-adapter)
 
-> *Karmic* WebSockets adapter.
+> *Karmic* WebSockets RPC adapter.
 
 ## Install
 

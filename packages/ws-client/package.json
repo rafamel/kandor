@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "author": "Rafa Mel",
-  "description": "Karmic WebSockets client",
+  "description": "Karmic WebSockets RPC client",
   "keywords": [
     "rpc",
     "api",

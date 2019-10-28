@@ -13,13 +13,13 @@
 
 ## Adapters
 
-* [*@karmic/rest-adapter:*](https://github.com/rafamel/karmic/tree/master/packages/rest-adapter) *REST* adapter.
-* [*@karmic/ws-adapter:*](https://github.com/rafamel/karmic/tree/master/packages/ws-adapter) *RPC* adapter.
+* [*@karmic/rest-adapter:*](https://github.com/rafamel/karmic/tree/master/packages/rest-adapter) REST adapter.
+* [*@karmic/ws-adapter:*](https://github.com/rafamel/karmic/tree/master/packages/ws-adapter) WebSockets RPC adapter.
 
 ## Clients
 
-* [*@karmic/ws-client:*](https://github.com/rafamel/karmic/tree/master/packages/ws-client) *RPC* client.
+* [*@karmic/ws-client:*](https://github.com/rafamel/karmic/tree/master/packages/ws-client) WebSockets RPC client.
 
 ## Common
 
-* [*@karmic/rpc:*](https://github.com/rafamel/karmic/tree/master/packages/rpc) *RPC* common package.
+* [*@karmic/rpc:*](https://github.com/rafamel/karmic/tree/master/packages/rpc) RPC common package.
