@@ -22,4 +22,5 @@
 
 ## Common
 
+* [*@karmic/rest:*](https://github.com/rafamel/karmic/tree/master/packages/rest) REST common package.
 * [*@karmic/rpc:*](https://github.com/rafamel/karmic/tree/master/packages/rpc) RPC common package.

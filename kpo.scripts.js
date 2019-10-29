@@ -8,6 +8,7 @@ module.exports.scripts = {
   build: [
     kpo`@core build`,
     kpo`@intercepts build`,
+    kpo`@rest build`,
     kpo`@rpc build`,
     kpo`@rest-adapter build`,
     kpo`@ws-adapter build`,
