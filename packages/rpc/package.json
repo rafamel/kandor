@@ -1,7 +1,6 @@
 {
   "name": "@karmic/rpc",
   "version": "0.0.0",
-  "private": true,
   "author": "Rafa Mel",
   "description": "Karmic RPC common package",
   "keywords": [

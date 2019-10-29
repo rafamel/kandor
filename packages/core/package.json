@@ -1,7 +1,6 @@
 {
   "name": "@karmic/core",
   "version": "0.0.0",
-  "private": true,
   "author": "Rafa Mel",
   "description": "A transport agnostic API framework",
   "keywords": [

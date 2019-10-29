@@ -1,7 +1,6 @@
 {
   "name": "@karmic/intercepts",
   "version": "0.0.0",
-  "private": true,
   "author": "Rafa Mel",
   "description": "A collection of Karmic intercept factories",
   "keywords": [

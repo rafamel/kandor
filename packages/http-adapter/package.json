@@ -1,7 +1,6 @@
 {
   "name": "@karmic/http-adapter",
   "version": "0.0.0",
-  "private": true,
   "author": "Rafa Mel",
   "description": "Karmic HTTP REST and RPC adapter",
   "keywords": [
