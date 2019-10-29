@@ -10,7 +10,7 @@ module.exports.scripts = {
     kpo`@intercepts build`,
     kpo`@rest build`,
     kpo`@rpc build`,
-    kpo`@rest-adapter build`,
+    kpo`@http-adapter build`,
     kpo`@ws-adapter build`,
     kpo`@ws-client build`
   ],
