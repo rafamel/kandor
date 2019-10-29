@@ -7,7 +7,6 @@ export function createDefaults(): Required<
     crud: true,
     children: true,
     subscriptions: true,
-    declaration: true,
     envelope(error, data) {
       return error
         ? {

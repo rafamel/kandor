@@ -13,11 +13,6 @@ export interface RESTServerOptions {
    * Whether to create routes for subscription services, serving their first result. Default: `true`.
    */
   subscriptions?: boolean;
-  // TODO: remove (unimplemented)
-  /**
-   * Whether to serve the collection declaration JSON at `/:declaration`. Default: `true`.
-   */
-  declaration?: boolean;
   // TODO: we need to know how the types are modified by the envelope
   /**
    * A function returning the final data to serve.
