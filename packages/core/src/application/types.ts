@@ -19,10 +19,10 @@ export interface ApplicationCreateOptions {
    */
   map?: ApplicationCreateMapFn;
   /**
-   * A default service for adapters to use when the route is non existent.
+   * A fallback service for adapters to use when the route is non existent.
    * Defaults to a `ClientNotFound` error throwing service.
    */
-  default?: QueryServiceImplementation;
+  fallback?: QueryServiceImplementation;
 }
 
 export type ApplicationCreateMapFn<I = any, O = any, C = any> = (

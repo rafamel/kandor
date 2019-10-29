@@ -1,7 +1,7 @@
 import { RPCServerOptions } from './types';
 import { DataOutput, DataInput } from '~/types';
 
-export function createDefaults(): Required<Omit<RPCServerOptions, 'default'>> {
+export function createDefaults(): Required<Omit<RPCServerOptions, 'fallback'>> {
   return {
     children: true,
     parser: {

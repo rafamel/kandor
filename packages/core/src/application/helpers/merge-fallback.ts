@@ -9,21 +9,21 @@ import { ApplicationCreateMapFn } from '../types';
 import { getRoutes } from './get-routes';
 import { atPath } from '~/inspect';
 
-export interface MergeDefault {
+export interface MergeFallback {
   collection: CollectionTreeImplementation;
-  default: UnaryApplicationResolve;
+  fallback: UnaryApplicationResolve;
 }
 
-export function mergeDefault(
+export function mergeFallback(
   collection: CollectionTreeImplementation,
-  service: QueryServiceImplementation,
+  fallback: QueryServiceImplementation,
   map: ApplicationCreateMapFn
-): MergeDefault {
-  if (service.kind !== 'query') {
-    throw Error(`Default service must be a query service`);
+): MergeFallback {
+  if (fallback.kind !== 'query') {
+    throw Error(`Fallback service must be a query service`);
   }
 
-  const normal = normalize(services({ default: service }), {
+  const normal = normalize(services({ fallback }), {
     skipReferences: Object.keys(collection.types)
   });
 
@@ -32,9 +32,9 @@ export function mergeDefault(
       ...normal,
       services: {}
     }),
-    default: atPath(
+    fallback: atPath(
       getRoutes(normal, map),
-      ['default'],
+      ['fallback'],
       (x: any): x is UnaryApplicationResolve => typeof x === 'function'
     )
   };

@@ -1,6 +1,8 @@
 import { RESTServerOptions } from './types';
 
-export function createDefaults(): Required<Omit<RESTServerOptions, 'default'>> {
+export function createDefaults(): Required<
+  Omit<RESTServerOptions, 'fallback'>
+> {
   return {
     crud: true,
     children: true,

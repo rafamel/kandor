@@ -15,10 +15,10 @@ export interface HTTPAdapterRpcOptions extends HTTPAdapterOptionsOnly {
    */
   children?: boolean;
   /**
-   * A default service for adapters to use when the route is non existent.
+   * A fallback service for adapters to use when the route is non existent.
    * Defaults to a `ClientNotFound` error throwing service.
    */
-  default?: QueryServiceImplementation;
+  fallback?: QueryServiceImplementation;
 }
 
 export function rpc(
@@ -32,8 +32,8 @@ export function rpc(
   };
   const server = new RPCServer(
     toUnary(collection),
-    opts.default
-      ? { children: opts.children, default: opts.default, parser }
+    opts.fallback
+      ? { children: opts.children, fallback: opts.fallback, parser }
       : { children: opts.children, parser }
   );
 

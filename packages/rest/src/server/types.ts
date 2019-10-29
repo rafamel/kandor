@@ -13,6 +13,7 @@ export interface RESTServerOptions {
    * Whether to create routes for subscription services, serving their first result. Default: `true`.
    */
   subscriptions?: boolean;
+  // TODO: remove (unimplemented)
   /**
    * Whether to serve the collection declaration JSON at `/:declaration`. Default: `true`.
    */
@@ -23,10 +24,10 @@ export interface RESTServerOptions {
    */
   envelope?: RESTServerEnvelopeFn;
   /**
-   * A default service for adapters to use when the route is non existent.
+   * A fallback service for adapters to use when the route is non existent.
    * Defaults to a `ClientNotFound` error throwing service.
    */
-  default?: QueryServiceImplementation;
+  fallback?: QueryServiceImplementation;
 }
 
 export type RESTServerContextFn<T = any> = () => Promise<T> | T;

@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 
 export interface Application {
   declaration: CollectionTreeDeclaration;
-  default: UnaryApplicationResolve;
+  fallback: UnaryApplicationResolve;
   routes: ApplicationRoutes;
   flatten(delimiter: string): ApplicationServices;
 }

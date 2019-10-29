@@ -43,7 +43,7 @@ export function handleUnary(
 ): void {
   const method = Object.hasOwnProperty.call(routes, request.method)
     ? request.method
-    : ':default';
+    : ':fallback';
   const service = routes[method];
 
   const result = service.resolve(request.params || {}, context);
@@ -62,7 +62,7 @@ export function handleStream(
   cb: (data: RPCSingleResponse | RPCNotification) => void
 ): void {
   if (!Object.hasOwnProperty.call(routes, request.method)) {
-    const result = routes[':default'].resolve(request.params || {}, context);
+    const result = routes[':fallback'].resolve(request.params || {}, context);
     return isObservable(result)
       ? channels.stream(request.id, result, cb)
       : channels.unary(request.id, result, cb);

@@ -12,7 +12,7 @@ import { getRoutes } from './helpers/get-routes';
 import { toDeclaration } from '~/transform';
 import { ApplicationCreateOptions } from './types';
 import { createDefaults, defaultMap } from './defaults';
-import { mergeDefault } from './helpers/merge-default';
+import { mergeFallback } from './helpers/merge-fallback';
 
 /**
  * Validates and prepares a collection to be used:
@@ -27,7 +27,7 @@ export function application<T extends CollectionTreeImplementation>(
 ): Application {
   const opts = Object.assign(createDefaults(), options);
 
-  const merge = mergeDefault(collection, opts.default, defaultMap);
+  const merge = mergeFallback(collection, opts.fallback, defaultMap);
 
   let tree: CollectionTreeImplementation = merge.collection;
   if (opts.validate) validate(tree, { as: 'implementation' });
@@ -40,7 +40,7 @@ export function application<T extends CollectionTreeImplementation>(
 
   return {
     declaration,
-    default: merge.default,
+    fallback: merge.fallback,
     routes,
     flatten(delimiter: string): ApplicationServices {
       if (!/[^\w]/.exec(delimiter)) {

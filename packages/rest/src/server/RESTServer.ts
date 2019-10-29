@@ -20,7 +20,7 @@ import mapError from './map-error';
 
 export class RESTServer {
   public declaration: CollectionTreeDeclaration;
-  private options: Required<Omit<RESTServerOptions, 'default'>>;
+  private options: Required<Omit<RESTServerOptions, 'fallback'>>;
   private router: ServerRouter;
   public constructor(
     collection: CollectionTreeImplementation,
@@ -35,12 +35,12 @@ export class RESTServer {
             (element) =>
               !isElementService(element) || !isServiceSubscription(element)
           ),
-      options && options.default ? { default: options.default } : {}
+      options && options.fallback ? { fallback: options.fallback } : {}
     );
 
     this.router = new ServerRouter(
       app.flatten('/'),
-      app.default,
+      app.fallback,
       this.options.crud
     );
   }

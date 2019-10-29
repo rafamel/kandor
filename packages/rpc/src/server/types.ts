@@ -13,10 +13,10 @@ export interface RPCServerOptions {
    */
   parser?: DataParser;
   /**
-   * A default service for adapters to use when the route is non existent.
+   * A fallback service for adapters to use when the route is non existent.
    * Defaults to a `ClientNotFound` error throwing service.
    */
-  default?: QueryServiceImplementation;
+  fallback?: QueryServiceImplementation;
 }
 
 export interface RPCServerConnection {

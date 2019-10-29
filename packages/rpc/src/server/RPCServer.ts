@@ -20,8 +20,8 @@ export class RPCServer {
     const opts = Object.assign(createDefaults(), options);
     const app = application(
       collection,
-      options && options.default
-        ? { default: options.default, children: opts.children }
+      options && options.fallback
+        ? { fallback: options.fallback, children: opts.children }
         : { children: opts.children }
     );
     const dapp = application(
@@ -31,12 +31,12 @@ export class RPCServer {
     this.declaration = app.declaration;
     this.manager = new ServerManager(
       {
-        ':default': {
+        ':fallback': {
           declaration: {
             kind: 'query',
             types: { request: '', response: '', errors: {} }
           },
-          resolve: app.default
+          resolve: app.fallback
         },
         ':declaration': dapp.flatten(':').declaration,
         ...app.flatten(':')
