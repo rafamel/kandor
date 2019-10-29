@@ -1,4 +1,4 @@
-import { UnsubscribePolicy } from '../types';
+import { UnsubscribePolicy } from './types';
 import { Observable, Subscription } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
 import { resolvableWait, ResolvableWait, safeTrigger } from '@karmic/core';

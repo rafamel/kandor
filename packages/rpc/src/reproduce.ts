@@ -21,7 +21,7 @@ import {
 } from '@karmic/core';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
-import { RPCClient } from './RPCClient';
+import { RPCClient } from './client';
 
 export interface RPCReproduceOptions {
   proxyError: ElementItem<ErrorType<'ServerGateway'>>;

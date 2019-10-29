@@ -3,7 +3,7 @@ import {
   RPCClientConnection,
   RPCClientOptions,
   RPCClientStatus
-} from '../types';
+} from './types';
 import { createDefaults } from './defaults';
 import { Observable } from 'rxjs';
 import { handleUnaryRequest } from './handle-unary';

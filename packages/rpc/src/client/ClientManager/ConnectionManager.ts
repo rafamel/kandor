@@ -1,4 +1,4 @@
-import { RPCClientConnection, RPCClientStatus } from '../../types';
+import { RPCClientConnection, RPCClientStatus } from '../types';
 import { BehaviorSubject, Subject, Observable, Subscription } from 'rxjs';
 import { DataInput, DataParser, RPCRequest, RPCNotification } from '~/types';
 import { safeTrigger } from '@karmic/core';

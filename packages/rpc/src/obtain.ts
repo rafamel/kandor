@@ -1,5 +1,5 @@
 import { CollectionTreeDeclaration } from '@karmic/core';
-import { RPCClient } from './RPCClient';
+import { RPCClient } from './client';
 
 /**
  * Obtains a declaration from a server using any *Karmic*'s RPC client.

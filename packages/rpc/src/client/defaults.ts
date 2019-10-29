@@ -1,4 +1,4 @@
-import { RPCClientOptions } from '../types';
+import { RPCClientOptions } from './types';
 import { DataInput, DataOutput } from '~/types';
 
 export function createDefaults(): Required<RPCClientOptions> {
