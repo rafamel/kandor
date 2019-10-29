@@ -11,6 +11,9 @@
     "http",
     "REST"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=8"
   },

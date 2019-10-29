@@ -17,6 +17,9 @@
     "http",
     "RPC"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=8"
   },
