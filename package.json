@@ -30,6 +30,7 @@
     "bootstrap": "kpo bootstrap --",
     "link": "kpo link --",
     "build": "kpo build --",
+    "build:common": "kpo build:common --",
     "postinstall": "kpo postinstall --"
   },
   "license": "MIT",
