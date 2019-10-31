@@ -3,7 +3,9 @@ import {
   application,
   CollectionTreeDeclaration,
   services,
-  query
+  query,
+  collections,
+  types
 } from '@karmic/core';
 import { RPCServerOptions, RPCServerConnection } from './types';
 import { createDefaults } from './defaults';
@@ -19,7 +21,10 @@ export class RPCServer {
   ) {
     const opts = Object.assign(createDefaults(), options);
     const app = application(
-      collection,
+      collections(
+        collection,
+        types({ [opts.complete.name]: opts.complete.item })
+      ),
       options && options.fallback
         ? { fallback: options.fallback, children: opts.children }
         : { children: opts.children }
@@ -42,7 +47,7 @@ export class RPCServer {
         ...app.flatten(':')
       },
       opts.parser,
-      createEnsureError(this.declaration)
+      createEnsureError(this.declaration, opts.complete)
     );
   }
   public connect(connection: RPCServerConnection): () => void {

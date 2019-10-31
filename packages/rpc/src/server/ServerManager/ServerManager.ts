@@ -4,17 +4,18 @@ import { DataInput, DataParser } from '~/types';
 import { ChannelManager } from './ChannelManager';
 import { resolve } from './resolve';
 import { LazyPromist, until } from 'promist';
+import { EnsureErrorType } from '../errors';
 
 export class ServerManager {
   private id: number;
   private routes: ApplicationServices;
   private parser: DataParser;
-  private ensure: (error: Error) => PublicError;
+  private ensure: (error: EnsureErrorType) => PublicError;
   private disconnects: { [key: string]: () => void };
   public constructor(
     routes: ApplicationServices,
     parser: DataParser,
-    ensure: (error: Error) => PublicError
+    ensure: (error: EnsureErrorType) => PublicError
   ) {
     this.id = 0;
     this.routes = routes;

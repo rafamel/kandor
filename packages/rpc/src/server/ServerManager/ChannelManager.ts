@@ -1,13 +1,13 @@
 import { Subscription, Observable } from 'rxjs';
 import { PublicError } from '@karmic/core';
 import { RPCNotification, RPCErrorResponse, RPCSingleResponse } from '~/types';
-import { getError } from '../errors';
+import { getError, EnsureErrorType, GetErrorType } from '../errors';
 
 export class ChannelManager {
   private active: { [key: string]: boolean };
   private subscriptions: { [key: string]: Subscription };
-  private ensure: (error: Error) => PublicError;
-  public constructor(ensure: (error: Error) => PublicError) {
+  private ensure: (error: EnsureErrorType) => PublicError;
+  public constructor(ensure: (error: EnsureErrorType) => PublicError) {
     this.active = {};
     this.subscriptions = {};
     this.ensure = ensure;
@@ -20,7 +20,7 @@ export class ChannelManager {
   }
   public error(
     id: string | number | null,
-    error: 'ParseError' | 'InvalidRequest' | Error,
+    error: GetErrorType | Error,
     cb: (data: RPCErrorResponse) => void
   ): void {
     cb({
@@ -67,11 +67,13 @@ export class ChannelManager {
   ): void {
     this.setActive(id, true);
 
+    let hasEmitted = false;
     this.setSubscription(
       id,
       source.subscribe({
         next: (data: any) => {
           if (!this.getActive(id)) return;
+          hasEmitted = true;
           cb({
             jsonrpc: '2.0',
             id,
@@ -80,6 +82,7 @@ export class ChannelManager {
         },
         error: (err: Error) => {
           if (!this.getActive(id)) return;
+          hasEmitted = true;
           cb({
             jsonrpc: '2.0',
             id,
@@ -89,11 +92,21 @@ export class ChannelManager {
         },
         complete: () => {
           if (!this.getActive(id)) return;
-          cb({
-            jsonrpc: '2.0',
-            method: ':complete',
-            params: { id }
-          });
+          if (hasEmitted) {
+            cb({
+              jsonrpc: '2.0',
+              method: ':complete',
+              params: { id }
+            });
+          } else {
+            // If no values have been emitted
+            // before :complete, we emit an error
+            cb({
+              jsonrpc: '2.0',
+              id,
+              error: getError(this.ensure('EarlyComplete'))
+            });
+          }
           this.close(id);
         }
       })

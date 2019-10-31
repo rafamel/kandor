@@ -1,4 +1,8 @@
-import { QueryServiceImplementation } from '@karmic/core';
+import {
+  QueryServiceImplementation,
+  ElementItem,
+  ErrorType
+} from '@karmic/core';
 import { DataOutput, DataInput, DataParser } from '~/types';
 import { Observable } from 'rxjs';
 
@@ -12,6 +16,11 @@ export interface RPCServerOptions {
    * Serializer and deserializer
    */
   parser?: DataParser;
+  /**
+   * An error to emit if a stream completes before emitting any values.
+   * Defaults to an *EarlyCompleteError* `ServerError`.
+   */
+  complete?: ElementItem<ErrorType>;
   /**
    * A fallback service for adapters to use when the route is non existent.
    * Defaults to a `ClientNotFound` error throwing service.

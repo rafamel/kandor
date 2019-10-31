@@ -3,7 +3,9 @@ import {
   ErrorLabel,
   CollectionError,
   CollectionTree,
-  GeneralError
+  GeneralError,
+  ElementItem,
+  ErrorType
 } from '@karmic/core';
 import { RPCError } from '~/types';
 import { ErrorCodes } from '~/errors';
@@ -28,20 +30,31 @@ export const hash: { [P in ErrorLabel]: number } = {
   ServerTimeout: -32064
 };
 
+export type EnsureErrorType = Error | 'Server' | 'EarlyComplete';
+export type GetErrorType =
+  | 'ParseError'
+  | 'InvalidRequest'
+  | 'InternalError'
+  | PublicError;
+
 export function createEnsureError(
-  collection: CollectionTree
-): (error: Error) => PublicError {
+  collection: CollectionTree,
+  complete: ElementItem<ErrorType>
+): (error: EnsureErrorType) => PublicError {
   const id: GeneralError = 'ServerError';
   return function ensureError(error) {
     return error instanceof PublicError
       ? error
-      : new CollectionError(collection, id, error, true);
+      : new CollectionError(
+          collection,
+          error === 'EarlyComplete' ? complete.name : id,
+          null,
+          true
+        );
   };
 }
 
-export function getError(
-  err: 'ParseError' | 'InvalidRequest' | PublicError
-): RPCError {
+export function getError(err: GetErrorType): RPCError {
   if (typeof err === 'string') {
     const arr = Object.hasOwnProperty.call(ErrorCodes, err)
       ? ErrorCodes[err]
