@@ -10,7 +10,7 @@ import {
 import { RPCServerOptions, RPCServerConnection } from './types';
 import { createDefaults } from './defaults';
 import { ServerManager } from './ServerManager';
-import { createEnsureError } from './errors';
+import { createErrorProvider } from './errors';
 
 export class RPCServer {
   public declaration: CollectionTreeDeclaration;
@@ -47,7 +47,7 @@ export class RPCServer {
         ...app.flatten(':')
       },
       opts.parser,
-      createEnsureError(this.declaration, opts.complete)
+      createErrorProvider(this.declaration, opts.complete)
     );
   }
   public connect(connection: RPCServerConnection): () => void {

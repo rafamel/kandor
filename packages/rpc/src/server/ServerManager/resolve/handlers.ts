@@ -67,7 +67,7 @@ export function handleStream(
 
   const service = routes[request.method];
   if (!isServiceSubscription(service.declaration)) {
-    return channels.error(request.id, 'InvalidRequest', cb);
+    return channels.error(request.id, ({ spec }) => spec('InvalidRequest'), cb);
   }
 
   return channels.stream(

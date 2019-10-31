@@ -1,7 +1,7 @@
 import { RPCSpecRequest } from './specification';
 import { RPCNotification } from './notification';
 
-export type RPCBatchRequest = Array<RPCUnaryRequest | RPCNotification>;
+export type RPCBatchRequest = Array<RPCRequest | RPCNotification>;
 
 /**
  * An extension for the *request object* as specified by the
@@ -32,9 +32,6 @@ export interface RPCRequest extends RPCSpecRequest {
   stream?: boolean;
 }
 
-/**
- * Streaming requests **must not** be part of a batch request.
- */
 export interface RPCUnaryRequest extends RPCRequest {
   stream?: false;
 }

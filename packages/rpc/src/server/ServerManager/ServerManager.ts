@@ -1,31 +1,31 @@
-import { ApplicationServices, PublicError } from '@karmic/core';
+import { ApplicationServices } from '@karmic/core';
 import { RPCServerConnection } from '../types';
 import { DataInput, DataParser } from '~/types';
 import { ChannelManager } from './ChannelManager';
 import { resolve } from './resolve';
 import { LazyPromist, until } from 'promist';
-import { EnsureErrorType } from '../errors';
+import { ErrorProvider } from '../errors';
 
 export class ServerManager {
   private id: number;
   private routes: ApplicationServices;
   private parser: DataParser;
-  private ensure: (error: EnsureErrorType) => PublicError;
+  private errors: ErrorProvider;
   private disconnects: { [key: string]: () => void };
   public constructor(
     routes: ApplicationServices,
     parser: DataParser,
-    ensure: (error: EnsureErrorType) => PublicError
+    errors: ErrorProvider
   ) {
     this.id = 0;
     this.routes = routes;
     this.parser = parser;
-    this.ensure = ensure;
+    this.errors = errors;
     this.disconnects = {};
   }
   public connect(connection: RPCServerConnection): () => void {
     const disconnects = this.disconnects;
-    const channels = new ChannelManager(this.ensure);
+    const channels = new ChannelManager(this.errors);
     const context = LazyPromist.from(connection.context || (() => ({})));
 
     let open = true;

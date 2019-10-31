@@ -3,7 +3,6 @@ import {
   ErrorLabel,
   CollectionError,
   CollectionTree,
-  GeneralError,
   ElementItem,
   ErrorType
 } from '@karmic/core';
@@ -30,55 +29,59 @@ export const hash: { [P in ErrorLabel]: number } = {
   ServerTimeout: -32064
 };
 
-export type EnsureErrorType = Error | 'Server' | 'EarlyComplete';
-export type GetErrorType =
+export interface ErrorProvider {
+  core: (error: PublicErrorProviderType) => RPCError;
+  spec: (name: RPCErrorProviderType) => RPCError;
+}
+
+export type PublicErrorProviderType = Error | 'Server' | 'EarlyComplete';
+
+export type RPCErrorProviderType =
   | 'ParseError'
   | 'InvalidRequest'
-  | 'InternalError'
-  | PublicError;
+  | 'InternalError';
 
-export function createEnsureError(
+export function createErrorProvider(
   collection: CollectionTree,
   complete: ElementItem<ErrorType>
-): (error: EnsureErrorType) => PublicError {
-  const id: GeneralError = 'ServerError';
-  return function ensureError(error) {
+): ErrorProvider {
+  function ensure(error: PublicErrorProviderType): PublicError {
     return error instanceof PublicError
       ? error
       : new CollectionError(
           collection,
-          error === 'EarlyComplete' ? complete.name : id,
+          error === 'EarlyComplete' ? complete.name : 'ServerError',
           null,
           true
         );
-  };
-}
-
-export function getError(err: GetErrorType): RPCError {
-  if (typeof err === 'string') {
-    const arr = Object.hasOwnProperty.call(ErrorCodes, err)
-      ? ErrorCodes[err]
-      : ErrorCodes.InternalError;
-    return {
-      code: arr[0],
-      message: arr[1]
-    };
-  }
-
-  if (!Object.hasOwnProperty.call(hash, err.label)) {
-    return {
-      code: ErrorCodes.InternalError[0],
-      message: ErrorCodes.InternalError[1]
-    };
   }
 
   return {
-    code: hash[err.label],
-    message: `Server implementation specific error: ${err.label}`,
-    data: {
-      id: err.id,
-      label: err.label,
-      description: err.message
+    core(error: PublicErrorProviderType): RPCError {
+      const err = ensure(error);
+      return Object.hasOwnProperty.call(hash, err.label)
+        ? {
+            code: hash[err.label],
+            message: `Server implementation specific error: ${err.label}`,
+            data: {
+              id: err.id,
+              label: err.label,
+              description: err.message
+            }
+          }
+        : {
+            code: ErrorCodes.InternalError[0],
+            message: ErrorCodes.InternalError[1]
+          };
+    },
+    spec(error: RPCErrorProviderType): RPCError {
+      const arr = Object.hasOwnProperty.call(ErrorCodes, error)
+        ? ErrorCodes[error]
+        : ErrorCodes.InternalError;
+      return {
+        code: arr[0],
+        message: arr[1]
+      };
     }
   };
 }

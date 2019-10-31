@@ -1,16 +1,20 @@
 import { Subscription, Observable } from 'rxjs';
-import { PublicError } from '@karmic/core';
-import { RPCNotification, RPCErrorResponse, RPCSingleResponse } from '~/types';
-import { getError, EnsureErrorType, GetErrorType } from '../errors';
+import {
+  RPCNotification,
+  RPCErrorResponse,
+  RPCSingleResponse,
+  RPCError
+} from '~/types';
+import { ErrorProvider } from '../errors';
 
 export class ChannelManager {
   private active: { [key: string]: boolean };
   private subscriptions: { [key: string]: Subscription };
-  private ensure: (error: EnsureErrorType) => PublicError;
-  public constructor(ensure: (error: EnsureErrorType) => PublicError) {
+  private errors: ErrorProvider;
+  public constructor(errors: ErrorProvider) {
     this.active = {};
     this.subscriptions = {};
-    this.ensure = ensure;
+    this.errors = errors;
   }
   public exists(id: string | number): boolean {
     return Object.hasOwnProperty.call(this.active, this.toStringId(id));
@@ -20,13 +24,13 @@ export class ChannelManager {
   }
   public error(
     id: string | number | null,
-    error: GetErrorType | Error,
+    provide: (errors: ErrorProvider) => RPCError,
     cb: (data: RPCErrorResponse) => void
   ): void {
     cb({
       jsonrpc: '2.0',
       id,
-      error: getError(typeof error === 'string' ? error : this.ensure(error))
+      error: provide(this.errors)
     });
     if (typeof id !== 'object') {
       this.setActive(id, true);
@@ -55,7 +59,7 @@ export class ChannelManager {
         cb({
           jsonrpc: '2.0',
           id,
-          error: getError(this.ensure(err))
+          error: this.errors.core(err)
         });
         this.close(id);
       });
@@ -86,7 +90,7 @@ export class ChannelManager {
           cb({
             jsonrpc: '2.0',
             id,
-            error: getError(this.ensure(err))
+            error: this.errors.core(err)
           });
           this.close(id);
         },
@@ -104,7 +108,7 @@ export class ChannelManager {
             cb({
               jsonrpc: '2.0',
               id,
-              error: getError(this.ensure('EarlyComplete'))
+              error: this.errors.core('EarlyComplete')
             });
           }
           this.close(id);

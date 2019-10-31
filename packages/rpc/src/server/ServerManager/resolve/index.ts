@@ -28,12 +28,12 @@ export function resolve(
         .catch((err: Error) => {
           return channels.error(
             hasNonNullId(request) ? request.id : null,
-            err,
+            ({ core }) => core(err),
             send
           );
         });
     })
     .catch(() => {
-      return channels.error(null, 'ParseError', send);
+      return channels.error(null, ({ spec }) => spec('ParseError'), send);
     });
 }
