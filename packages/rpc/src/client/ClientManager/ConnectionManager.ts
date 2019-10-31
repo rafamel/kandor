@@ -1,7 +1,7 @@
 import { RPCClientConnection, RPCClientStatus } from '../types';
 import { BehaviorSubject, Subject, Observable, Subscription } from 'rxjs';
 import { DataInput, DataParser, RPCRequest, RPCNotification } from '~/types';
-import { safeTrigger } from '@karmic/core';
+import { until } from 'promist';
 
 interface ConnectionManagerSubjects {
   status: BehaviorSubject<RPCClientStatus>;
@@ -92,10 +92,9 @@ export class ConnectionManager {
     if (this.status === 'complete') return;
 
     this.connection.actions.close();
-    safeTrigger(
-      () => Boolean(this.subscription),
-      () => this.subscription.unsubscribe()
-    );
+    until(() => Boolean(this.subscription)).then(() => {
+      return this.subscription.unsubscribe();
+    });
 
     this.nextStatus('close');
     this.nextStatus('complete');

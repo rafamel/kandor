@@ -14,7 +14,7 @@ import {
 } from '~/inspect';
 import { replace } from '~/transform';
 import { allof } from '~/create';
-import { toSafePromise } from '~/utils';
+import { subscribe } from 'promist';
 
 export function mergeIntercepts(
   collection: CollectionTreeImplementation
@@ -64,7 +64,7 @@ export function serviceIntercepts(
           errors: mergeServiceErrors(service.types.errors, intercept.errors)
         },
         resolve(data: any, context, info): Promise<any> {
-          return toSafePromise(
+          return subscribe(
             interceptFn(
               data,
               context,

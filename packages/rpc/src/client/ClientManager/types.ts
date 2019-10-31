@@ -4,7 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 
 export interface PendingUnaryRequest {
   request: RPCUnaryRequest;
-  destination: Promist<any, 'deferrable'>;
+  destination: Promist<any>;
 }
 
 export interface PendingStreamRequest {

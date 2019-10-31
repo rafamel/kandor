@@ -79,7 +79,7 @@
   "dependencies": {
     "@karmic/core": "^0.1.0",
     "ajv": "^6.10.2",
-    "promist": "^1.0.0"
+    "promist": "^2.0.0"
   },
   "peerDependencies": {
     "rxjs": "6.x"

@@ -1,4 +1,3 @@
-import { deferred } from 'promist';
 import { BehaviorSubject, Observable, throwError, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { retrySubscribe } from './helpers/retry-subscribe';
@@ -14,7 +13,7 @@ import { ConnectionManager } from './ConnectionManager';
 import { ClientStore } from './ClientStore';
 import { RPCClientConnection, RPCClientStatus } from '~/client/types';
 import { mapError } from './helpers/map-error';
-import { safeTrigger } from '@karmic/core';
+import { until, Promist } from 'promist';
 
 const FILTER = {};
 
@@ -70,10 +69,9 @@ export class ClientManager {
   public close(): void {
     this.connection.close();
     this.interrupt(true);
-    safeTrigger(
-      () => Boolean(this.subscription),
-      () => this.subscription.unsubscribe()
-    );
+    until(() => Boolean(this.subscription)).then(() => {
+      return this.subscription.unsubscribe();
+    });
   }
   public unary(
     id: number | string,
@@ -90,7 +88,7 @@ export class ClientManager {
         return Promise.reject(Error(`Invalid duplicate request id: ${id}`));
       }
 
-      const destination = deferred();
+      const destination = new Promist();
       const request: RPCUnaryRequest = {
         jsonrpc: '2.0',
         id,
@@ -103,7 +101,7 @@ export class ClientManager {
       this.connection.send(request).catch((err) => {
         this.error(id, err, true);
       });
-      return destination.then((x) => x);
+      return Promise.resolve(destination);
     } catch (err) {
       return Promise.reject(err);
     }

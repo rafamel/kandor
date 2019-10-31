@@ -9,7 +9,7 @@ import {
   RPCClientConnection,
   DataOutput
 } from '@karmic/rpc';
-import { safeTrigger } from '@karmic/core';
+import { until } from 'promist';
 
 export const RECONNECT_DELAY = 5000;
 
@@ -67,12 +67,13 @@ export function connect(
       active = false;
 
       connection.actions.close();
-      safeTrigger(
-        () => Boolean(subscription),
-        () => subscription.unsubscribe()
-      );
+      until(() => Boolean(subscription), true).then(() => {
+        return subscription.unsubscribe();
+      });
 
       if (retry && (attempts <= 0 || attempts > retries)) {
+        // FIXME: callback stack error when too many reconnects
+        // (calls too deep)
         child = trunk(RECONNECT_DELAY);
       } else {
         events$.complete();

@@ -76,8 +76,7 @@
   "dependencies": {
     "@karmic/core": "^0.1.0",
     "@karmic/rest": "^0.1.0",
-    "@karmic/rpc": "^0.1.0",
-    "promist": "^1.0.0"
+    "@karmic/rpc": "^0.1.0"
   },
   "peerDependencies": {
     "rxjs": "6.x"

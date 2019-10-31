@@ -2,12 +2,12 @@ import {
   intercept,
   PublicError,
   InterceptImplementation,
-  ServiceKind,
-  safeTrigger
+  ServiceKind
 } from '@karmic/core';
 import { tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { ensure } from 'errorish';
+import { until } from 'promist';
 
 export type LogStatus = 'success' | 'error' | 'complete' | 'unsubscribe';
 
@@ -164,10 +164,9 @@ export function logging(
         });
 
         function unsubscribe(): void {
-          return safeTrigger(
-            () => Boolean(subscription),
-            () => subscription.unsubscribe()
-          );
+          until(() => Boolean(subscription), true).then(() => {
+            return subscription.unsubscribe();
+          });
         }
 
         return opts.skip.includes('unsubscribe')

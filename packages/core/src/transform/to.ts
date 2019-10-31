@@ -16,7 +16,7 @@ import {
   isServiceImplementation,
   isServiceSubscription
 } from '~/inspect';
-import { toSafePromise } from '~/utils';
+import { subscribe } from 'promist';
 
 export function toImplementation<T extends CollectionTree>(
   collection: T,
@@ -66,7 +66,7 @@ export function toUnary<
       ...element,
       kind: 'query',
       resolve(...args: any): Promise<any> {
-        return toSafePromise(resolve.apply(this, args));
+        return subscribe(resolve.apply(this, args));
       }
     };
   }) as AbstractCollectionTree<Q, M, never>;

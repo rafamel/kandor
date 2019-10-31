@@ -1,9 +1,9 @@
-import { ApplicationServices, PublicError, safeTrigger } from '@karmic/core';
+import { ApplicationServices, PublicError } from '@karmic/core';
 import { RPCServerConnection } from '../types';
 import { DataInput, DataParser } from '~/types';
 import { ChannelManager } from './ChannelManager';
 import { resolve } from './resolve';
-import { lazy } from 'promist';
+import { LazyPromist, until } from 'promist';
 
 export class ServerManager {
   private id: number;
@@ -25,7 +25,7 @@ export class ServerManager {
   public connect(connection: RPCServerConnection): () => void {
     const disconnects = this.disconnects;
     const channels = new ChannelManager(this.ensure);
-    const context = lazy.fn(connection.context || (() => ({})));
+    const context = LazyPromist.from(connection.context || (() => ({})));
 
     let open = true;
     const id = this.nextId();
@@ -57,10 +57,10 @@ export class ServerManager {
     function complete(): void {
       open = false;
       channels.destroy();
-      safeTrigger(
-        () => Boolean(subscription),
-        () => subscription.unsubscribe()
-      );
+      until(() => Boolean(subscription), true).then(() => {
+        return subscription.unsubscribe();
+      });
+
       if (Object.hasOwnProperty.call(disconnects, id)) {
         delete disconnects[id];
       }

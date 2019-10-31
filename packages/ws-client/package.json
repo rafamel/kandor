@@ -83,7 +83,7 @@
     "@karmic/core": "^0.1.0",
     "@karmic/rpc": "^0.1.0",
     "isomorphic-ws": "^4.0.1",
-    "promist": "^1.0.0"
+    "promist": "^2.0.0"
   },
   "peerDependencies": {
     "rxjs": "6.x",

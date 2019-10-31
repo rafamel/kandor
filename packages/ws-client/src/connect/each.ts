@@ -1,14 +1,13 @@
 import WebSocket from 'isomorphic-ws';
 import { Subject } from 'rxjs';
-import { deferred } from 'promist';
 import { filter, take } from 'rxjs/operators';
-import { resolvableWait } from '@karmic/core';
 import {
   RPCClientConnection,
   RPCClientConnectionStatus,
   RPCClientConnectionEvent,
   DataOutput
 } from '@karmic/rpc';
+import { Promist } from 'promist';
 
 export function connectEach(
   address: string,
@@ -21,18 +20,18 @@ export function connectEach(
   let status: RPCClientConnectionStatus = 'close';
   const events$ = new Subject<RPCClientConnectionEvent>();
 
-  const earlyClose = deferred<RPCClientConnectionEvent>();
-  const delayWait = resolvableWait(delay ? Math.max(0, delay) : 0);
+  const earlyClose = new Promist<RPCClientConnectionEvent>();
+  const delayWait = Promist.wait(delay ? Math.max(0, delay) : 0);
   earlyClose.then(() => delayWait.resolve());
 
-  delayWait.promise.then(() => {
+  delayWait.then(() => {
     if (!active) return;
 
     socket = new WebSocket(address, wsco);
     if (timeout && timeout > 0) {
-      const timeoutWait = resolvableWait(timeout);
+      const timeoutWait = Promist.wait(timeout);
       earlyClose.then(() => timeoutWait.resolve());
-      timeoutWait.promise.then(() => {
+      timeoutWait.then(() => {
         if (!active || status === 'open') return;
         close(
           Error(`Connection didn't open by timeout: ${timeout}ms`),

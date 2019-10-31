@@ -6,12 +6,9 @@ import {
   RPCNotification
 } from '~/types';
 import { hasNonNullId } from './helpers';
-import {
-  ApplicationServices,
-  toSafePromise,
-  isServiceSubscription
-} from '@karmic/core';
+import { ApplicationServices, isServiceSubscription } from '@karmic/core';
 import { Observable, isObservable } from 'rxjs';
+import { subscribe } from 'promist';
 
 export function handleNotification(
   request: RPCSpecNotification,
@@ -49,7 +46,7 @@ export function handleUnary(
   const result = service.resolve(request.params || {}, context);
   return channels.unary(
     request.id,
-    isObservable(result) ? toSafePromise(result) : result,
+    isObservable(result) ? subscribe(result) : result,
     cb
   );
 }

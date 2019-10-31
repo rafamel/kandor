@@ -1,9 +1,8 @@
-import { deferred } from 'promist';
 import { filter, take } from 'rxjs/operators';
 import { RPCStreamRequest } from '~/types';
 import { ConnectionManager } from '../ConnectionManager';
 import { ClientStore } from '../ClientStore';
-import { resolvableWait } from '@karmic/core';
+import { Promist } from 'promist';
 
 export const RETRY_DELAY = 5000;
 
@@ -15,7 +14,7 @@ export function retrySubscribe(
   let success = false;
   let stopped = false;
   let onDelayedSuccessFn: null | (() => void) = null;
-  const force = deferred<void>();
+  const force = new Promist<void>();
 
   async function retry(): Promise<void> {
     // eslint-disable-next-line no-unmodified-loop-condition
@@ -31,10 +30,10 @@ export function retrySubscribe(
         }
       }
       if (!success) {
-        const retryWait = resolvableWait(RETRY_DELAY);
+        const retryWait = Promist.wait(RETRY_DELAY);
         force.then(() => retryWait.resolve());
         await Promise.race([
-          retryWait.promise,
+          retryWait,
           connection.status$
             .pipe(
               filter((x) => x === 'open'),

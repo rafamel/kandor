@@ -1,5 +1,5 @@
-import { resolvableWait } from '@karmic/core';
 import { ClientManager } from './ClientManager';
+import { Promist } from 'promist';
 
 export function handleUnaryRequest(
   method: string,
@@ -11,19 +11,10 @@ export function handleUnaryRequest(
   const promise = manager.unary(nextId(), method, params);
   if (!responseTimeout) return promise;
 
-  const timeoutWait = resolvableWait(responseTimeout);
-  return Promise.race([
-    timeoutWait.promise.then(() =>
-      Promise.reject(Error(`Request reached timeout: ${responseTimeout}ms`))
-    ),
-    promise
-  ])
-    .then((value) => {
-      timeoutWait.resolve();
-      return value;
-    })
-    .catch((err) => {
-      timeoutWait.resolve();
-      return Promise.reject(err);
-    });
+  const promist = Promist.from(promise);
+  promist.timeout(
+    responseTimeout,
+    Error(`Request reached timeout: ${responseTimeout}ms`)
+  );
+  return Promise.resolve(promist);
 }

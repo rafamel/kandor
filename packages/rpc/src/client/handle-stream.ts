@@ -1,8 +1,7 @@
 import { UnsubscribePolicy } from './types';
 import { Observable, Subscription } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
-import { resolvableWait, ResolvableWait, safeTrigger } from '@karmic/core';
-import { Promist, deferred } from 'promist';
+import { Promist, until } from 'promist';
 import { ClientManager } from './ClientManager';
 
 export const ONLY_FAIL_ON_CLOSE_RETRY_WAIT = 5000;
@@ -111,7 +110,7 @@ export function withResponseTimeout(
   if (!timeout) return observable;
 
   let state: null | {
-    promise: Promist<void, 'deferrable'>;
+    promise: Promist<void>;
     subscription: Subscription;
   } = null;
   let timer: null | NodeJS.Timer = null;
@@ -121,7 +120,7 @@ export function withResponseTimeout(
     count++;
     if (state) return;
 
-    const promise = deferred();
+    const promise = new Promist<void>();
     const subscription = manager.status$.subscribe((status) => {
       if (status === 'open') {
         stop();
@@ -177,10 +176,9 @@ export function withResponseTimeout(
     function close(): void {
       open = false;
       end();
-      safeTrigger(
-        () => Boolean(subscription),
-        () => subscription.unsubscribe()
-      );
+      until(() => Boolean(subscription), true).then(() => {
+        return subscription.unsubscribe();
+      });
     }
 
     return () => {
@@ -209,7 +207,7 @@ export function onlyFailOnClose(
     observable: subscribeOnlyFailOnClose
       ? new Observable((self) => {
           let unsubscribed = false;
-          let retryWait: null | ResolvableWait = null;
+          let retryWait: null | Promist<void> = null;
           let subscription = observable.subscribe({
             next: (value) => self.next(value),
             error: (err) => {
@@ -217,8 +215,8 @@ export function onlyFailOnClose(
               if (manager.status === 'complete') return self.error(err);
 
               manager.report(err);
-              retryWait = resolvableWait(ONLY_FAIL_ON_CLOSE_RETRY_WAIT);
-              retryWait.promise.then(() => {
+              retryWait = Promist.wait(ONLY_FAIL_ON_CLOSE_RETRY_WAIT);
+              retryWait.then(() => {
                 if (unsubscribed) return;
                 if (manager.status === 'complete') return self.error(err);
 
