@@ -25,11 +25,15 @@ export class ClientManager {
   public constructor(
     connection: RPCClientConnection,
     parser: DataParser,
-    subscriptionConnectRetry: boolean
+    subscriptionConnectRetry: boolean,
+    batchRequests: boolean
   ) {
     this.store = new ClientStore();
-    this.connection = new ConnectionManager(connection, parser, (data) =>
-      this.response(data)
+    this.connection = new ConnectionManager(
+      connection,
+      parser,
+      (data) => this.response(data),
+      batchRequests
     );
     this.subscriptionConnectRetry = subscriptionConnectRetry;
     this.subscription = this.connection.status$.subscribe((status) => {

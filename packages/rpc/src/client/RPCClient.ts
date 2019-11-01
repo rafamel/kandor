@@ -22,7 +22,8 @@ export class RPCClient {
     this.manager = new ClientManager(
       connection,
       this.options.parser,
-      this.options.subscribePolicy !== 'fail'
+      this.options.subscribePolicy !== 'fail',
+      this.options.batch
     );
   }
   public get status(): RPCClientStatus {

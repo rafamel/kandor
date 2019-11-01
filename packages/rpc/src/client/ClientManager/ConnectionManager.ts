@@ -2,6 +2,7 @@ import { RPCClientConnection, RPCClientStatus } from '../types';
 import { BehaviorSubject, Subject, Observable, Subscription } from 'rxjs';
 import { DataInput, DataParser, RPCRequest, RPCNotification } from '~/types';
 import { until } from 'promist';
+import DataLoader from 'dataloader';
 
 interface ConnectionManagerSubjects {
   status: BehaviorSubject<RPCClientStatus>;
@@ -11,18 +12,29 @@ interface ConnectionManagerSubjects {
 export class ConnectionManager {
   public errors: Error[];
   private connection: RPCClientConnection;
-  private parser: DataParser;
+  private loader: DataLoader<RPCRequest | RPCNotification, null | Error>;
   private subjects: ConnectionManagerSubjects;
   private subscription: Subscription;
   public constructor(
     connection: RPCClientConnection,
     parser: DataParser,
-    onData: (data: object) => void
+    onData: (data: object) => void,
+    batchRequests: boolean
   ) {
     this.errors = [];
 
-    this.parser = parser;
     this.connection = connection;
+    this.loader = new DataLoader<RPCRequest | RPCNotification, null | Error>(
+      async (arr) => {
+        try {
+          await this.connection.actions.send(await parser.serialize(arr));
+          return Array(arr.length).fill(null);
+        } catch (err) {
+          return Array(arr.length).fill(err);
+        }
+      },
+      { batch: batchRequests, cache: false }
+    );
     this.subjects = {
       status: new BehaviorSubject<RPCClientStatus>(connection.status),
       errors: new Subject<Error>()
@@ -82,7 +94,8 @@ export class ConnectionManager {
   }
   public async send(data: RPCRequest | RPCNotification): Promise<void> {
     if (this.status === 'complete') return;
-    await this.connection.actions.send(await this.parser.serialize(data));
+
+    await this.loader.load(data);
   }
   public report(error: Error): void {
     if (this.status === 'complete') return;

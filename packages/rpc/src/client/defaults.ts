@@ -3,6 +3,7 @@ import { DataInput, DataOutput } from '~/types';
 
 export function createDefaults(): Required<RPCClientOptions> {
   return {
+    batch: true,
     responseTimeout: 30000,
     subscribePolicy: 'fail',
     unsubscribePolicy: 'complete',

@@ -5,6 +5,10 @@ export type RPCClientStatus = RPCClientConnectionStatus | 'complete';
 
 export interface RPCClientOptions {
   /**
+   * Whether to batch requests. Default: `true`.
+   */
+  batch?: boolean;
+  /**
    * Timeout for request's first result when connected in milliseconds. `0` for *infinity.* It will cause all pending requests to fail. Default: `30000`.
    */
   responseTimeout?: number;
