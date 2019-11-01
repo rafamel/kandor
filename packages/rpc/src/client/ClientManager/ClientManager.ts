@@ -168,13 +168,7 @@ export class ClientManager {
     }
   }
   private response(data: any): void {
-    try {
-      if (!data || typeof data !== 'object' || Array.isArray(data)) {
-        return this.report(
-          Error(`Unexpected response: ${JSON.stringify(data)}`)
-        );
-      }
-
+    const each = (data: any): void => {
       // Notification
       if (!Object.hasOwnProperty.call(data, 'id')) {
         const notification: RPCNotification = data;
@@ -205,8 +199,32 @@ export class ClientManager {
       }
 
       this.report(Error(`Invalid response: ${JSON.stringify(response)}`));
+    };
+
+    try {
+      if (!data || typeof data !== 'object') {
+        return this.report(
+          Error(`Unexpected response: ${JSON.stringify(data)}`)
+        );
+      }
+      if (!Array.isArray(data)) {
+        return each(data);
+      }
     } catch (err) {
-      this.report(err);
+      return this.report(err);
+    }
+
+    for (const item of data) {
+      try {
+        if (!item || typeof item !== 'object' || Array.isArray(item)) {
+          return this.report(
+            Error(`Unexpected response: ${JSON.stringify(item)}`)
+          );
+        }
+        each(item);
+      } catch (err) {
+        this.report(err);
+      }
     }
   }
   private success(
