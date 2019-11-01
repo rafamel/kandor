@@ -15,7 +15,7 @@
     "access": "public"
   },
   "engines": {
-    "node": ">=8"
+    "node": ">=12"
   },
   "main": "pkg/dist/index.js",
   "types": "pkg/dist/index.d.ts",
@@ -62,8 +62,8 @@
     "@pika/pack": "^0.4.0",
     "@pika/plugin-build-web": "^0.7.1",
     "@pika/plugin-standard-pkg": "^0.7.1",
-    "@riseup/library": "^0.4.0",
-    "@riseup/tooling": "^0.4.0",
+    "@riseup/library": "^0.5.0",
+    "@riseup/tooling": "^0.5.0",
     "@types/jest": "^24.0.13",
     "@zerollup/ts-transform-paths": "^1.7.3",
     "kpo": "^0.11.0",
