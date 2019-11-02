@@ -1,6 +1,6 @@
 {
   "name": "@karmic/rest",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Rafa Mel",
   "description": "Karmic REST common package",
   "keywords": [
@@ -71,7 +71,7 @@
     "typescript": "^3.6.4"
   },
   "dependencies": {
-    "@karmic/core": "^0.1.0",
+    "@karmic/core": "^0.2.0",
     "query-string": "^6.8.3"
   },
   "@pika/pack": {

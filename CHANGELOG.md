@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0](https://github.com/rafamel/karmic/compare/v0.1.0...v0.2.0) (2019-11-02)
+
+
+### Bug Fixes
+
+* **ws-client:** fixes reconnect reaching max call stack ([db2f859](https://github.com/rafamel/karmic/commit/db2f859f4c94d32b6dbaeb77c25de7b616c35ad4))
+* updates setup, dependencies, and support for Node 12 ([0c2e60b](https://github.com/rafamel/karmic/commit/0c2e60bb0aba07de4fcc67dff85c8cd5ebd54e38))
+* **rest/server:** removes unimplemented declaration option ([a4080b3](https://github.com/rafamel/karmic/commit/a4080b35df41d480814ee9150c2dffcf496c576b))
+
+
+### Features
+
+* **rpc/client:** batches requests ([e5aa664](https://github.com/rafamel/karmic/commit/e5aa6643b64c96198dd86c8b92fa64c47be3848f))
+* **rpc/client:** takes in batch responses ([95ccfff](https://github.com/rafamel/karmic/commit/95ccfffe0a0d7bf95aab74d7e50b382209b87700))
+* **rpc/server:** emits an error if a call subscription completes before emitting any value ([46d878c](https://github.com/rafamel/karmic/commit/46d878c784df6b0797c799c8815877f6bb56f012))
+* **rpc/server:** takes in stream batch requests ([00a7bc7](https://github.com/rafamel/karmic/commit/00a7bc770983cda8e0cd60c4105194be5769394e))
+
+
+
+
+
 # 0.1.0 (2019-10-29)
 
 
