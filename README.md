@@ -13,7 +13,7 @@
 
 ## Adapters
 
-* [*@karmic/http-adapter:*](https://github.com/rafamel/karmic/tree/master/packages/http-adapter) HTTP REST and RPC adapter.
+* [*@karmic/http-adapter:*](https://github.com/rafamel/karmic/tree/master/packages/http-adapter) HTTP REST adapter.
 * [*@karmic/ws-adapter:*](https://github.com/rafamel/karmic/tree/master/packages/ws-adapter) WebSockets RPC adapter.
 
 ## Clients

@@ -8,7 +8,7 @@
 [![License](https://img.shields.io/github/license/rafamel/karmic.svg)](https://github.com/rafamel/karmic/blob/master/LICENSE)
 [![Types](https://img.shields.io/npm/types/@karmic/http-adapter.svg)](https://www.npmjs.com/package/@karmic/http-adapter)
 
-> *Karmic* HTTP REST and RPC adapter.
+> *Karmic* HTTP REST adapter.
 
 ## Install
 

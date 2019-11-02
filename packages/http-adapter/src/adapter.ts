@@ -1,13 +1,11 @@
 import http from 'http';
 import { CollectionTreeImplementation } from '@karmic/core';
-import { RESTServer, RESTServerMethod, RESTServerOptions } from '@karmic/rest';
-import { HTTPAdapterOptionsOnly, HTTPAdapter } from '~/types';
+import { RESTServer, RESTServerMethod } from '@karmic/rest';
+import { HTTPAdapter, HTTPAdapterOptions } from '~/types';
 
-export type HTTPAdapterRestOptions = HTTPAdapterOptionsOnly & RESTServerOptions;
-
-export function rest(
+export default function adapter(
   collection: CollectionTreeImplementation,
-  options?: HTTPAdapterRestOptions
+  options?: HTTPAdapterOptions
 ): HTTPAdapter {
   const server = new RESTServer(collection, options);
   const opts = Object.assign({ context: () => ({}) }, options);

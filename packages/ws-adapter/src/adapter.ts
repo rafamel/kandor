@@ -9,7 +9,7 @@ const codes = {
   UnsupportedPayload: 1007
 };
 
-export function rpc(
+export default function adapter(
   collection: CollectionTreeImplementation,
   options?: RPCAdapterOptions
 ): WSAdapter {

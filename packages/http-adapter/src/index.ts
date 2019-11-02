@@ -1,2 +1,2 @@
-export * from './rest';
-export * from './rpc';
+export { default } from './adapter';
+export * from './types';

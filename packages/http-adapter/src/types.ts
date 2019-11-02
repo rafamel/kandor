@@ -1,5 +1,6 @@
 import http from 'http';
 import { CollectionTreeDeclaration } from '@karmic/core';
+import { RESTServerOptions } from '@karmic/rest';
 
 export interface HTTPAdapter {
   /**
@@ -17,7 +18,7 @@ export interface HTTPAdapter {
   ) => void;
 }
 
-export interface HTTPAdapterOptionsOnly {
+export interface HTTPAdapterOptions extends RESTServerOptions {
   /**
    * A function to provide context before services are called.
    */

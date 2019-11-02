@@ -2,7 +2,7 @@
   "name": "@karmic/http-adapter",
   "version": "0.1.0",
   "author": "Rafa Mel",
-  "description": "Karmic HTTP REST and RPC adapter",
+  "description": "Karmic HTTP REST adapter",
   "keywords": [
     "connect",
     "express",
@@ -11,8 +11,7 @@
     "framework",
     "backend",
     "http",
-    "REST",
-    "RPC"
+    "REST"
   ],
   "publishConfig": {
     "access": "public"
@@ -70,17 +69,13 @@
     "@zerollup/ts-transform-paths": "^1.7.3",
     "kpo": "^0.11.1",
     "onchange": "^6.0.0",
-    "rxjs": "^6.5.3",
     "typescript": "^3.6.4"
   },
   "dependencies": {
     "@karmic/core": "^0.1.0",
-    "@karmic/rest": "^0.1.0",
-    "@karmic/rpc": "^0.1.0"
+    "@karmic/rest": "^0.1.0"
   },
-  "peerDependencies": {
-    "rxjs": "6.x"
-  },
+  "peerDependencies": {},
   "@pika/pack": {
     "pipeline": [
       [
