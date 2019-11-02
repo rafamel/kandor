@@ -4,12 +4,10 @@ import { connectEach } from './each';
 import { createTracker } from './tracker';
 import {
   RPCClientConnectionEvent,
-  RPCClientConnectionActions,
-  RPCClientConnectionStatus,
   RPCClientConnection,
   DataOutput
 } from '@karmic/rpc';
-import { until } from 'promist';
+import { until, Promist } from 'promist';
 
 export const RECONNECT_DELAY = 5000;
 
@@ -21,14 +19,10 @@ export function connect(
 ): RPCClientConnection {
   let retries = 0;
   const events$ = new Subject<RPCClientConnectionEvent>();
+  let timer: null | NodeJS.Timer = null;
+  let current = new Promist<Pick<RPCClientConnection, 'actions' | 'status'>>();
 
-  let child = trunk();
-  function trunk(
-    delay?: number
-  ): {
-    actions: RPCClientConnectionActions;
-    status: RPCClientConnectionStatus;
-  } {
+  function trunk(): void {
     retries++;
     let active = true;
     // Reset retries when a request and a response have been successful
@@ -36,7 +30,7 @@ export function connect(
       retries = 0;
     });
 
-    const connection = connectEach(address, wsco, timeout, delay);
+    const connection = connectEach(address, wsco, timeout);
     const subscription = connection.events$.subscribe({
       next(value) {
         if (!active) return;
@@ -62,6 +56,23 @@ export function connect(
       }
     });
 
+    current.resolve({
+      get status() {
+        return active ? connection.status : 'close';
+      },
+      actions: {
+        close: () => {
+          if (!active) return;
+          events$.next({ event: 'close', data: null });
+          close(false);
+        },
+        async send(data: DataOutput) {
+          await connection.actions.send(data);
+          tracker.request();
+        }
+      }
+    });
+
     function close(retry: boolean): void {
       if (!active) return;
       active = false;
@@ -72,41 +83,40 @@ export function connect(
       });
 
       if (retry && (attempts <= 0 || attempts > retries)) {
-        // FIXME: callback stack error when too many reconnects
-        // (calls too deep)
-        child = trunk(RECONNECT_DELAY);
+        current = new Promist();
+        timer = setTimeout(() => {
+          timer = null;
+          trunk();
+        }, Math.max(RECONNECT_DELAY, 50));
       } else {
         events$.complete();
       }
     }
-
-    const send = async (data: DataOutput): Promise<void> => {
-      return connection.actions.send(data);
-    };
-    return {
-      get status() {
-        return active ? connection.status : 'close';
-      },
-      actions: {
-        close: () => {
-          if (!active) return;
-          events$.next({ event: 'close', data: null });
-          close(false);
-        },
-        send: (data: DataOutput) => {
-          return send(data).then(() => tracker.request());
-        }
-      }
-    };
   }
 
+  trunk();
+  let closed = false;
   return {
     get status() {
-      return child.status;
+      return current.value && !closed ? current.value.status : 'close';
     },
     actions: {
-      send: (data: DataOutput) => child.actions.send(data),
-      close: () => child.actions.close()
+      async send(data: DataOutput) {
+        if (closed) throw Error(`Can't request over a closed socket`);
+        return current.then(({ actions }) => actions.send(data));
+      },
+      close: () => {
+        if (closed) return;
+        closed = true;
+
+        if (current.value) {
+          return current.value.actions.close();
+        }
+        if (timer) {
+          clearTimeout(timer);
+          return events$.complete();
+        }
+      }
     },
     events$: events$.asObservable()
   };
