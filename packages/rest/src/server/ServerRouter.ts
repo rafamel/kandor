@@ -81,19 +81,27 @@ export class ServerRouter {
     // Only passes query on get
     if (method === 'GET') {
       return id
-        ? (data: any, context: any) =>
-            resolve(
+        ? (data: any, context: any) => {
+            return resolve(
               data ? { ...data, ...query, id } : { ...query, id },
               context
-            )
-        : (data: any, context: any) =>
-            resolve(data ? { ...data, ...query, id } : { ...query }, context);
+            );
+          }
+        : (data: any, context: any) => {
+            return resolve(
+              data ? { ...data, ...query } : { ...query },
+              context
+            );
+          };
     }
 
     return id
-      ? (data: any, context: any) =>
-          resolve(data ? { ...data, id } : { id }, context)
-      : resolve;
+      ? (data: any, context: any) => {
+          return resolve(data ? { ...data, id } : { id }, context);
+        }
+      : (data: any, context: any) => {
+          return resolve(data ? { ...data } : {}, context);
+        };
   }
   private categorize(
     route: string,
