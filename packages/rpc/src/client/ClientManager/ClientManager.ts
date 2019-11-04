@@ -7,7 +7,8 @@ import {
   RPCCompleteNotification,
   RPCNotification,
   RPCSingleResponse,
-  DataParser
+  DataParser,
+  RPCErrorResponse
 } from '~/types';
 import { ConnectionManager } from './ConnectionManager';
 import { ClientStore } from './ClientStore';
@@ -179,7 +180,7 @@ export class ClientManager {
         if (
           notification.method === ':complete' &&
           notification.params &&
-          notification.params.id
+          Object.hasOwnProperty.call(notification.params, 'id')
         ) {
           return this.complete(notification.params.id, false);
         }
@@ -191,14 +192,19 @@ export class ClientManager {
       // Response
       const response: RPCSingleResponse = data;
 
-      if (response.error) {
-        const error = mapError(response);
-        return response.id
+      if (Object.hasOwnProperty.call(response, 'error')) {
+        const error = mapError(response as RPCErrorResponse);
+        return Object.hasOwnProperty.call(response, 'id') &&
+          response.id !== null
           ? this.error(response.id, error, false)
           : this.report(error);
       }
 
-      if (response.result && response.id) {
+      if (
+        Object.hasOwnProperty.call(response, 'result') &&
+        Object.hasOwnProperty.call(response, 'id') &&
+        response.id !== null
+      ) {
         return this.success(response.id, response.result, false);
       }
 
