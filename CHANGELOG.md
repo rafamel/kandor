@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0](https://github.com/rafamel/karmic/compare/v0.2.0...v0.3.0) (2019-11-06)
+
+
+### Bug Fixes
+
+* **rest/server:** passes adequate data object to resolvers depending on method and params ([90576de](https://github.com/rafamel/karmic/commit/90576decd9f4bd294335689ca58f411b4c98545e))
+* **rpc/client:** fixes parsing of responses with falsy result values ([3f49070](https://github.com/rafamel/karmic/commit/3f490702ff4fb60e8c33cd7cfc7a7627b2cfb39e))
+* **ws-client:** works with browser native WebSockets ([29bb394](https://github.com/rafamel/karmic/commit/29bb394bb39d09b0caf34c5769e095051b089164))
+
+
+### Features
+
+* **ws-client, ws-adapter:** allows to pass a context object as an address query parameter ([653d45a](https://github.com/rafamel/karmic/commit/653d45a1e740dd77111ea1e1128375786b0a969d))
+
+
+
+
+
 # [0.2.0](https://github.com/rafamel/karmic/compare/v0.1.0...v0.2.0) (2019-11-02)
 
 

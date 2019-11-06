@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0](https://github.com/rafamel/karmic/compare/v0.2.0...v0.3.0) (2019-11-06)
+
+
+### Bug Fixes
+
+* **rpc/client:** fixes parsing of responses with falsy result values ([3f49070](https://github.com/rafamel/karmic/commit/3f490702ff4fb60e8c33cd7cfc7a7627b2cfb39e))
+
+
+
+
+
 # [0.2.0](https://github.com/rafamel/karmic/compare/v0.1.0...v0.2.0) (2019-11-02)
 
 

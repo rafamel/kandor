@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0](https://github.com/rafamel/karmic/compare/v0.2.0...v0.3.0) (2019-11-06)
+
+
+### Features
+
+* **ws-client, ws-adapter:** allows to pass a context object as an address query parameter ([653d45a](https://github.com/rafamel/karmic/commit/653d45a1e740dd77111ea1e1128375786b0a969d))
+
+
+
+
+
 # [0.2.0](https://github.com/rafamel/karmic/compare/v0.1.0...v0.2.0) (2019-11-02)
 
 

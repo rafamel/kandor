@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0](https://github.com/rafamel/karmic/compare/v0.2.0...v0.3.0) (2019-11-06)
+
+
+### Bug Fixes
+
+* **rest/server:** passes adequate data object to resolvers depending on method and params ([90576de](https://github.com/rafamel/karmic/commit/90576decd9f4bd294335689ca58f411b4c98545e))
+
+
+
+
+
 # [0.2.0](https://github.com/rafamel/karmic/compare/v0.1.0...v0.2.0) (2019-11-02)
 
 

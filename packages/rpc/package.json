@@ -1,6 +1,6 @@
 {
   "name": "@karmic/rpc",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": "Rafa Mel",
   "description": "Karmic RPC common package",
   "keywords": [
@@ -77,7 +77,7 @@
     "typescript": "^3.6.4"
   },
   "dependencies": {
-    "@karmic/core": "^0.2.0",
+    "@karmic/core": "^0.3.0",
     "ajv": "^6.10.2",
     "dataloader": "^1.4.0",
     "promist": "^2.0.0"
