@@ -36,6 +36,7 @@ export interface RPCAdapterOptionsOnly {
 }
 
 export type RPCAdapterProvideContext<T = any> = (
+  context: { [key: string]: any },
   req: http.IncomingMessage,
   ws: WebSocket
 ) => Promise<T> | T;

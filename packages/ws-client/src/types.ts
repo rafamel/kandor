@@ -11,4 +11,8 @@ export interface WSClientOptionsOnly {
    * Connection timeout in milliseconds. It will cause all pending requests to fail. `0` for *infinity.* Default: `7500`.
    */
   connectTimeout?: number;
+  /**
+   * A context object to be passed to the server as a query parameter.
+   */
+  context?: object;
 }

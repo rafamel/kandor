@@ -16,6 +16,7 @@ export class WSClient extends RPCClient {
     const opts = Object.assign(createDefaults(), options);
     const connection = connect(
       address,
+      opts.context,
       wso || {},
       opts.attempts,
       opts.connectTimeout

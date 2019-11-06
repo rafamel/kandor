@@ -3,6 +3,7 @@ import { RPCServer, DataOutput, DataInput } from '@karmic/rpc';
 import { RPCAdapterOptions, WSAdapter } from './types';
 import createDefaults from './defaults';
 import { Subject } from 'rxjs';
+import qs from 'query-string';
 
 const codes = {
   TryAgain: 1013,
@@ -17,10 +18,15 @@ export default function adapter(
   const rpc = new RPCServer(collection, opts);
 
   opts.server.on('connection', (ws, req) => {
+    let context = {};
+    try {
+      const json = req.url ? qs.parseUrl(req.url).query.context : '{}';
+      context = JSON.parse((Array.isArray(json) ? json[0] : json) || '{}');
+    } catch (err) {}
     let didClose = false;
     const subject = new Subject<DataInput>();
     const disconnect = rpc.connect({
-      context: () => opts.context(req, ws),
+      context: () => opts.context(context, req, ws),
       actions: {
         send: (data: DataOutput) => {
           return new Promise((resolve, reject) => {

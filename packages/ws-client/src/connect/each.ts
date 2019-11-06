@@ -9,12 +9,14 @@ import {
 } from '@karmic/rpc';
 import { Promist } from 'promist';
 import { ensure } from 'errorish';
+import qs from 'query-string';
 
 // It's duck typing day
 export const isNative = !Object.hasOwnProperty.call(WebSocket, 'Server');
 
 export function connectEach(
   address: string,
+  context: object,
   wso: WebSocket.ClientOptions,
   timeout?: number
 ): RPCClientConnection {
@@ -38,7 +40,12 @@ export function connectEach(
 
   let socket: null | WebSocket = null;
   try {
-    socket = isNative ? new WebSocket(address) : new WebSocket(address, wso);
+    const item = qs.parseUrl(address);
+    const query = Object.assign({}, item.query, {
+      context: JSON.stringify(context)
+    });
+    const url = item.url + '?' + qs.stringify(query);
+    socket = isNative ? new WebSocket(url) : new WebSocket(url, wso);
   } catch (err) {
     // failing asynchronously; if it fails synchronously
     // events$ will complete before it is subscribed to on ./connect.ts
