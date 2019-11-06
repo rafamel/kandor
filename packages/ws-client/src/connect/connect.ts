@@ -13,7 +13,7 @@ export const RECONNECT_DELAY = 5000;
 
 export function connect(
   address: string,
-  wsco: WebSocket.ClientOptions,
+  wso: WebSocket.ClientOptions,
   attempts: number,
   timeout: number
 ): RPCClientConnection {
@@ -30,7 +30,7 @@ export function connect(
       retries = 0;
     });
 
-    const connection = connectEach(address, wsco, timeout);
+    const connection = connectEach(address, wso, timeout);
     const subscription = connection.events$.subscribe({
       next(value) {
         if (!active) return;

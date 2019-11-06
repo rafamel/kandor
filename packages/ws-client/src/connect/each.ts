@@ -8,17 +8,19 @@ import {
   DataOutput
 } from '@karmic/rpc';
 import { Promist } from 'promist';
+import { ensure } from 'errorish';
+
+// It's duck typing day
+export const isNative = !Object.hasOwnProperty.call(WebSocket, 'Server');
 
 export function connectEach(
   address: string,
-  wsco: WebSocket.ClientOptions,
+  wso: WebSocket.ClientOptions,
   timeout?: number
 ): RPCClientConnection {
   let active = true;
   let status: RPCClientConnectionStatus = 'close';
   const events$ = new Subject<RPCClientConnectionEvent>();
-
-  const socket = new WebSocket(address, wsco);
   const earlyClose = new Promist<RPCClientConnectionEvent>();
 
   if (timeout && timeout > 0) {
@@ -34,21 +36,52 @@ export function connectEach(
     });
   }
 
-  socket.on('open', () => {
+  let socket: null | WebSocket = null;
+  try {
+    socket = isNative ? new WebSocket(address) : new WebSocket(address, wso);
+  } catch (err) {
+    // failing asynchronously; if it fails synchronously
+    // events$ will complete before it is subscribed to on ./connect.ts
+    setTimeout(() => close(err, false, false), 0);
+  }
+  let send: (data: any) => Promise<void> = () => {
+    return Promise.reject(Error(`Can't request over a closed socket`));
+  };
+  if (socket) {
+    const fn = socket.send.bind(socket);
+    send = isNative
+      ? async (data: any) => fn(data)
+      : (data: any) => {
+          return new Promise((resolve, reject) =>
+            fn(data, (err) => (err ? reject(err) : resolve()))
+          );
+        };
+  }
+
+  function onopen(): void {
     if (!active) return;
     status = 'open';
     events$.next({ event: 'open' });
-  });
-  socket.on('error', (err) => {
-    close(err, true, false);
-  });
-  socket.on('close', () => {
+  }
+  function onerror(event: { error: any }): void {
+    if (!active) return;
+    close(ensure(event.error), true, false);
+  }
+  function onclose(): void {
+    if (!active) return;
     close(Error(`Connection closed by server`), false, false);
-  });
-  socket.on('message', (message) => {
+  }
+  function onmessage(event: { data: any }): void {
     if (status !== 'open') return;
-    events$.next({ event: 'data', data: message });
-  });
+    events$.next({ event: 'data', data: event.data });
+  }
+
+  if (socket) {
+    socket.addEventListener('open', onopen);
+    socket.addEventListener('error', onerror);
+    socket.addEventListener('close', onclose);
+    socket.addEventListener('message', onmessage);
+  }
 
   function close(error: Error | null, explicit: boolean, early: boolean): void {
     if (!active) return;
@@ -58,10 +91,19 @@ export function connectEach(
     events$.next({ event: 'close', data: error });
     events$.complete();
     if (!early) earlyClose.resolve({ event: 'close', data: error });
-    try {
-      socket.removeAllListeners();
-      if (explicit) socket.close();
-    } catch (err) {}
+    if (socket) {
+      try {
+        socket.removeEventListener('open', onopen);
+        socket.removeEventListener('error', onerror);
+        socket.removeEventListener('close', onclose);
+        socket.removeEventListener('message', onmessage);
+      } catch (err) {}
+      if (explicit) {
+        try {
+          socket.close();
+        } catch (err) {}
+      }
+    }
   }
 
   const ready: Promise<RPCClientConnectionEvent | void> = Promise.race([
@@ -84,7 +126,9 @@ export function connectEach(
           ready
             .then((x) => {
               if (status === 'open') {
-                socket.send(data, (err) => (err ? reject(err) : resolve()));
+                send(data)
+                  .then(resolve)
+                  .catch(reject);
               } else {
                 if (x && x.event === 'close' && x.data) reject(x.data);
                 else reject(Error(`Can't request over a closed socket`));

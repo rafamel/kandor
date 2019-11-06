@@ -5,15 +5,18 @@ import { connect } from './connect';
 import WebSocket from 'isomorphic-ws';
 
 export class WSClient extends RPCClient {
+  /**
+   * `wso` options -options for `ws`- don't have any effect on browsers.
+   */
   public constructor(
     address: string,
-    wsco?: WebSocket.ClientOptions | null,
-    options?: WSClientOptions
+    options?: WSClientOptions | null,
+    wso?: WebSocket.ClientOptions
   ) {
     const opts = Object.assign(createDefaults(), options);
     const connection = connect(
       address,
-      wsco || {},
+      wso || {},
       opts.attempts,
       opts.connectTimeout
     );
