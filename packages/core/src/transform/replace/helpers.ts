@@ -109,30 +109,16 @@ export function nextService<E extends Service>(
 ): E {
   service = {
     ...service,
-    types: {
-      ...service.types,
-      errors: {
-        ...service.types.errors
-      }
+    errors: {
+      ...service.errors
     }
   };
 
-  if (typeof service.types.request !== 'string') {
-    const path = info.path.concat(['types', 'request']);
-    const route = info.route.concat(['request']);
-    service.types.request = next(service.types.request, { path, route }, cb);
-  }
-
-  if (typeof service.types.response !== 'string') {
-    const path = info.path.concat(['types', 'response']);
-    const route = info.route.concat(['response']);
-    service.types.response = next(service.types.response, { path, route }, cb);
-  }
-  for (const [name, error] of Object.entries(service.types.errors)) {
+  for (const [name, error] of Object.entries(service.errors)) {
     if (typeof error !== 'string') {
-      const path = info.path.concat(['types', 'errors', name]);
+      const path = info.path.concat(['errors', name]);
       const route = info.route.concat(['errors', name]);
-      service.types.errors[name] = next(error, { path, route }, cb);
+      service.errors[name] = next(error, { path, route }, cb);
     }
   }
 

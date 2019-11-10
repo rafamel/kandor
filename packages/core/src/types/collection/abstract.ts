@@ -7,7 +7,8 @@ import {
   SubscriptionServiceKind,
   ErrorTypeKind,
   RequestTypeKind,
-  ResponseTypeKind
+  ResponseTypeKind,
+  ServiceKind
 } from './kind';
 
 // Groups
@@ -104,37 +105,23 @@ export interface AbstractTreeScopes<
 }
 
 // Services
-export interface AbstractQueryService {
-  kind: QueryServiceKind;
-  types: AbstractServiceTypes<
-    AbstractQueryService,
-    AbstractSubscriptionService
-  >;
-}
-
-export interface AbstractMutationService {
-  kind: MutationServiceKind;
-  types: AbstractServiceTypes<
-    AbstractQueryService,
-    AbstractSubscriptionService
-  >;
-}
-
-export interface AbstractSubscriptionService {
-  kind: SubscriptionServiceKind;
-  types: AbstractServiceTypes<
-    AbstractQueryService,
-    AbstractSubscriptionService
-  >;
-}
-
-export interface AbstractServiceTypes<
-  Q extends AbstractQueryService,
-  S extends AbstractSubscriptionService
-> {
+export interface AbstractGenericService {
+  kind: ServiceKind;
   errors: AbstractServiceErrors;
-  request: string | AbstractRequestType;
-  response: string | AbstractResponseType<Q, S>;
+  request: string | Schema;
+  response: string | Schema;
+}
+
+export interface AbstractQueryService extends AbstractGenericService {
+  kind: QueryServiceKind;
+}
+
+export interface AbstractMutationService extends AbstractGenericService {
+  kind: MutationServiceKind;
+}
+
+export interface AbstractSubscriptionService extends AbstractGenericService {
+  kind: SubscriptionServiceKind;
 }
 
 export interface AbstractServiceErrors {

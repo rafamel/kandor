@@ -13,7 +13,6 @@ import {
   AbstractQueryService,
   AbstractMutationService,
   AbstractSubscriptionService,
-  AbstractServiceTypes,
   AbstractResponseType,
   AbstractResponseTypeChildren,
   AbstractRequestType,
@@ -104,21 +103,18 @@ export type TreeScopesImplementation = AbstractTreeScopes<
 // Services
 export interface QueryServiceImplementation<I = any, O = any, C = any>
   extends AbstractQueryService {
-  types: ServiceTypesImplementation;
   resolve: UnaryServiceResolveImplementation<I, O, C>;
   intercepts: InterceptImplementation[];
 }
 
 export interface MutationServiceImplementation<I = any, O = any, C = any>
   extends AbstractMutationService {
-  types: ServiceTypesImplementation;
   resolve: UnaryServiceResolveImplementation<I, O, C>;
   intercepts: InterceptImplementation[];
 }
 
 export interface SubscriptionServiceImplementation<I = any, O = any, C = any>
   extends AbstractSubscriptionService {
-  types: ServiceTypesImplementation;
   resolve: StreamServiceResolveImplementation<I, O, C>;
   intercepts: InterceptImplementation[];
 }
@@ -134,11 +130,6 @@ export type StreamServiceResolveImplementation<I = any, O = any, C = any> = (
   context: C,
   info: ElementInfo
 ) => Observable<O>;
-
-export type ServiceTypesImplementation = AbstractServiceTypes<
-  QueryServiceImplementation,
-  SubscriptionServiceImplementation
->;
 
 export type ServiceErrorsImplementation = AbstractServiceErrors;
 

@@ -5,6 +5,7 @@ import { isTreeImplementation } from './is';
 // TODO: validate collection object (ajv) + check schemas are valid
 // TODO: children services must have a request schema equal or as a subset of the type they belong to
 // TODO: all request types must be of type object
+// TODO: verify lowercase/uppercase don't collide
 export interface ValidateInspectOptions {
   /**
    * If specified, it will also throw if the collection is not a full implementation or solely a declaration, in each case. Default: `null`.

@@ -1,31 +1,29 @@
 import {
-  InterceptImplementation,
-  Schema,
-  ResponseTypeImplementation,
-  ServiceErrors,
-  RequestType,
-  ElementInfo
+  ElementInfo,
+  QueryServiceImplementation,
+  MutationServiceImplementation,
+  SubscriptionServiceImplementation
 } from '~/types';
 import { Observable } from 'rxjs';
 
-export interface UnaryServiceImplementationInput<I = any, O = any, C = any> {
-  types?: ServiceInputTypes;
+export interface QueryServiceImplementationInput<I = any, O = any, C = any>
+  extends Partial<Omit<QueryServiceImplementation, 'kind' | 'resolve'>> {
   resolve: (data: I, context: C, info: ElementInfo) => Promise<O> | O;
-  intercepts?: Array<InterceptImplementation<I, O, C>>;
 }
 
-export interface StreamServiceImplementationInput<I = any, O = any, C = any> {
-  types?: ServiceInputTypes;
+export interface MutationServiceImplementationInput<I = any, O = any, C = any>
+  extends Partial<Omit<MutationServiceImplementation, 'kind' | 'resolve'>> {
+  resolve: (data: I, context: C, info: ElementInfo) => Promise<O> | O;
+}
+
+export interface SubscriptionServiceImplementationInput<
+  I = any,
+  O = any,
+  C = any
+> extends Partial<Omit<SubscriptionServiceImplementation, 'kind' | 'resolve'>> {
   resolve: (
     data: I,
     context: C,
     info: ElementInfo
   ) => Observable<O> | Promise<Observable<O>>;
-  intercepts?: Array<InterceptImplementation<I, O, C>>;
-}
-
-export interface ServiceInputTypes {
-  errors?: ServiceErrors;
-  request?: string | Schema | RequestType;
-  response?: string | Schema | ResponseTypeImplementation;
 }

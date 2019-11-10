@@ -7,19 +7,19 @@ import {
 import { validate, traverse, isElementService, atPath } from '~/inspect';
 import { addInterceptResponse } from './helpers/intercept-response';
 import { mergeIntercepts } from './helpers/merge-intercepts';
-import { handleChildren } from './helpers/handle-children';
 import { getRoutes } from './helpers/get-routes';
 import { toDeclaration } from '~/transform';
 import { ApplicationCreateOptions } from './types';
 import { createDefaults, defaultMap } from './defaults';
 import { mergeFallback } from './helpers/merge-fallback';
+import { removeChildren } from './helpers/remove-children';
 
+// TODO: routes from camel/pascal case to _ or - separated + implement for REST
 /**
  * Validates and prepares a collection to be used:
  * - Merges service intercepts into each route resolver.
  * - Ensures services fail with a `PublicError` and resolve with `null` for empty responses.
  * - Ensures `ServerError` and `ClientError` error types exist on the collection declaration.
- * - Names and lifts inline types to the collection root if they have children services.
  */
 export function application<T extends CollectionTreeImplementation>(
   collection: T,
@@ -31,7 +31,7 @@ export function application<T extends CollectionTreeImplementation>(
 
   let tree: CollectionTreeImplementation = merge.collection;
   if (opts.validate) validate(tree, { as: 'implementation' });
-  tree = handleChildren(tree, opts.children ? 'lift' : 'remove');
+  if (opts.children) tree = removeChildren(tree);
   tree = addInterceptResponse(tree);
   tree = mergeIntercepts(tree);
 

@@ -88,9 +88,9 @@ export function atRoute<
         );
       }
       if (isElementService(element)) {
-        if (Object.hasOwnProperty.call(element.types, next)) {
+        if (Object.hasOwnProperty.call(element, next)) {
           return trunk(
-            (element.types as any)[next],
+            (element as any)[next],
             after.slice(1),
             before.concat(next)
           );

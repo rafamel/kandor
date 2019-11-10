@@ -3,14 +3,14 @@ import {
   Service,
   ServiceErrors,
   Type,
-  QueryService,
-  SubscriptionService,
   InterceptImplementation,
-  ErrorType
+  ErrorType,
+  Schema
 } from '~/types';
 import { isServiceImplementation } from '~/inspect/is';
 import isequal from 'lodash.isequal';
 import { NormalizeTransformOptions } from './types';
+import { request, response } from '~/create';
 
 export function normalizeServiceTypes(
   name: string,
@@ -19,28 +19,20 @@ export function normalizeServiceTypes(
   options: Required<NormalizeTransformOptions>,
   transform: (str: string, isExplicit: boolean) => string
 ): Service {
-  service = { ...service, types: { ...service.types } } as Service;
+  service = { ...service };
 
   for (const kind of ['request', 'response'] as ['request', 'response']) {
-    const type = service.types[kind];
-    if (typeof type === 'string') {
-      checkSourceType(kind, type, types, options);
+    const schema = service[kind];
+    if (typeof schema === 'string') {
+      checkSourceType(kind, schema, types, options);
     } else {
-      checkServiceType(kind, type);
-      if (options.liftInlineType(type)) {
-        const pascal = name + transform('R' + kind.slice(1), false);
-        normalizeServiceType(pascal, type, types, options, transform);
-        service.types[kind] = pascal;
-      }
+      const pascal = name + transform('R' + kind.slice(1), false);
+      normalizeServiceType(pascal, kind, schema, types);
+      service[kind] = pascal;
     }
   }
 
-  service.types.errors = normalizeErrors(
-    service.types.errors,
-    types,
-    options,
-    transform
-  );
+  service.errors = normalizeErrors(service.errors, types, options);
 
   if (
     isServiceImplementation(service) &&
@@ -51,7 +43,7 @@ export function normalizeServiceTypes(
     for (const intercept of service.intercepts) {
       intercepts.push({
         ...intercept,
-        errors: normalizeErrors(intercept.errors, types, options, transform)
+        errors: normalizeErrors(intercept.errors, types, options)
       });
     }
     service.intercepts = intercepts;
@@ -63,8 +55,7 @@ export function normalizeServiceTypes(
 export function normalizeErrors(
   errors: ServiceErrors,
   types: { source: TreeTypes; normal: TreeTypes },
-  options: Required<NormalizeTransformOptions>,
-  transform: (str: string, isExplicit: boolean) => string
+  options: Required<NormalizeTransformOptions>
 ): ServiceErrors {
   const result: ServiceErrors = {};
   for (const [key, error] of Object.entries(errors)) {
@@ -78,25 +69,13 @@ export function normalizeErrors(
       checkSourceType('error', error, types, options);
       if (key !== error) {
         checkServiceType('error', types.source[error]);
-        if (options.liftInlineType(types.source[error])) {
-          normalizeServiceType(
-            key,
-            types.source[error],
-            types,
-            options,
-            transform
-          );
-          result[key] = key;
-        } else {
-          result[key] = types.source[error] as ErrorType;
-        }
+        normalizeServiceType(key, 'error', types.source[error], types);
+        result[key] = key;
       }
     } else {
       checkServiceType('error', error);
-      if (options.liftInlineType(error)) {
-        normalizeServiceType(key, error, types, options, transform);
-        result[key] = key;
-      }
+      normalizeServiceType(key, 'error', error, types);
+      result[key] = key;
     }
   }
   return result;
@@ -110,56 +89,36 @@ export function checkServiceType(kind: string, type: Type): void {
 
 export function normalizeServiceType(
   name: string,
-  type: Type,
-  types: { source: TreeTypes; normal: TreeTypes },
-  options: Required<NormalizeTransformOptions>,
-  transform: (str: string, isExplicit: boolean) => string
+  kind: 'error' | 'request' | 'response',
+  data: Schema | ErrorType,
+  types: { source: TreeTypes; normal: TreeTypes }
 ): void {
-  switch (type.kind) {
+  switch (kind) {
     case 'error': {
       // In the case of errors we'll check for deep equality.
       // This is specially important for intercepts, which might
       // make inline declarations repeat themselves.
       if (
         Object.hasOwnProperty.call(types.normal, name) &&
-        !isequal(types.normal[name], type)
+        !isequal(types.normal[name], data)
       ) {
-        throw Error(`Inline type name collision: ${name}`);
+        throw Error(`Inline error name collision: ${name}`);
       }
-      types.normal[name] = type;
+      types.normal[name] = data as ErrorType;
       return;
     }
     case 'request': {
       if (Object.hasOwnProperty.call(types.normal, name)) {
-        throw Error(`Inline type name collision: ${name}`);
+        throw Error(`Inline request schema name collision: ${name}`);
       }
-      types.normal[name] = type;
+      types.normal[name] = request({ schema: data as Schema });
       return;
     }
     case 'response': {
       if (Object.hasOwnProperty.call(types.normal, name)) {
-        throw Error(`Inline type name collision: ${name}`);
+        throw Error(`Inline request schema name collision: ${name}`);
       }
-      if (!type.children) {
-        types.normal[name] = type;
-        return;
-      }
-
-      const item = {
-        ...type,
-        children: { ...type.children }
-      };
-      for (const [key, service] of Object.entries(type.children)) {
-        item.children[key] = normalizeServiceTypes(
-          name + transform(key, false),
-          service,
-          types,
-          options,
-          transform
-        ) as QueryService | SubscriptionService;
-      }
-
-      types.normal[name] = item;
+      types.normal[name] = response({ schema: data as Schema });
       return;
     }
     default: {

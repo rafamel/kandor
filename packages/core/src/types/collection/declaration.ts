@@ -13,7 +13,6 @@ import {
   AbstractQueryService,
   AbstractMutationService,
   AbstractSubscriptionService,
-  AbstractServiceTypes,
   AbstractResponseType,
   AbstractResponseTypeChildren,
   AbstractRequestType,
@@ -102,28 +101,20 @@ export type TreeScopesDeclaration = AbstractTreeScopes<
 
 // Services
 export interface QueryServiceDeclaration extends AbstractQueryService {
-  types: ServiceTypesDeclaration;
   resolve?: never;
   intercepts?: never;
 }
 
 export interface MutationServiceDeclaration extends AbstractMutationService {
-  types: ServiceTypesDeclaration;
   resolve?: never;
   intercepts?: never;
 }
 
 export interface SubscriptionServiceDeclaration
   extends AbstractSubscriptionService {
-  types: ServiceTypesDeclaration;
   resolve?: never;
   intercepts?: never;
 }
-
-export type ServiceTypesDeclaration = AbstractServiceTypes<
-  QueryServiceDeclaration,
-  SubscriptionServiceDeclaration
->;
 
 export type ServiceErrorsDeclaration = AbstractServiceErrors;
 

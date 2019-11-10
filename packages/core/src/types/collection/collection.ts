@@ -26,7 +26,6 @@ import {
   AbstractHashServices,
   AbstractCrudServices,
   AbstractTreeScopes,
-  AbstractServiceTypes,
   AbstractResponseTypeChildren,
   AbstractResponseType
 } from './abstract';
@@ -101,11 +100,6 @@ export type MutationService =
 export type SubscriptionService =
   | SubscriptionServiceDeclaration
   | SubscriptionServiceImplementation;
-
-export type ServiceTypes = AbstractServiceTypes<
-  QueryService,
-  SubscriptionService
->;
 
 export type ServiceErrors =
   | ServiceErrorsDeclaration

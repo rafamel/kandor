@@ -4,17 +4,15 @@ import {
   SubscriptionServiceImplementation,
   TreeServicesImplementation,
   CollectionTreeImplementation,
-  ServiceTypesImplementation
+  ServiceImplementation
 } from '~/types';
 import { Observable, from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import {
-  UnaryServiceImplementationInput,
-  StreamServiceImplementationInput,
-  ServiceInputTypes
+  QueryServiceImplementationInput,
+  MutationServiceImplementationInput,
+  SubscriptionServiceImplementationInput
 } from './types';
-import { isElement } from '~/inspect';
-import { request, response } from '../types';
 
 /**
  * Returns a new `collection` with services `services`.
@@ -36,13 +34,12 @@ export function services<T extends TreeServicesImplementation>(
  * Creates a `QueryServiceImplementation`.
  */
 export function query<I = any, O = any, C = any>(
-  query: UnaryServiceImplementationInput<I, O, C>
+  query: QueryServiceImplementationInput<I, O, C>
 ): QueryServiceImplementation<I, O, C> {
   return {
+    ...getDefaults(),
     ...query,
     kind: 'query',
-    types: parseTypes(query.types),
-    intercepts: query.intercepts || [],
     async resolve(...args: any) {
       return query.resolve.apply(this, args);
     }
@@ -53,15 +50,15 @@ export function query<I = any, O = any, C = any>(
  * Creates a `MutationServiceImplementation`.
  */
 export function mutation<I = any, O = any, C = any>(
-  mutation: UnaryServiceImplementationInput<I, O, C>
+  mutation: MutationServiceImplementationInput<I, O, C>
 ): MutationServiceImplementation<I, O, C> {
+  const resolve = mutation.resolve || ((() => null) as any);
   return {
+    ...getDefaults(),
     ...mutation,
     kind: 'mutation',
-    types: parseTypes(mutation.types),
-    intercepts: mutation.intercepts || [],
     async resolve(...args: any) {
-      return mutation.resolve.apply(this, args);
+      return resolve.apply(this, args);
     }
   };
 }
@@ -70,13 +67,12 @@ export function mutation<I = any, O = any, C = any>(
  * Creates a `SubscriptionServiceImplementation`.
  */
 export function subscription<I = any, O = any, C = any>(
-  subscription: StreamServiceImplementationInput<I, O, C>
+  subscription: SubscriptionServiceImplementationInput<I, O, C>
 ): SubscriptionServiceImplementation<I, O, C> {
   return {
+    ...getDefaults(),
     ...subscription,
     kind: 'subscription',
-    types: parseTypes(subscription.types),
-    intercepts: subscription.intercepts || [],
     resolve(...args: any) {
       const get = async (): Promise<Observable<any>> => {
         return subscription.resolve.apply(this, args);
@@ -86,16 +82,11 @@ export function subscription<I = any, O = any, C = any>(
   };
 }
 
-function parseTypes(types: ServiceInputTypes = {}): ServiceTypesImplementation {
+function getDefaults(): Omit<ServiceImplementation, 'kind' | 'resolve'> {
   return {
-    errors: types.errors || {},
-    request:
-      isElement(types.request) || typeof types.request === 'string'
-        ? types.request
-        : request({ schema: types.request || { type: 'object' } }),
-    response:
-      isElement(types.response) || typeof types.response === 'string'
-        ? types.response
-        : response({ schema: types.response || { type: 'null' } })
+    errors: {},
+    request: { type: 'object' },
+    response: { type: 'null' },
+    intercepts: []
   };
 }

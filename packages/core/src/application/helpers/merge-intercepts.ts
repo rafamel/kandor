@@ -1,6 +1,5 @@
 import {
   ServiceImplementation,
-  Type,
   CollectionTree,
   CollectionTreeImplementation
 } from '~/types';
@@ -35,23 +34,25 @@ export function serviceIntercepts(
   delete service.intercepts;
   if (!intercepts || !intercepts.length) return service;
 
-  const request: Type =
-    typeof service.types.request === 'string'
-      ? collection.types[service.types.request]
-      : service.types.request;
-  const response: Type =
-    typeof service.types.response === 'string'
-      ? collection.types[service.types.response]
-      : service.types.response;
-  if (!isTypeRequest(request) || !isTypeResponse(response)) {
-    throw Error(`Invalid type kind for service`);
+  let request = service.request;
+  let response = service.response;
+  if (typeof request === 'string') {
+    const type = collection.types[request];
+    if (!isTypeRequest(type)) {
+      throw Error(`Invalid type kind for service request`);
+    }
+    request = type.schema;
+  }
+  if (typeof response === 'string') {
+    const type = collection.types[response];
+    if (!isTypeResponse(type)) {
+      throw Error(`Invalid type kind for service response`);
+    }
+    response = type.schema;
   }
 
   const intercept = allof(intercepts);
-  const interceptFn = intercept.factory({
-    request: request.schema,
-    response: response.schema
-  });
+  const interceptFn = intercept.factory({ request, response });
 
   switch (service.kind) {
     case 'query':
@@ -59,10 +60,7 @@ export function serviceIntercepts(
       const resolve = service.resolve;
       return {
         ...service,
-        types: {
-          ...service.types,
-          errors: mergeServiceErrors(service.types.errors, intercept.errors)
-        },
+        errors: mergeServiceErrors(service.errors, intercept.errors),
         resolve(data: any, context, info): Promise<any> {
           return subscribe(
             interceptFn(
@@ -81,10 +79,7 @@ export function serviceIntercepts(
       const resolve = service.resolve;
       return {
         ...service,
-        types: {
-          ...service.types,
-          errors: mergeServiceErrors(service.types.errors, intercept.errors)
-        },
+        errors: mergeServiceErrors(service.errors, intercept.errors),
         resolve(data: any, context, info): Observable<any> {
           return interceptFn(
             data,

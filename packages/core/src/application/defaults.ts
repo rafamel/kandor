@@ -13,10 +13,8 @@ export function createDefaults(): Required<ApplicationCreateOptions> {
     validate: true,
     children: true,
     fallback: query({
-      types: {
-        errors: {
-          NotFoundError: error({ label: 'ClientNotFound' })
-        }
+      errors: {
+        NotFoundError: error({ label: 'ClientNotFound' })
       },
       async resolve() {
         throw new PublicError(

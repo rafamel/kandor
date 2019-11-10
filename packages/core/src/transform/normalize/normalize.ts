@@ -17,7 +17,7 @@ import {
 import { NormalizeTransformOptions } from './types';
 
 /**
- * Extracts all service inline types of a collection to its top level `CollectionTree.types`, naming them according to their scope, service, and kind. It will throw if a collection:
+ * Lifts inline schemas and errors to the top level of a collection, naming them according to their scope, service, and kind. It will throw if a collection:
  * - Produces conflicting type names.
  * - Contains references to non existent types.
  * - Has a scope name equal to a service of its parent.
@@ -33,10 +33,7 @@ export function normalize<
   collection: AbstractCollectionTree<Q, M, S>,
   options?: NormalizeTransformOptions
 ): AbstractCollectionTree<Q, M, S> {
-  const opts = Object.assign(
-    { skipReferences: false, liftInlineType: () => true },
-    options
-  );
+  const opts = Object.assign({ skipReferences: false }, options);
 
   const transform = (str: string, _isExplicit: boolean): string => {
     return camelcase(str, { pascalCase: true });

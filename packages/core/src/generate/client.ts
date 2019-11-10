@@ -116,13 +116,13 @@ export async function client(
     children: true,
     map(service): any {
       const requestType = normal.types[
-        service.types.request as string
+        service.request as string
       ] as RequestType;
       const emptyObjectValid = ajv.compile(requestType.schema)({});
 
       let resolve = '';
       resolve += start + `function resolve(data`;
-      resolve += opts.typescript ? `: ${service.types.request}` : ``;
+      resolve += opts.typescript ? `: ${service.request}` : ``;
       resolve += emptyObjectValid ? ` = {}` : ``;
 
       resolve += `)`;
@@ -130,8 +130,8 @@ export async function client(
         const isSubscription = isServiceSubscription(service);
         if (isSubscription) importObservable = true;
         resolve += isSubscription
-          ? `: Observable<${service.types.response}>`
-          : `: Promise<${service.types.response}>`;
+          ? `: Observable<${service.response}>`
+          : `: Promise<${service.response}>`;
       }
       resolve += ` { `;
       resolve += service.resolve;
