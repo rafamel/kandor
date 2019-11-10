@@ -1,5 +1,5 @@
 import { CollectionTree, CollectionTreeImplementation } from '~/types';
-import { normalize } from '~/transform/normalize';
+import { lift } from '~/transform/lift';
 import { isTreeImplementation } from './is';
 
 // TODO: validate collection object (ajv) + check schemas are valid
@@ -20,7 +20,7 @@ export interface ValidateInspectOptions {
 /**
  * It will throw if a collection:
  * - Is neither fully a implementation or not at all.
- * - Can't be normalized - see `normalize`.
+ * - Can't be lifted - see `lift`.
  * @returns `true` if a collection is a `CollectionTreeImplementation`.
  */
 export function validate(
@@ -29,7 +29,7 @@ export function validate(
 ): collection is CollectionTreeImplementation {
   const opts = Object.assign({ as: null, skipReferences: false }, options);
 
-  normalize(collection, opts);
+  lift(collection, opts);
 
   const isImplementation = isTreeImplementation(collection, true);
   if (opts.as) {

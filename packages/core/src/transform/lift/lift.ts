@@ -5,7 +5,6 @@ import {
   MutationService
 } from '~/types';
 import camelcase from 'camelcase';
-import { normalizeServiceTypes } from './helpers';
 import { replace } from '../replace';
 import {
   isElementType,
@@ -14,7 +13,8 @@ import {
   isTreeCollection,
   isTypeResponse
 } from '~/inspect/is';
-import { NormalizeTransformOptions } from './types';
+import { LiftTransformOptions } from './types';
+import { liftServiceTypes } from './helpers';
 
 /**
  * Lifts inline schemas and errors to the top level of a collection, naming them according to their scope, service, and kind. It will throw if a collection:
@@ -25,13 +25,13 @@ import { NormalizeTransformOptions } from './types';
  * - Contains types, services, or scopes with an empty name or with non word characters.
  * - Contains services with inline types or type references of the wrong kind.
  */
-export function normalize<
+export function lift<
   Q extends QueryService,
   M extends MutationService,
   S extends SubscriptionService
 >(
   collection: AbstractCollectionTree<Q, M, S>,
-  options?: NormalizeTransformOptions
+  options?: LiftTransformOptions
 ): AbstractCollectionTree<Q, M, S> {
   const opts = Object.assign({ skipReferences: false }, options);
 
@@ -41,7 +41,7 @@ export function normalize<
 
   const types = {
     source: collection.types,
-    normal: { ...collection.types }
+    lift: { ...collection.types }
   };
 
   const lowercase = Object.keys(collection.types).filter(
@@ -91,7 +91,7 @@ export function normalize<
 
         const response = { ...element, children: { ...element.children } };
         for (const [key, service] of Object.entries(element.children)) {
-          response.children[key] = normalizeServiceTypes(
+          response.children[key] = liftServiceTypes(
             name + transform(key, false),
             service,
             types,
@@ -103,7 +103,7 @@ export function normalize<
       }
 
       if (isElementService(element)) {
-        return normalizeServiceTypes(
+        return liftServiceTypes(
           route.length > 1
             ? transform(route[route.length - 2], false) + name
             : name,
@@ -116,7 +116,7 @@ export function normalize<
 
       return element;
     }),
-    types: types.normal
+    types: types.lift
   };
 
   const rootServices = Object.keys(result.services);

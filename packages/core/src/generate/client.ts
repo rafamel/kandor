@@ -7,7 +7,7 @@ import {
   RequestType
 } from '~/types';
 import { typings } from './typings';
-import { replace, normalize } from '~/transform';
+import { replace, lift } from '~/transform';
 import { isElementService, isServiceSubscription } from '~/inspect';
 import { application } from '~/application';
 import Ajv from 'ajv';
@@ -110,7 +110,7 @@ export async function client(
     (String(Math.random()) + String(Math.random())).replace(/\./g, '')
   );
 
-  const normal = normalize(source) as CollectionTreeImplementation;
+  const normal = lift(source) as CollectionTreeImplementation;
   const { routes } = application(normal, {
     validate: false,
     children: true,

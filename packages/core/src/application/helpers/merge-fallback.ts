@@ -4,7 +4,7 @@ import {
   QueryServiceImplementation
 } from '~/types';
 import { services, collections } from '~/create';
-import { normalize } from '~/transform';
+import { lift } from '~/transform';
 import { ApplicationCreateMapFn } from '../types';
 import { getRoutes } from './get-routes';
 import { atPath } from '~/inspect';
@@ -23,17 +23,17 @@ export function mergeFallback(
     throw Error(`Fallback service must be a query service`);
   }
 
-  const normal = normalize(services({ fallback }), {
+  const lifted = lift(services({ fallback }), {
     skipReferences: Object.keys(collection.types)
   });
 
   return {
     collection: collections(collection, {
-      ...normal,
+      ...lifted,
       services: {}
     }),
     fallback: atPath(
-      getRoutes(normal, map),
+      getRoutes(lifted, map),
       ['fallback'],
       (x: any): x is UnaryApplicationResolve => typeof x === 'function'
     )
