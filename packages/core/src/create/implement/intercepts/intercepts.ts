@@ -47,7 +47,7 @@ export function intercept<I, O>(
 ): InterceptImplementation<I, O> {
   return {
     kind: 'intercept',
-    errors: intercept.errors || {},
+    errors: intercept.errors || [],
     factory(...args: any) {
       const fn = intercept.factory.apply(this, args);
       return function(data, context, info, next) {
@@ -70,7 +70,7 @@ export function before<T>(
 ): InterceptImplementation<T, any> {
   return {
     kind: 'intercept',
-    errors: hook.errors || {},
+    errors: hook.errors || [],
     factory(...args: any) {
       const fn = hook.factory.apply(this, args);
       return function(data, context, info, next) {
@@ -91,7 +91,7 @@ export function after<T>(
 ): InterceptImplementation<any, T> {
   return {
     kind: 'intercept',
-    errors: hook.errors || {},
+    errors: hook.errors || [],
     factory(...args: any) {
       const fn = hook.factory.apply(this, args);
       return function(data, context, info, next) {

@@ -84,7 +84,7 @@ export function subscription<I = any, O = any, C = any>(
 
 function getDefaults(): Omit<ServiceImplementation, 'kind' | 'resolve'> {
   return {
-    errors: {},
+    errors: [],
     request: { type: 'object' },
     response: { type: 'null' },
     intercepts: []

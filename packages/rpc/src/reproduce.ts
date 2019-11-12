@@ -15,9 +15,9 @@ import {
   CollectionError,
   collections,
   types,
-  references,
   ElementItem,
-  ErrorType
+  ErrorType,
+  reference
 } from '@karmic/core';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
@@ -73,7 +73,7 @@ export async function reproduce(
   return intercepts(
     implementation,
     intercept({
-      errors: references(implementation, [opts.proxyError.name]),
+      errors: reference(implementation, [opts.proxyError.name]),
       factory: () => (data, context, info, next) => {
         return next(data).pipe(
           catchError((err) => {

@@ -1,5 +1,5 @@
 import { ApplicationCreateOptions } from './types';
-import { query, error } from '~/create';
+import { query, error, item } from '~/create';
 import { PublicError } from '~/errors';
 import {
   ServiceImplementation,
@@ -13,9 +13,7 @@ export function createDefaults(): Required<ApplicationCreateOptions> {
     validate: true,
     children: true,
     fallback: query({
-      errors: {
-        NotFoundError: error({ label: 'ClientNotFound' })
-      },
+      errors: [item('NotFoundError', error({ label: 'ClientNotFound' }))],
       async resolve() {
         throw new PublicError(
           'NotFoundError',

@@ -41,7 +41,7 @@ export class RPCServer {
             kind: 'query',
             request: '',
             response: '',
-            errors: {}
+            errors: []
           },
           resolve: app.fallback
         },

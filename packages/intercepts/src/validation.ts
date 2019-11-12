@@ -5,7 +5,9 @@ import {
   ServiceErrorsImplementation,
   PublicError,
   ElementItem,
-  ErrorType
+  ErrorType,
+  ErrorTypeImplementation,
+  item
 } from '@karmic/core';
 import Ajv from 'ajv';
 import draft04 from 'ajv/lib/refs/json-schema-draft-04.json';
@@ -40,37 +42,32 @@ export function validation(
 ): InterceptImplementation<any, any, any> {
   const opts = Object.assign({ request: true, response: false }, options);
 
-  const requestError: ElementItem<ErrorType> | null = opts.request
+  const requestError: ElementItem<ErrorTypeImplementation> | null = opts.request
     ? opts.request === true
-      ? {
-          name: 'RequestValidationError',
-          item: error({ label: 'ClientInvalid' })
-        }
+      ? item('RequestValidationError', error({ label: 'ClientInvalid' }))
       : opts.request
     : null;
-  const responseError: ElementItem<ErrorType> | null = opts.response
+  const responseError: ElementItem<
+    ErrorTypeImplementation
+  > | null = opts.response
     ? opts.response === true
-      ? {
-          name: 'ResponseValidationError',
-          item: error({ label: 'ServerError' })
-        }
+      ? item('ResponseValidationError', error({ label: 'ServerError' }))
       : opts.response
     : null;
 
-  if (requestError && requestError.item.label !== 'ClientInvalid') {
-    throw Error(
-      `Request error must have label ClientInvalid: ${requestError.item.label}`
-    );
+  const errors: ServiceErrorsImplementation = [];
+  if (requestError) {
+    if (requestError.item.label !== 'ClientInvalid') {
+      throw Error(
+        `Request error must have label ClientInvalid: ${requestError.item.label}`
+      );
+    }
+    errors.push(requestError);
   }
+  if (responseError) errors.push(responseError);
 
   return intercept({
-    errors: [requestError, responseError].reduce(
-      (acc: ServiceErrorsImplementation, error) => {
-        if (error) acc[error.name] = error.item;
-        return acc;
-      },
-      {}
-    ),
+    errors,
     factory: (schemas) => {
       const validateRequest = ajv.compile(schemas.request);
       const validateResponse = ajv.compile(schemas.response);

@@ -57,19 +57,14 @@ export function liftErrors(
   types: { source: TreeTypes; lift: TreeTypes },
   options: Required<LiftTransformOptions>
 ): ServiceErrors {
-  const result: ServiceErrors = {};
-  for (const [key, error] of Object.entries(errors)) {
+  const result: ServiceErrors = [];
+  for (const error of errors) {
     if (typeof error === 'string') {
       checkSourceType('error', error, types, options);
-      if (key !== error) {
-        checkServiceType('error', types.source[error]);
-        liftServiceType(key, 'error', types.source[error], types);
-        result[key] = key;
-      }
     } else {
-      checkServiceType('error', error);
-      liftServiceType(key, 'error', error, types);
-      result[key] = key;
+      checkServiceType('error', error.item);
+      liftServiceType(error.name, 'error', error.item, types);
+      result.push(error.name);
     }
   }
   return result;

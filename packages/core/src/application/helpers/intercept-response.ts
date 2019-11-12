@@ -21,10 +21,7 @@ export function addInterceptResponse(
     tree,
     [
       intercept({
-        errors: Object.keys(errors).reduce(
-          (acc, key) => Object.assign(acc, { [key]: key }),
-          {}
-        ),
+        errors: Object.keys(errors),
         factory: () => (data, context, info, next) => {
           return next(data).pipe(
             map((value) => (value === undefined ? null : value)),

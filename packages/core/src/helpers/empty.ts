@@ -19,7 +19,7 @@ export function emptyScope(): ScopeTree {
 export function emptyIntercept(): InterceptImplementation {
   return {
     kind: 'intercept',
-    errors: {},
+    errors: [],
     factory: () => (data, context, info, next) => next(data)
   };
 }

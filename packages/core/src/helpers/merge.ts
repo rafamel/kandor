@@ -3,7 +3,9 @@ import {
   TreeServices,
   ScopeTree,
   CollectionTree,
-  ServiceErrors
+  ServiceErrors,
+  ErrorType,
+  ElementItem
 } from '~/types';
 
 export function mergeCollection<
@@ -103,17 +105,16 @@ export function mergeServiceErrors(
   a: ServiceErrors,
   b: ServiceErrors
 ): ServiceErrors {
-  return Object.entries(a)
-    .concat(Object.entries(b))
-    .reduce((acc: ServiceErrors, [key, value]) => {
-      if (
-        Object.hasOwnProperty.call(a, key) &&
-        Object.hasOwnProperty.call(b, key) &&
-        a[key] !== b[key]
-      ) {
-        throw Error(`Intercepts error collition: ${key}`);
-      }
-      acc[key] = value;
-      return acc;
-    }, {});
+  const hash: { [key: string]: string | ElementItem<ErrorType> } = {};
+
+  const errors = a.concat(b);
+  for (const error of errors) {
+    const name = typeof error === 'string' ? error : error.name;
+    if (Object.hasOwnProperty.call(hash, name) && hash[name] !== error) {
+      throw Error(`Service error name collition: ${name}`);
+    }
+    hash[name] = error;
+  }
+
+  return Object.values(hash);
 }

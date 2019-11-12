@@ -1,4 +1,4 @@
-import { ErrorLabel, Schema } from '../types';
+import { ErrorLabel, Schema, ElementItem } from '../types';
 import {
   CollectionTreeKind,
   ScopeTreeKind,
@@ -112,6 +112,10 @@ export interface AbstractGenericService {
   response: string | Schema;
 }
 
+export type AbstractServiceErrors = Array<
+  string | ElementItem<AbstractErrorType>
+>;
+
 export interface AbstractQueryService extends AbstractGenericService {
   kind: QueryServiceKind;
 }
@@ -122,10 +126,6 @@ export interface AbstractMutationService extends AbstractGenericService {
 
 export interface AbstractSubscriptionService extends AbstractGenericService {
   kind: SubscriptionServiceKind;
-}
-
-export interface AbstractServiceErrors {
-  [key: string]: AbstractErrorType | string;
 }
 
 // Types

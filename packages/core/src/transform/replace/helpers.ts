@@ -8,7 +8,8 @@ import {
   ScopeTree,
   ResponseTypeChildren,
   Element,
-  ElementInfo
+  ElementInfo,
+  ServiceErrors
 } from '~/types';
 import {
   isTreeCollection,
@@ -107,20 +108,15 @@ export function nextService<E extends Service>(
   info: ElementInfo,
   cb: ReplaceTransformFn
 ): E {
-  service = {
-    ...service,
-    errors: {
-      ...service.errors
-    }
-  };
+  const errors: ServiceErrors = [];
 
-  for (const [name, error] of Object.entries(service.errors)) {
+  for (const error of service.errors) {
     if (typeof error !== 'string') {
-      const path = info.path.concat(['errors', name]);
-      const route = info.route.concat(['errors', name]);
-      service.errors[name] = next(error, { path, route }, cb);
+      const path = info.path.concat(['errors', error.name]);
+      const route = info.route.concat(['errors', error.name]);
+      errors.push({ ...error, item: next(error.item, { path, route }, cb) });
     }
   }
 
-  return service;
+  return { ...service, errors };
 }

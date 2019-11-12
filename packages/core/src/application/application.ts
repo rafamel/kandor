@@ -14,7 +14,7 @@ import { createDefaults, defaultMap } from './defaults';
 import { mergeFallback } from './helpers/merge-fallback';
 import { removeChildren } from './helpers/remove-children';
 
-// TODO: routes from camel/pascal case to _ or - separated + implement for REST
+// TODO: routes from camel/pascal case to _ or - separated + validate + implement for REST
 /**
  * Validates and prepares a collection to be used:
  * - Merges service intercepts into each route resolver.
