@@ -59,12 +59,6 @@ export function liftErrors(
 ): ServiceErrors {
   const result: ServiceErrors = {};
   for (const [key, error] of Object.entries(errors)) {
-    if (!key || /[^\w]/.exec(key) || key[0] !== key[0].toUpperCase()) {
-      throw Error(
-        `Inline error names must start with an uppercase letter and consist entirely of word characters: ${key}`
-      );
-    }
-
     if (typeof error === 'string') {
       checkSourceType('error', error, types, options);
       if (key !== error) {
