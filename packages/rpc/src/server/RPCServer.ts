@@ -39,7 +39,9 @@ export class RPCServer {
         ':fallback': {
           declaration: {
             kind: 'query',
-            types: { request: '', response: '', errors: {} }
+            request: '',
+            response: '',
+            errors: {}
           },
           resolve: app.fallback
         },

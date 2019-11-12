@@ -48,20 +48,19 @@ export async function reproduce(
 
   const implementation = collections(
     toImplementation(await collection, (service, info) => {
-      const { types } = service;
       if (isServiceQuery(service)) {
         return query({
-          types,
+          ...service,
           resolve: (data: any) => client.unary(info.route.join(':'), data)
         });
       } else if (isServiceMutation(service)) {
         return mutation({
-          types,
+          ...service,
           resolve: (data: any) => client.unary(info.route.join(':'), data)
         });
       } else if (isServiceSubscription(service)) {
         return subscription({
-          types,
+          ...service,
           resolve: (data: any) => client.stream(info.route.join(':'), data)
         });
       } else {
