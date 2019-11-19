@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.4.0](https://github.com/rafamel/karmic/compare/v0.3.0...v0.4.0) (2019-11-19)
+
+
+### Bug Fixes
+
+* **core:** fixes circular dependencies ([7e80adb](https://github.com/rafamel/karmic/commit/7e80adb597578b9bbca75e4a9966f61f37b8b8b1))
+* **core, rpc:** takes object inheritance into account when evaluating input objects ([622d709](https://github.com/rafamel/karmic/commit/622d70920dc4d58513d6e72ef3f25474765ddcd7))
+
+
+### Features
+
+* **core:** adds getSchemas and validator utils ([2782855](https://github.com/rafamel/karmic/commit/2782855970bd5ac40d5d2aa243c27d303f7c1506))
+* **core:** implements service errors as arrays; removes references create function; adds item create ([867f579](https://github.com/rafamel/karmic/commit/867f5793137db74e6378116984883d6ee9875982))
+* **core:** moves types to service object root; inline types must be schemas ([89b1c4f](https://github.com/rafamel/karmic/commit/89b1c4f07c15e71fdafde45ed1fae3818f37578d))
+
+
+
+
+
 # [0.3.0](https://github.com/rafamel/karmic/compare/v0.2.0...v0.3.0) (2019-11-06)
 
 **Note:** Version bump only for package @karmic/core

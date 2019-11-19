@@ -1,6 +1,6 @@
 {
   "name": "@karmic/http-adapter",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": "Rafa Mel",
   "description": "Karmic HTTP REST adapter",
   "keywords": [
@@ -60,10 +60,9 @@
   "bugs": {
     "url": "https://github.com/rafamel/karmic/issues"
   },
-  "devDependencies": {},
   "dependencies": {
-    "@karmic/core": "^0.3.0",
-    "@karmic/rest": "^0.3.0"
+    "@karmic/core": "^0.4.0",
+    "@karmic/rest": "^0.4.0"
   },
   "@pika/pack": {
     "pipeline": [

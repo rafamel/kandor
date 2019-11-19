@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.4.0](https://github.com/rafamel/karmic/compare/v0.3.0...v0.4.0) (2019-11-19)
+
+
+### Bug Fixes
+
+* **core, rpc:** takes object inheritance into account when evaluating input objects ([622d709](https://github.com/rafamel/karmic/commit/622d70920dc4d58513d6e72ef3f25474765ddcd7))
+
+
+### Features
+
+* **core:** implements service errors as arrays; removes references create function; adds item create ([867f579](https://github.com/rafamel/karmic/commit/867f5793137db74e6378116984883d6ee9875982))
+* **rpc:** updates to use latest core api ([4962855](https://github.com/rafamel/karmic/commit/4962855854b6e1b7f42d964539023b394810726c))
+
+
+
+
+
 # [0.3.0](https://github.com/rafamel/karmic/compare/v0.2.0...v0.3.0) (2019-11-06)
 
 

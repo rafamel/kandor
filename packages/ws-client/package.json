@@ -1,6 +1,6 @@
 {
   "name": "@karmic/ws-client",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": "Rafa Mel",
   "description": "Karmic WebSockets RPC client",
   "keywords": [
@@ -70,8 +70,8 @@
     "ws": "^7.1.2"
   },
   "dependencies": {
-    "@karmic/core": "^0.3.0",
-    "@karmic/rpc": "^0.3.0",
+    "@karmic/core": "^0.4.0",
+    "@karmic/rpc": "^0.4.0",
     "errorish": "^0.4.0",
     "isomorphic-ws": "^4.0.1",
     "promist": "^2.0.0",
