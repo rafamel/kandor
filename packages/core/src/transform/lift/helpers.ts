@@ -94,21 +94,21 @@ export function liftServiceType(
         throw Error(`Inline error name collision: ${name}`);
       }
       types.lift[name] = data as ErrorType;
-      return;
+      break;
     }
     case 'request': {
       if (Object.hasOwnProperty.call(types.lift, name)) {
         throw Error(`Inline request schema name collision: ${name}`);
       }
       types.lift[name] = request({ schema: data as Schema });
-      return;
+      break;
     }
     case 'response': {
       if (Object.hasOwnProperty.call(types.lift, name)) {
-        throw Error(`Inline request schema name collision: ${name}`);
+        throw Error(`Inline response schema name collision: ${name}`);
       }
       types.lift[name] = response({ schema: data as Schema });
-      return;
+      break;
     }
     default: {
       throw Error(`Invalid kind for type: ${name}`);

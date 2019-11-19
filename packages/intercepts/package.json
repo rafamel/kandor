@@ -65,7 +65,6 @@
   },
   "dependencies": {
     "@karmic/core": "^0.3.0",
-    "ajv": "^6.10.2",
     "errorish": "^0.4.0",
     "promist": "^2.0.0"
   },

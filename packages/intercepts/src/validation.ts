@@ -7,10 +7,9 @@ import {
   ElementItem,
   ErrorType,
   ErrorTypeImplementation,
-  item
+  item,
+  validator
 } from '@karmic/core';
-import Ajv from 'ajv';
-import draft04 from 'ajv/lib/refs/json-schema-draft-04.json';
 import { switchMap } from 'rxjs/operators';
 import { of, throwError } from 'rxjs';
 
@@ -30,9 +29,6 @@ export interface ValidationOptions {
    */
   response?: ElementItem<ErrorType> | boolean;
 }
-
-const ajv = new Ajv({ schemaId: 'id', logger: false });
-ajv.addMetaSchema(draft04);
 
 /**
  * Returns an intercept that will validate incoming request objects and/or outgoing responses.
@@ -69,8 +65,8 @@ export function validation(
   return intercept({
     errors,
     factory: (schemas) => {
-      const validateRequest = ajv.compile(schemas.request);
-      const validateResponse = ajv.compile(schemas.response);
+      const validateRequest = validator.compile(schemas.request);
+      const validateResponse = validator.compile(schemas.response);
       return (data, context, info, next) => {
         if (requestError) {
           const valid = validateRequest(data);

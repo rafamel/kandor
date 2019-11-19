@@ -110,6 +110,8 @@ export interface AbstractGenericService {
   errors: AbstractServiceErrors;
   request: string | Schema;
   response: string | Schema;
+  // TODO
+  // nullable: boolean;
 }
 
 export type AbstractServiceErrors = Array<

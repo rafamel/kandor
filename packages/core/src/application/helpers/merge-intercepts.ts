@@ -5,15 +5,11 @@ import {
 } from '~/types';
 import { mergeServiceErrors } from '~/helpers';
 import { Observable, from } from 'rxjs';
-import {
-  isTypeRequest,
-  isTypeResponse,
-  isElementService,
-  isServiceImplementation
-} from '~/inspect';
+import { isElementService, isServiceImplementation } from '~/inspect';
 import { replace } from '~/transform';
 import { allof } from '~/create';
 import { subscribe } from 'promist';
+import { getSchemas } from '~/utils';
 
 export function mergeIntercepts(
   collection: CollectionTreeImplementation
@@ -34,25 +30,9 @@ export function serviceIntercepts(
   delete service.intercepts;
   if (!intercepts || !intercepts.length) return service;
 
-  let request = service.request;
-  let response = service.response;
-  if (typeof request === 'string') {
-    const type = collection.types[request];
-    if (!isTypeRequest(type)) {
-      throw Error(`Invalid type kind for service request`);
-    }
-    request = type.schema;
-  }
-  if (typeof response === 'string') {
-    const type = collection.types[response];
-    if (!isTypeResponse(type)) {
-      throw Error(`Invalid type kind for service response`);
-    }
-    response = type.schema;
-  }
-
   const intercept = allof(intercepts);
-  const interceptFn = intercept.factory({ request, response });
+  const schemas = getSchemas(service, collection);
+  const interceptFn = intercept.factory(schemas);
 
   switch (service.kind) {
     case 'query':

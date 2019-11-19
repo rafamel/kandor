@@ -10,11 +10,7 @@ import { typings } from './typings';
 import { replace, lift } from '~/transform';
 import { isElementService, isServiceSubscription } from '~/inspect';
 import { application } from '~/application';
-import Ajv from 'ajv';
-import draft04 from 'ajv/lib/refs/json-schema-draft-04.json';
-
-const ajv = new Ajv({ schemaId: 'id', logger: false });
-ajv.addMetaSchema(draft04);
+import { validator } from '~/utils';
 
 export interface ClientGenerateOptions {
   /**
@@ -118,7 +114,7 @@ export async function client(
       const requestType = normal.types[
         service.request as string
       ] as RequestType;
-      const emptyObjectValid = ajv.compile(requestType.schema)({});
+      const emptyObjectValid = validator.compile(requestType.schema)({});
 
       let resolve = '';
       resolve += start + `function resolve(data`;
