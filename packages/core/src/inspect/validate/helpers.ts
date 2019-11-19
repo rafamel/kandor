@@ -1,4 +1,5 @@
 import { TreeServices, TreeTypes, TreeScopes } from '~/types';
+import { containsKey } from 'contains-key';
 
 /**
  * Throws if a scope:
@@ -6,6 +7,7 @@ import { TreeServices, TreeTypes, TreeScopes } from '~/types';
  * - Has a name starting with an uppercase letter.
  * - Has a scope name equal to a service of its parent.
  */
+
 export function validateScopes(
   scopes: TreeScopes,
   services: TreeServices
@@ -15,7 +17,7 @@ export function validateScopes(
     if (name[0] !== name[0].toLowerCase()) {
       throw Error(`Service names must start with a lowercase letter: ${name}`);
     }
-    if (Object.hasOwnProperty.call(services, name)) {
+    if (containsKey(services, name)) {
       throw Error(
         `Scopes can't have a name equal to a service of its parent: ${name}`
       );

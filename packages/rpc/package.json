@@ -69,6 +69,7 @@
   "dependencies": {
     "@karmic/core": "^0.3.0",
     "ajv": "^6.10.2",
+    "contains-key": "^0.1.0",
     "dataloader": "^1.4.0",
     "promist": "^2.0.0"
   },

@@ -1,5 +1,6 @@
 import { ErrorLabel, CollectionTree } from '~/types';
 import { isTypeError } from './inspect';
+import { containsKey } from 'contains-key';
 
 export class PublicError extends Error {
   public id: string;
@@ -38,7 +39,7 @@ export class CollectionError<
     source?: Error | null,
     clear?: boolean
   ) {
-    if (!Object.hasOwnProperty.call(collection.types, id)) {
+    if (!containsKey(collection.types, id)) {
       throw Error(`Type "${id}" does not exist on collection`);
     }
 

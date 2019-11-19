@@ -14,6 +14,7 @@ import {
 } from './element';
 import { emptyCollection } from '~/helpers';
 import { traverse } from '../traverse';
+import { containsKey } from 'contains-key';
 
 export function isTreeImplementation(
   tree: Tree,
@@ -54,7 +55,7 @@ export function isServiceImplementation(
   service: Service
 ): service is ServiceImplementation {
   return (
-    Object.hasOwnProperty.call(service, 'resolve') &&
+    containsKey(service, 'resolve') &&
     typeof (service as any).resolve === 'function'
   );
 }

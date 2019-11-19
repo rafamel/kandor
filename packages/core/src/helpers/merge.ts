@@ -7,6 +7,7 @@ import {
   ErrorType,
   ElementItem
 } from '~/types';
+import { containsKey } from 'contains-key';
 
 export function mergeCollection<
   A extends CollectionTree,
@@ -70,7 +71,7 @@ export function mergeServices<A extends TreeServices, B extends TreeServices>(
   const keys = Object.keys(b);
 
   for (const key of keys) {
-    if (Object.hasOwnProperty.call(a, key)) {
+    if (containsKey(a, key)) {
       if (a[key].kind !== b[key].kind) {
         throw Error(
           `Forbidden override of service ${key} of kind ${a[key].kind} with kind ${b[key].kind}`
@@ -89,7 +90,7 @@ export function mergeTypes<A extends TreeTypes, B extends TreeTypes>(
   const keys = Object.keys(b);
 
   for (const key of keys) {
-    if (Object.hasOwnProperty.call(a, key)) {
+    if (containsKey(a, key)) {
       if (a[key].kind !== b[key].kind) {
         throw Error(
           `Forbidden override of type ${key} of kind ${a[key].kind} with kind ${b[key].kind}`
@@ -110,7 +111,7 @@ export function mergeServiceErrors(
   const errors = a.concat(b);
   for (const error of errors) {
     const name = typeof error === 'string' ? error : error.name;
-    if (Object.hasOwnProperty.call(hash, name) && hash[name] !== error) {
+    if (containsKey(hash, name) && hash[name] !== error) {
       throw Error(`Service error name collition: ${name}`);
     }
     hash[name] = error;

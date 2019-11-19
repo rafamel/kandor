@@ -12,6 +12,7 @@ import {
   isElementService,
   isTypeResponse
 } from './is';
+import { containsKey } from 'contains-key';
 
 export function atPath<
   Q extends QueryService,
@@ -30,7 +31,7 @@ export function atPath<
       throw Error(`Item is not of the expected type: ${before.join('.')}`);
     }
     const next = after[0];
-    if (Object.hasOwnProperty.call(item, next)) {
+    if (containsKey(item, next)) {
       return trunk((item as any)[next], after.slice(1), before.concat(next));
     }
     throw Error(`Item doesn't have property "${next}": ${before.join('.')}`);
@@ -61,7 +62,7 @@ export function atRoute<
     if (isElement(element)) {
       if (isElementTree(element)) {
         if (isTreeCollection(element)) {
-          if (Object.hasOwnProperty.call(element.types, next)) {
+          if (containsKey(element.types, next)) {
             return trunk(
               element.types[next],
               after.slice(1),
@@ -69,14 +70,14 @@ export function atRoute<
             );
           }
         }
-        if (Object.hasOwnProperty.call(element.services, next)) {
+        if (containsKey(element.services, next)) {
           return trunk(
             element.services[next],
             after.slice(1),
             before.concat(next)
           );
         }
-        if (Object.hasOwnProperty.call(element.scopes, next)) {
+        if (containsKey(element.scopes, next)) {
           return trunk(
             element.scopes[next],
             after.slice(1),
@@ -88,7 +89,7 @@ export function atRoute<
         );
       }
       if (isElementService(element)) {
-        if (Object.hasOwnProperty.call(element, next)) {
+        if (containsKey(element, next)) {
           return trunk(
             (element as any)[next],
             after.slice(1),
@@ -103,7 +104,7 @@ export function atRoute<
         if (
           isTypeResponse(element) &&
           element.children &&
-          Object.hasOwnProperty.call(element.children, next)
+          containsKey(element.children, next)
         ) {
           return trunk(
             element.children[next],
@@ -117,7 +118,7 @@ export function atRoute<
       }
     }
 
-    if (Object.hasOwnProperty.call(element, next)) {
+    if (containsKey(element, next)) {
       return trunk(element[next], after.slice(1), before.concat(next));
     }
 

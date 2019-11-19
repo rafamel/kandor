@@ -11,6 +11,7 @@ import { isServiceImplementation } from '~/inspect/is';
 import isequal from 'lodash.isequal';
 import { LiftTransformOptions } from './types';
 import { request, response } from '~/create';
+import { containsKey } from 'contains-key';
 
 export function liftServiceTypes(
   name: string,
@@ -87,24 +88,21 @@ export function liftServiceType(
       // In the case of errors we'll check for deep equality.
       // This is specially important for intercepts, which might
       // make inline declarations repeat themselves.
-      if (
-        Object.hasOwnProperty.call(types.lift, name) &&
-        !isequal(types.lift[name], data)
-      ) {
+      if (containsKey(types.lift, name) && !isequal(types.lift[name], data)) {
         throw Error(`Inline error name collision: ${name}`);
       }
       types.lift[name] = data as ErrorType;
       break;
     }
     case 'request': {
-      if (Object.hasOwnProperty.call(types.lift, name)) {
+      if (containsKey(types.lift, name) as boolean) {
         throw Error(`Inline request schema name collision: ${name}`);
       }
       types.lift[name] = request({ schema: data as Schema });
       break;
     }
     case 'response': {
-      if (Object.hasOwnProperty.call(types.lift, name)) {
+      if (containsKey(types.lift, name) as boolean) {
         throw Error(`Inline response schema name collision: ${name}`);
       }
       types.lift[name] = response({ schema: data as Schema });
@@ -127,7 +125,7 @@ export function checkSourceType(
     (typeof options.skipReferences === 'boolean' ||
       options.skipReferences.includes(name));
 
-  if (Object.hasOwnProperty.call(types.lift, name)) {
+  if (containsKey(types.lift, name)) {
     if (types.lift[name].kind !== kind) {
       throw Error(
         `Invalid type kind reference -expected "${kind}" but got "${types.lift[name].kind}": ${name}`

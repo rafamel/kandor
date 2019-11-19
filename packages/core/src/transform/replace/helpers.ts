@@ -19,6 +19,7 @@ import {
   isElementService
 } from '~/inspect/is/element';
 import { ReplaceTransformFn } from './index';
+import { containsKey } from 'contains-key';
 
 export function next<E extends Element>(
   element: E,
@@ -71,7 +72,7 @@ export function nextTree<E extends Tree>(
   }
   tree.services = services;
 
-  if (Object.hasOwnProperty.call(tree, 'scopes')) {
+  if (containsKey(tree, 'scopes')) {
     const scopes: TreeScopes = {};
     for (const [key, value] of Object.entries(tree.scopes)) {
       const path = info.path.concat(['scopes', key]);

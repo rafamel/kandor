@@ -6,6 +6,7 @@ import {
   AbstractScopeTree
 } from '~/types';
 import { emptyCollection, emptyScope } from '~/helpers';
+import { containsKey } from 'contains-key';
 
 export type ScopeCreate<
   Q extends QueryService,
@@ -74,7 +75,7 @@ export function extract<
   collection: T & AbstractCollectionTree<Q, M, S>,
   name: N & string
 ): ExtractCreate<Q, M, S, T, N> {
-  if (!Object.hasOwnProperty.call(collection.scopes, name)) {
+  if (!containsKey(collection.scopes, name)) {
     throw Error(`Collection doesn't have scope: ${name}`);
   }
 

@@ -12,13 +12,10 @@ import {
   ResponseType,
   ScopeTree
 } from '~/types';
+import { containsKey } from 'contains-key';
 
 export function isElement(item: any): item is Element {
-  return (
-    typeof item === 'object' &&
-    item !== null &&
-    Object.hasOwnProperty.call(item, 'kind')
-  );
+  return typeof item === 'object' && item !== null && containsKey(item, 'kind');
 }
 
 export function isElementTree(element: Element): element is Tree {
@@ -26,9 +23,7 @@ export function isElementTree(element: Element): element is Tree {
 }
 
 export function isTreeCollection(tree: Tree): tree is CollectionTree {
-  return (
-    tree.kind === 'collection' && Object.hasOwnProperty.call(tree, 'types')
-  );
+  return tree.kind === 'collection' && containsKey(tree, 'types');
 }
 
 export function isTreeScope(tree: Tree): tree is ScopeTree {

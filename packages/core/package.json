@@ -72,6 +72,7 @@
     "@types/json-schema": "^7.0.3",
     "ajv": "^6.10.2",
     "camelcase": "^5.3.1",
+    "contains-key": "^0.1.0",
     "json-schema-to-typescript": "^7.1.0",
     "lodash.isequal": "^4.5.0",
     "promist": "^2.0.0"

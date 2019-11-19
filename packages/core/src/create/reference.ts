@@ -1,4 +1,5 @@
 import { CollectionTree } from '~/types';
+import { containsKey } from 'contains-key';
 
 export function reference<T extends CollectionTree, K extends keyof T['types']>(
   collection: T,
@@ -22,7 +23,7 @@ export function reference(
   const names = isArray ? (name as string[]) : [name as string];
 
   for (const name of names) {
-    if (!Object.hasOwnProperty.call(collection.types, name)) {
+    if (!containsKey(collection.types, name)) {
       throw Error(`Can't reference "${name}" on collection`);
     }
   }

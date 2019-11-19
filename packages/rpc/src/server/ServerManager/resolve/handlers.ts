@@ -9,6 +9,7 @@ import { hasNonNullId } from './helpers';
 import { ApplicationServices, isServiceSubscription } from '@karmic/core';
 import { Observable, isObservable } from 'rxjs';
 import { subscribe } from 'promist';
+import { containsKey } from 'contains-key';
 
 export function handleNotification(
   request: RPCSpecNotification,
@@ -38,7 +39,7 @@ export function handleUnary(
   routes: ApplicationServices,
   cb: (data: RPCSingleResponse) => void
 ): void {
-  const method = Object.hasOwnProperty.call(routes, request.method)
+  const method = containsKey(routes, request.method)
     ? request.method
     : ':fallback';
   const service = routes[method];
@@ -58,7 +59,7 @@ export function handleStream(
   routes: ApplicationServices,
   cb: (data: RPCSingleResponse | RPCNotification) => void
 ): void {
-  if (!Object.hasOwnProperty.call(routes, request.method)) {
+  if (!containsKey(routes, request.method) as boolean) {
     const result = routes[':fallback'].resolve(request.params || {}, context);
     return isObservable(result)
       ? channels.stream(request.id, result, cb)
