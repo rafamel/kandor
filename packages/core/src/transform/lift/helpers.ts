@@ -10,7 +10,7 @@ import {
 import { isServiceImplementation } from '~/inspect/is';
 import isequal from 'lodash.isequal';
 import { LiftTransformOptions } from './types';
-import { request, response } from '~/create';
+import { request, response } from '~/create/implement/types';
 import { containsKey } from 'contains-key';
 
 export function liftServiceTypes(
