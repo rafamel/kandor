@@ -2,7 +2,7 @@ import fs from 'fs';
 import {
   CollectionTree,
   CollectionTreeImplementation,
-  Service,
+  ServiceElement,
   ElementInfo,
   RequestType
 } from '~/types';
@@ -39,7 +39,7 @@ export interface ClientGenerateCustomize {
   /**
    * Maps function bodies for each service.
    */
-  mapService: (service: Service, info: ElementInfo) => string;
+  mapService: (service: ServiceElement, info: ElementInfo) => string;
 }
 
 export async function client(
@@ -73,7 +73,7 @@ export async function client(
           fn += `}`;
           return fn;
         },
-        mapService(service: Service, info: ElementInfo): string {
+        mapService(service: ServiceElement, info: ElementInfo): string {
           let body = `return app['${info.route.join(':')}']`;
           body += `.resolve(data, getContext())`;
           body += opts.typescript ? ` as any;` : `;`;

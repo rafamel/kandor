@@ -1,8 +1,8 @@
 import {
   AbstractElement,
-  AbstractTree,
-  AbstractType,
-  AbstractService,
+  AbstractTreeElement,
+  AbstractTypeElement,
+  AbstractServiceElement,
   AbstractCollectionTree,
   AbstractScopeTree,
   AbstractTreeTypes,
@@ -28,18 +28,18 @@ export type ElementDeclaration = AbstractElement<
   SubscriptionServiceDeclaration
 >;
 
-export type TreeDeclaration = AbstractTree<
+export type TreeElementDeclaration = AbstractTreeElement<
   QueryServiceDeclaration,
   MutationServiceDeclaration,
   SubscriptionServiceDeclaration
 >;
 
-export type TypeDeclaration = AbstractType<
+export type TypeElementDeclaration = AbstractTypeElement<
   QueryServiceDeclaration,
   SubscriptionServiceDeclaration
 >;
 
-export type ServiceDeclaration = AbstractService<
+export type ServiceElementDeclaration = AbstractServiceElement<
   QueryServiceDeclaration,
   MutationServiceDeclaration,
   SubscriptionServiceDeclaration

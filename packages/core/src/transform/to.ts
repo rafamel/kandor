@@ -1,14 +1,14 @@
 import {
   CollectionTree,
   CollectionTreeImplementation,
-  Service,
+  ServiceElement,
   CollectionTreeDeclaration,
   AbstractCollectionTree,
   QueryService,
   MutationService,
   SubscriptionService,
   ElementInfo,
-  ServiceImplementation
+  ServiceElementImplementation
 } from '~/types';
 import { replace } from './replace';
 import {
@@ -20,7 +20,10 @@ import { subscribe } from 'promist';
 
 export function toImplementation<T extends CollectionTree>(
   collection: T,
-  fn: (service: Service, info: ElementInfo) => ServiceImplementation
+  fn: (
+    service: ServiceElement,
+    info: ElementInfo
+  ) => ServiceElementImplementation
 ): T & CollectionTreeImplementation {
   return replace(collection, (element, info, next) => {
     element = next(element);

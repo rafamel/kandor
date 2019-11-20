@@ -1,8 +1,8 @@
 import {
   AbstractElement,
-  AbstractTree,
-  AbstractType,
-  AbstractService,
+  AbstractTreeElement,
+  AbstractTypeElement,
+  AbstractServiceElement,
   AbstractCollectionTree,
   AbstractScopeTree,
   AbstractTreeTypes,
@@ -29,18 +29,22 @@ export type ElementImplementation = AbstractElement<
   SubscriptionServiceImplementation
 >;
 
-export type TreeImplementation = AbstractTree<
+export type TreeElementImplementation = AbstractTreeElement<
   QueryServiceImplementation,
   MutationServiceImplementation,
   SubscriptionServiceImplementation
 >;
 
-export type TypeImplementation = AbstractType<
+export type TypeElementImplementation = AbstractTypeElement<
   QueryServiceImplementation,
   SubscriptionServiceImplementation
 >;
 
-export type ServiceImplementation<I = any, O = any, C = any> = AbstractService<
+export type ServiceElementImplementation<
+  I = any,
+  O = any,
+  C = any
+> = AbstractServiceElement<
   QueryServiceImplementation<I, O, C>,
   MutationServiceImplementation<I, O, C>,
   SubscriptionServiceImplementation<I, O, C>
@@ -104,20 +108,24 @@ export type TreeScopesImplementation = AbstractTreeScopes<
 export interface QueryServiceImplementation<I = any, O = any, C = any>
   extends AbstractQueryService {
   resolve: UnaryServiceResolveImplementation<I, O, C>;
-  intercepts: InterceptImplementation[];
+  intercepts?: InterceptImplementation[];
 }
 
 export interface MutationServiceImplementation<I = any, O = any, C = any>
   extends AbstractMutationService {
   resolve: UnaryServiceResolveImplementation<I, O, C>;
-  intercepts: InterceptImplementation[];
+  intercepts?: InterceptImplementation[];
 }
 
 export interface SubscriptionServiceImplementation<I = any, O = any, C = any>
   extends AbstractSubscriptionService {
   resolve: StreamServiceResolveImplementation<I, O, C>;
-  intercepts: InterceptImplementation[];
+  intercepts?: InterceptImplementation[];
 }
+
+export type ServiceResolveImplementation<I = any, O = any, C = any> =
+  | UnaryServiceResolveImplementation<I, O, C>
+  | StreamServiceResolveImplementation<I, O, C>;
 
 export type UnaryServiceResolveImplementation<I = any, O = any, C = any> = (
   data: I,

@@ -2,7 +2,7 @@ import {
   intercept,
   PublicError,
   InterceptImplementation,
-  ServiceKind
+  ServiceElementKind
 } from '@karmic/core';
 import { tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
@@ -13,7 +13,7 @@ export type LogStatus = 'success' | 'error' | 'complete' | 'unsubscribe';
 
 export interface LogData {
   route: string;
-  kind: ServiceKind;
+  kind: ServiceElementKind;
   status: LogStatus;
   context: any;
   request: object;

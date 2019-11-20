@@ -15,11 +15,11 @@ import {
   RequestTypeDeclaration
 } from './declaration';
 import {
-  AbstractTree,
+  AbstractTreeElement,
   AbstractCollectionTree,
   AbstractElement,
-  AbstractType,
-  AbstractService,
+  AbstractTypeElement,
+  AbstractServiceElement,
   AbstractScopeTree,
   AbstractTreeTypes,
   AbstractTreeServices,
@@ -38,15 +38,18 @@ export type Element = AbstractElement<
   SubscriptionService
 >;
 
-export type Tree = AbstractTree<
+export type TreeElement = AbstractTreeElement<
   QueryService,
   MutationService,
   SubscriptionService
 >;
 
-export type Type = AbstractType<QueryService, SubscriptionService>;
+export type TypeElement = AbstractTypeElement<
+  QueryService,
+  SubscriptionService
+>;
 
-export type Service = AbstractService<
+export type ServiceElement = AbstractServiceElement<
   QueryService,
   MutationService,
   SubscriptionService

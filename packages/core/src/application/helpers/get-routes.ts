@@ -1,7 +1,7 @@
 import {
   CollectionTreeImplementation,
   ApplicationRoutes,
-  ServiceImplementation
+  ServiceElementImplementation
 } from '~/types';
 import { replace } from '~/transform';
 import {
@@ -19,7 +19,7 @@ export function getRoutes(
   const responses: ApplicationRoutes = {};
   const routes: any = replace(collection, (element, info, next): any => {
     if (isElementService(element)) {
-      return map(element as ServiceImplementation, info);
+      return map(element as ServiceElementImplementation, info);
     }
     if (isElementType(element)) {
       if (!isTypeResponse(element) || !element.children) return element;
@@ -33,7 +33,7 @@ export function getRoutes(
       const name = info.route[info.route.length - 1];
       const children: ApplicationRoutes = {};
       for (const [key, service] of entries) {
-        children[key] = map(service as ServiceImplementation, {
+        children[key] = map(service as ServiceElementImplementation, {
           route: info.route.concat([key]),
           path: info.path.concat(['children', key])
         });

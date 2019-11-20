@@ -2,7 +2,7 @@ import { ApplicationCreateOptions } from './types';
 import { query, error, item } from '~/create';
 import { PublicError } from '~/errors';
 import {
-  ServiceImplementation,
+  ServiceElementImplementation,
   ElementInfo,
   ApplicationResolve
 } from '~/types';
@@ -29,7 +29,7 @@ export function createDefaults(): Required<ApplicationCreateOptions> {
 }
 
 export function defaultMap(
-  service: ServiceImplementation,
+  service: ServiceElementImplementation,
   info: ElementInfo
 ): ApplicationResolve {
   return (data: any, context: any): Promise<any> | Observable<any> => {

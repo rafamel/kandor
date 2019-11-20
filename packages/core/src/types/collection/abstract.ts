@@ -8,7 +8,7 @@ import {
   ErrorTypeKind,
   RequestTypeKind,
   ResponseTypeKind,
-  ServiceKind
+  ServiceElementKind
 } from './kind';
 
 // Groups
@@ -16,20 +16,23 @@ export type AbstractElement<
   Q extends AbstractQueryService,
   M extends AbstractMutationService,
   S extends AbstractSubscriptionService
-> = AbstractTree<Q, M, S> | AbstractType<Q, S> | AbstractService<Q, M, S>;
+> =
+  | AbstractTreeElement<Q, M, S>
+  | AbstractTypeElement<Q, S>
+  | AbstractServiceElement<Q, M, S>;
 
-export type AbstractTree<
+export type AbstractTreeElement<
   Q extends AbstractQueryService,
   M extends AbstractMutationService,
   S extends AbstractSubscriptionService
 > = AbstractCollectionTree<Q, M, S> | AbstractScopeTree<Q, M, S>;
 
-export type AbstractType<
+export type AbstractTypeElement<
   Q extends AbstractQueryService,
   S extends AbstractSubscriptionService
 > = AbstractErrorType | AbstractRequestType | AbstractResponseType<Q, S>;
 
-export type AbstractService<
+export type AbstractServiceElement<
   Q extends AbstractQueryService,
   M extends AbstractMutationService,
   S extends AbstractSubscriptionService
@@ -66,7 +69,7 @@ export interface AbstractTreeTypes<
   Q extends AbstractQueryService,
   S extends AbstractSubscriptionService
 > {
-  [key: string]: AbstractType<Q, S>;
+  [key: string]: AbstractTypeElement<Q, S>;
 }
 
 export type AbstractTreeServices<
@@ -106,7 +109,7 @@ export interface AbstractTreeScopes<
 
 // Services
 export interface AbstractGenericService {
-  kind: ServiceKind;
+  kind: ServiceElementKind;
   errors: AbstractServiceErrors;
   request: string | Schema;
   response: string | Schema;
@@ -133,6 +136,8 @@ export interface AbstractSubscriptionService extends AbstractGenericService {
 // Types
 export interface AbstractErrorType<L extends ErrorLabel = ErrorLabel> {
   kind: ErrorTypeKind;
+  schema?: never;
+  children?: never;
   label: L;
   description?: string;
 }
@@ -140,6 +145,9 @@ export interface AbstractErrorType<L extends ErrorLabel = ErrorLabel> {
 export interface AbstractRequestType {
   kind: RequestTypeKind;
   schema: Schema;
+  children?: never;
+  label?: never;
+  description?: never;
 }
 
 export interface AbstractResponseType<
@@ -149,6 +157,8 @@ export interface AbstractResponseType<
   kind: ResponseTypeKind;
   schema: Schema;
   children?: AbstractResponseTypeChildren<Q, S>;
+  label?: never;
+  description?: never;
 }
 
 export interface AbstractResponseTypeChildren<

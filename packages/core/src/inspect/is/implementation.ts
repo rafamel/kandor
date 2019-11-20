@@ -1,10 +1,10 @@
 import {
-  Tree,
-  TreeImplementation,
-  Service,
-  ServiceImplementation,
-  Type,
-  TypeImplementation
+  TreeElement,
+  TreeElementImplementation,
+  ServiceElement,
+  ServiceElementImplementation,
+  TypeElement,
+  TypeElementImplementation
 } from '~/types';
 import {
   isTreeCollection,
@@ -17,9 +17,9 @@ import { traverse } from '../traverse';
 import { containsKey } from 'contains-key';
 
 export function isTreeImplementation(
-  tree: Tree,
+  tree: TreeElement,
   fail?: boolean
-): tree is TreeImplementation {
+): tree is TreeElementImplementation {
   const collection = isTreeCollection(tree)
     ? tree
     : { ...emptyCollection(), scopes: { tree } };
@@ -52,15 +52,17 @@ export function isTreeImplementation(
 }
 
 export function isServiceImplementation(
-  service: Service
-): service is ServiceImplementation {
+  service: ServiceElement
+): service is ServiceElementImplementation {
   return (
     containsKey(service, 'resolve') &&
     typeof (service as any).resolve === 'function'
   );
 }
 
-export function isTypeImplementation(type: Type): type is TypeImplementation {
+export function isTypeImplementation(
+  type: TypeElement
+): type is TypeElementImplementation {
   return (
     isTypeError(type) ||
     isTypeRequest(type) ||

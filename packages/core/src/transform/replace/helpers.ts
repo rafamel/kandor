@@ -1,7 +1,7 @@
 import {
-  Tree,
-  Type,
-  Service,
+  TreeElement,
+  TypeElement,
+  ServiceElement,
   TreeTypes,
   TreeServices,
   TreeScopes,
@@ -47,7 +47,7 @@ export function routeNext<E extends Element>(
   }
 }
 
-export function nextTree<E extends Tree>(
+export function nextTree<E extends TreeElement>(
   tree: E,
   info: ElementInfo,
   cb: ReplaceTransformFn
@@ -86,7 +86,7 @@ export function nextTree<E extends Tree>(
   return tree;
 }
 
-export function nextType<E extends Type>(
+export function nextType<E extends TypeElement>(
   type: E,
   info: ElementInfo,
   cb: ReplaceTransformFn
@@ -104,7 +104,7 @@ export function nextType<E extends Type>(
   return type;
 }
 
-export function nextService<E extends Service>(
+export function nextService<E extends ServiceElement>(
   service: E,
   info: ElementInfo,
   cb: ReplaceTransformFn

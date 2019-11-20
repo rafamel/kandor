@@ -1,5 +1,5 @@
 import {
-  ServiceImplementation,
+  ServiceElementImplementation,
   CollectionTree,
   CollectionTreeImplementation
 } from '~/types';
@@ -23,9 +23,9 @@ export function mergeIntercepts(
 }
 
 export function serviceIntercepts(
-  service: ServiceImplementation,
+  service: ServiceElementImplementation,
   collection: CollectionTree
-): ServiceImplementation {
+): ServiceElementImplementation {
   const intercepts = service.intercepts;
   delete service.intercepts;
   if (!intercepts || !intercepts.length) return service;

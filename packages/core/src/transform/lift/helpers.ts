@@ -1,8 +1,8 @@
 import {
   TreeTypes,
-  Service,
+  ServiceElement,
   ServiceErrors,
-  Type,
+  TypeElement,
   InterceptImplementation,
   ErrorType,
   Schema
@@ -15,11 +15,11 @@ import { containsKey } from 'contains-key';
 
 export function liftServiceTypes(
   name: string,
-  service: Service,
+  service: ServiceElement,
   types: { source: TreeTypes; lift: TreeTypes },
   options: Required<LiftTransformOptions>,
   transform: (str: string, isExplicit: boolean) => string
-): Service {
+): ServiceElement {
   service = { ...service };
 
   for (const kind of ['request', 'response'] as ['request', 'response']) {
@@ -71,7 +71,7 @@ export function liftErrors(
   return result;
 }
 
-export function checkServiceType(kind: string, type: Type): void {
+export function checkServiceType(kind: string, type: TypeElement): void {
   if (type.kind !== kind) {
     throw Error(`Invalid inline type kind.`);
   }

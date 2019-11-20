@@ -4,7 +4,7 @@ import {
   SubscriptionServiceImplementation,
   TreeServicesImplementation,
   CollectionTreeImplementation,
-  ServiceImplementation
+  ServiceElementImplementation
 } from '~/types';
 import { Observable, from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
@@ -82,7 +82,7 @@ export function subscription<I = any, O = any, C = any>(
   };
 }
 
-function getDefaults(): Omit<ServiceImplementation, 'kind' | 'resolve'> {
+function getDefaults(): Omit<ServiceElementImplementation, 'kind' | 'resolve'> {
   return {
     errors: [],
     request: { type: 'object' },

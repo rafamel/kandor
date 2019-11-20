@@ -1,4 +1,7 @@
-import { CollectionTreeDeclaration, ServiceDeclaration } from './collection';
+import {
+  CollectionTreeDeclaration,
+  ServiceElementDeclaration
+} from './collection';
 import { Observable } from 'rxjs';
 
 export interface Application {
@@ -19,7 +22,7 @@ export interface ApplicationServices {
 export interface ApplicationService<
   R extends ApplicationResolve = ApplicationResolve
 > {
-  declaration: ServiceDeclaration;
+  declaration: ServiceElementDeclaration;
   resolve: R;
 }
 

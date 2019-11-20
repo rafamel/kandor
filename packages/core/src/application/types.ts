@@ -1,5 +1,5 @@
 import {
-  ServiceImplementation,
+  ServiceElementImplementation,
   ElementInfo,
   ApplicationResolve,
   QueryServiceImplementation
@@ -26,6 +26,6 @@ export interface ApplicationCreateOptions {
 }
 
 export type ApplicationCreateMapFn<I = any, O = any, C = any> = (
-  service: ServiceImplementation<I, O, C>,
+  service: ServiceElementImplementation<I, O, C>,
   info: ElementInfo
 ) => ApplicationResolve<I, O, C>;
