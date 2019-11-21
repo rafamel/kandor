@@ -1,9 +1,9 @@
-import { Element, ElementItem } from '~/types';
+import { ElementUnion, ElementItem } from '~/types';
 
 /**
  * Returns an *Element* `element` as an `ElementItem` with `name`.
  */
-export function item<N extends string, T extends Element>(
+export function item<N extends string, T extends ElementUnion>(
   name: N,
   element: T
 ): ElementItem<T, N> {

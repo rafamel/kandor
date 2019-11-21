@@ -1,10 +1,10 @@
 import {
-  TreeTypes,
-  ServiceElement,
-  ServiceErrors,
-  TypeElement,
+  TreeTypesUnion,
+  ServiceElementUnion,
+  ServiceErrorsUnion,
+  TypeElementUnion,
   InterceptImplementation,
-  ErrorType,
+  ErrorTypeUnion,
   Schema
 } from '~/types';
 import { isServiceImplementation } from '~/inspect/is';
@@ -15,11 +15,11 @@ import { containsKey } from 'contains-key';
 
 export function liftServiceTypes(
   name: string,
-  service: ServiceElement,
-  types: { source: TreeTypes; lift: TreeTypes },
+  service: ServiceElementUnion,
+  types: { source: TreeTypesUnion; lift: TreeTypesUnion },
   options: Required<LiftTransformOptions>,
   transform: (str: string, isExplicit: boolean) => string
-): ServiceElement {
+): ServiceElementUnion {
   service = { ...service };
 
   for (const kind of ['request', 'response'] as ['request', 'response']) {
@@ -54,11 +54,11 @@ export function liftServiceTypes(
 }
 
 export function liftErrors(
-  errors: ServiceErrors,
-  types: { source: TreeTypes; lift: TreeTypes },
+  errors: ServiceErrorsUnion,
+  types: { source: TreeTypesUnion; lift: TreeTypesUnion },
   options: Required<LiftTransformOptions>
-): ServiceErrors {
-  const result: ServiceErrors = [];
+): ServiceErrorsUnion {
+  const result: ServiceErrorsUnion = [];
   for (const error of errors) {
     if (typeof error === 'string') {
       checkSourceType('error', error, types, options);
@@ -71,7 +71,7 @@ export function liftErrors(
   return result;
 }
 
-export function checkServiceType(kind: string, type: TypeElement): void {
+export function checkServiceType(kind: string, type: TypeElementUnion): void {
   if (type.kind !== kind) {
     throw Error(`Invalid inline type kind.`);
   }
@@ -80,8 +80,8 @@ export function checkServiceType(kind: string, type: TypeElement): void {
 export function liftServiceType(
   name: string,
   kind: 'error' | 'request' | 'response',
-  data: Schema | ErrorType,
-  types: { source: TreeTypes; lift: TreeTypes }
+  data: Schema | ErrorTypeUnion,
+  types: { source: TreeTypesUnion; lift: TreeTypesUnion }
 ): void {
   switch (kind) {
     case 'error': {
@@ -91,7 +91,7 @@ export function liftServiceType(
       if (containsKey(types.lift, name) && !isequal(types.lift[name], data)) {
         throw Error(`Inline error name collision: ${name}`);
       }
-      types.lift[name] = data as ErrorType;
+      types.lift[name] = data as ErrorTypeUnion;
       break;
     }
     case 'request': {
@@ -117,7 +117,7 @@ export function liftServiceType(
 export function checkSourceType(
   kind: string,
   name: string,
-  types: { source: TreeTypes; lift: TreeTypes },
+  types: { source: TreeTypesUnion; lift: TreeTypesUnion },
   options: Required<LiftTransformOptions>
 ): void {
   const skip =

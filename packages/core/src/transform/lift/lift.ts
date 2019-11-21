@@ -1,8 +1,8 @@
 import {
-  QueryService,
-  SubscriptionService,
+  QueryServiceUnion,
+  SubscriptionServiceUnion,
   AbstractCollectionTree,
-  MutationService
+  MutationServiceUnion
 } from '~/types';
 import camelcase from 'camelcase';
 import { replace } from '../replace';
@@ -22,9 +22,9 @@ import { liftServiceTypes } from './helpers';
  * - Contains services with types of the wrong kind.
  */
 export function lift<
-  Q extends QueryService,
-  M extends MutationService,
-  S extends SubscriptionService
+  Q extends QueryServiceUnion,
+  M extends MutationServiceUnion,
+  S extends SubscriptionServiceUnion
 >(
   collection: AbstractCollectionTree<Q, M, S>,
   options?: LiftTransformOptions

@@ -1,15 +1,15 @@
 import {
-  TreeElement,
-  TypeElement,
-  ServiceElement,
-  TreeTypes,
-  TreeServices,
-  TreeScopes,
-  ScopeTree,
-  ResponseTypeChildren,
-  Element,
+  TreeElementUnion,
+  TypeElementUnion,
+  ServiceElementUnion,
+  TreeTypesUnion,
+  TreeServicesUnion,
+  TreeScopesUnion,
+  ScopeTreeUnion,
+  ResponseTypeChildrenUnion,
+  ElementUnion,
   ElementInfo,
-  ServiceErrors
+  ServiceErrorsUnion
 } from '~/types';
 import {
   isTreeCollection,
@@ -21,17 +21,17 @@ import {
 import { ReplaceTransformFn } from './index';
 import { containsKey } from 'contains-key';
 
-export function next<E extends Element>(
+export function next<E extends ElementUnion>(
   element: E,
   info: ElementInfo,
   cb: ReplaceTransformFn
 ): E {
   return cb(element, info, (item) =>
-    routeNext(item === undefined ? element : (item as Element), info, cb)
+    routeNext(item === undefined ? element : (item as ElementUnion), info, cb)
   ) as E;
 }
 
-export function routeNext<E extends Element>(
+export function routeNext<E extends ElementUnion>(
   element: E,
   info: ElementInfo,
   cb: ReplaceTransformFn
@@ -47,7 +47,7 @@ export function routeNext<E extends Element>(
   }
 }
 
-export function nextTree<E extends TreeElement>(
+export function nextTree<E extends TreeElementUnion>(
   tree: E,
   info: ElementInfo,
   cb: ReplaceTransformFn
@@ -55,7 +55,7 @@ export function nextTree<E extends TreeElement>(
   tree = { ...tree };
 
   if (isTreeCollection(tree)) {
-    const types: TreeTypes = {};
+    const types: TreeTypesUnion = {};
     for (const [key, value] of Object.entries(tree.types)) {
       const path = info.path.concat(['types', key]);
       const route = info.route.concat([key]);
@@ -64,7 +64,7 @@ export function nextTree<E extends TreeElement>(
     tree.types = types;
   }
 
-  const services: TreeServices = {};
+  const services: TreeServicesUnion = {};
   for (const [key, value] of Object.entries(tree.services)) {
     const path = info.path.concat(['services', key]);
     const route = info.route.concat([key]);
@@ -73,12 +73,12 @@ export function nextTree<E extends TreeElement>(
   tree.services = services;
 
   if (containsKey(tree, 'scopes')) {
-    const scopes: TreeScopes = {};
+    const scopes: TreeScopesUnion = {};
     for (const [key, value] of Object.entries(tree.scopes)) {
       const path = info.path.concat(['scopes', key]);
       const route = info.route.concat([key]);
       const scope = next(value, { path, route }, cb);
-      scopes[key] = scope as ScopeTree;
+      scopes[key] = scope as ScopeTreeUnion;
     }
     tree.scopes = scopes;
   }
@@ -86,13 +86,13 @@ export function nextTree<E extends TreeElement>(
   return tree;
 }
 
-export function nextType<E extends TypeElement>(
+export function nextType<E extends TypeElementUnion>(
   type: E,
   info: ElementInfo,
   cb: ReplaceTransformFn
 ): E {
   if (isTypeResponse(type) && type.children) {
-    const children: ResponseTypeChildren = {};
+    const children: ResponseTypeChildrenUnion = {};
     for (const [key, value] of Object.entries(type.children || {})) {
       const path = info.path.concat(['children', key]);
       const route = info.route.concat([key]);
@@ -104,12 +104,12 @@ export function nextType<E extends TypeElement>(
   return type;
 }
 
-export function nextService<E extends ServiceElement>(
+export function nextService<E extends ServiceElementUnion>(
   service: E,
   info: ElementInfo,
   cb: ReplaceTransformFn
 ): E {
-  const errors: ServiceErrors = [];
+  const errors: ServiceErrorsUnion = [];
 
   for (const error of service.errors) {
     if (typeof error !== 'string') {

@@ -1,4 +1,4 @@
-import { TreeServices, TreeTypes, TreeScopes } from '~/types';
+import { TreeServicesUnion, TreeTypesUnion, TreeScopesUnion } from '~/types';
 import { containsKey } from 'contains-key';
 
 /**
@@ -9,8 +9,8 @@ import { containsKey } from 'contains-key';
  */
 
 export function validateScopes(
-  scopes: TreeScopes,
-  services: TreeServices
+  scopes: TreeScopesUnion,
+  services: TreeServicesUnion
 ): void {
   for (const name of Object.keys(scopes)) {
     validateWord(name);
@@ -30,7 +30,7 @@ export function validateScopes(
  * - Has an empty name or contains non word characters.
  * - Has a name starting with an uppercase letter.
  */
-export function validateServices(services: TreeServices): void {
+export function validateServices(services: TreeServicesUnion): void {
   for (const name of Object.keys(services)) {
     validateWord(name);
     if (name[0] !== name[0].toLowerCase()) {
@@ -44,7 +44,7 @@ export function validateServices(services: TreeServices): void {
  * - Has an empty name or contains non word characters.
  * - Has a name starting with a lowercase letter.
  */
-export function validateTypes(types: TreeTypes): void {
+export function validateTypes(types: TreeTypesUnion): void {
   for (const [name, type] of Object.entries(types)) {
     validateWord(name);
     if (name[0] !== name[0].toUpperCase()) {

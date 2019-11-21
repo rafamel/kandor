@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { CollectionTree } from '~/types';
+import { CollectionTreeUnion } from '~/types';
 import { compile } from 'json-schema-to-typescript';
 import { lift } from '~/transform/lift';
 
@@ -15,7 +15,7 @@ export interface TypingsGenerateOptions {
 }
 
 export async function typings(
-  collection: CollectionTree | Promise<CollectionTree>,
+  collection: CollectionTreeUnion | Promise<CollectionTreeUnion>,
   options?: TypingsGenerateOptions
 ): Promise<string> {
   const opts = { write: null, headComments: true, ...options };

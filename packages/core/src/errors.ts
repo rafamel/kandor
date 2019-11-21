@@ -1,4 +1,4 @@
-import { ErrorLabel, CollectionTree } from '~/types';
+import { ErrorLabel, CollectionTreeUnion } from '~/types';
 import { isTypeError } from './inspect';
 import { containsKey } from 'contains-key';
 
@@ -30,7 +30,7 @@ export class PublicError extends Error {
 }
 
 export class CollectionError<
-  T extends CollectionTree,
+  T extends CollectionTreeUnion,
   K extends keyof T['types']
 > extends PublicError {
   public constructor(

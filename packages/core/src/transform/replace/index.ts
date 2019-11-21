@@ -1,17 +1,17 @@
 import {
   ElementInfo,
-  QueryService,
-  MutationService,
-  SubscriptionService,
+  QueryServiceUnion,
+  MutationServiceUnion,
+  SubscriptionServiceUnion,
   AbstractElement,
   AbstractCollectionTree
 } from '~/types';
 import { next } from './helpers';
 
 export type ReplaceTransformFn<
-  Q extends QueryService = QueryService,
-  M extends MutationService = MutationService,
-  S extends SubscriptionService = SubscriptionService
+  Q extends QueryServiceUnion = QueryServiceUnion,
+  M extends MutationServiceUnion = MutationServiceUnion,
+  S extends SubscriptionServiceUnion = SubscriptionServiceUnion
 > = (
   element: AbstractElement<Q, M, S>,
   info: ElementInfo,
@@ -22,9 +22,9 @@ export type ReplaceTransformFn<
  * Performs a traversal, returning a new collection where `Element`s are substituted by the ones returned by `cb`. Alternative to `traverse`.
  */
 export function replace<
-  Q extends QueryService,
-  M extends MutationService,
-  S extends SubscriptionService
+  Q extends QueryServiceUnion,
+  M extends MutationServiceUnion,
+  S extends SubscriptionServiceUnion
 >(
   collection: AbstractCollectionTree<Q, M, S>,
   cb: ReplaceTransformFn<Q, M, S>

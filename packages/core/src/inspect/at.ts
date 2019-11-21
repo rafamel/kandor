@@ -1,7 +1,7 @@
 import {
-  QueryService,
-  MutationService,
-  SubscriptionService,
+  QueryServiceUnion,
+  MutationServiceUnion,
+  SubscriptionServiceUnion,
   AbstractElement
 } from '~/types';
 import {
@@ -15,9 +15,9 @@ import {
 import { containsKey } from 'contains-key';
 
 export function atPath<
-  Q extends QueryService,
-  M extends MutationService,
-  S extends SubscriptionService,
+  Q extends QueryServiceUnion,
+  M extends MutationServiceUnion,
+  S extends SubscriptionServiceUnion,
   R = AbstractElement<Q, M, S>
 >(
   item: AbstractElement<Q, M, S> | object,
@@ -41,9 +41,9 @@ export function atPath<
 }
 
 export function atRoute<
-  Q extends QueryService,
-  M extends MutationService,
-  S extends SubscriptionService,
+  Q extends QueryServiceUnion,
+  M extends MutationServiceUnion,
+  S extends SubscriptionServiceUnion,
   R = AbstractElement<Q, M, S>
 >(
   collection: AbstractElement<Q, M, S>,

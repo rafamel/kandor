@@ -1,7 +1,7 @@
 import {
-  SubscriptionService,
-  MutationService,
-  QueryService,
+  SubscriptionServiceUnion,
+  MutationServiceUnion,
+  QueryServiceUnion,
   AbstractCollectionTree,
   AbstractScopeTree
 } from '~/types';
@@ -9,9 +9,9 @@ import { emptyCollection, emptyScope } from '~/helpers';
 import { containsKey } from 'contains-key';
 
 export type ScopeCreate<
-  Q extends QueryService,
-  M extends MutationService,
-  S extends SubscriptionService,
+  Q extends QueryServiceUnion,
+  M extends MutationServiceUnion,
+  S extends SubscriptionServiceUnion,
   T extends AbstractCollectionTree<Q, M, S>,
   N extends string
 > = AbstractCollectionTree<
@@ -24,9 +24,9 @@ export type ScopeCreate<
 >;
 
 export type ExtractCreate<
-  Q extends QueryService,
-  M extends MutationService,
-  S extends SubscriptionService,
+  Q extends QueryServiceUnion,
+  M extends MutationServiceUnion,
+  S extends SubscriptionServiceUnion,
   T extends AbstractCollectionTree<Q, M, S>,
   N extends keyof T['scopes']
 > = AbstractCollectionTree<
@@ -42,9 +42,9 @@ export type ExtractCreate<
  * Given a `collection`, returs a new collection with all of the services within the input collection in scope `name`.
  */
 export function scope<
-  Q extends QueryService,
-  M extends MutationService,
-  S extends SubscriptionService,
+  Q extends QueryServiceUnion,
+  M extends MutationServiceUnion,
+  S extends SubscriptionServiceUnion,
   T extends AbstractCollectionTree<Q, M, S>,
   N extends string
 >(
@@ -66,9 +66,9 @@ export function scope<
  * Given a collection with a scope `name`, returns a new collection with all of the services in the root scope of the input collection discarded, and scope `name` serving as the new collection root.
  */
 export function extract<
-  Q extends QueryService,
-  M extends MutationService,
-  S extends SubscriptionService,
+  Q extends QueryServiceUnion,
+  M extends MutationServiceUnion,
+  S extends SubscriptionServiceUnion,
   T extends AbstractCollectionTree<Q, M, S>,
   N extends keyof T['scopes']
 >(

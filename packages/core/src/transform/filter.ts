@@ -1,7 +1,7 @@
 import {
-  QueryService,
-  MutationService,
-  SubscriptionService,
+  QueryServiceUnion,
+  MutationServiceUnion,
+  SubscriptionServiceUnion,
   AbstractElement,
   ElementInfo,
   AbstractCollectionTree
@@ -15,18 +15,18 @@ import {
 } from '~/inspect';
 
 export type FilterTransformFn<
-  Q extends QueryService = QueryService,
-  M extends MutationService = MutationService,
-  S extends SubscriptionService = SubscriptionService
+  Q extends QueryServiceUnion = QueryServiceUnion,
+  M extends MutationServiceUnion = MutationServiceUnion,
+  S extends SubscriptionServiceUnion = SubscriptionServiceUnion
 > = (element: AbstractElement<Q, M, S>, info: ElementInfo) => boolean;
 
 /**
  * Performs a traversal, returning a new collection where `Element`s are deleted when `cb` returns false. Inline types cannot be filtered.
  */
 export function filter<
-  Q extends QueryService,
-  M extends MutationService,
-  S extends SubscriptionService
+  Q extends QueryServiceUnion,
+  M extends MutationServiceUnion,
+  S extends SubscriptionServiceUnion
 >(
   collection: AbstractCollectionTree<Q, M, S>,
   cb: FilterTransformFn<Q, M, S>

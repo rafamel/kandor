@@ -1,17 +1,17 @@
 import {
-  TreeTypes,
-  TreeServices,
-  ScopeTree,
-  CollectionTree,
-  ServiceErrors,
-  ErrorType,
+  TreeTypesUnion,
+  TreeServicesUnion,
+  ScopeTreeUnion,
+  CollectionTreeUnion,
+  ServiceErrorsUnion,
+  ErrorTypeUnion,
   ElementItem
 } from '~/types';
 import { containsKey } from 'contains-key';
 
 export function mergeCollection<
-  A extends CollectionTree,
-  B extends CollectionTree
+  A extends CollectionTreeUnion,
+  B extends CollectionTreeUnion
 >(a: A, b: B): A & B {
   const scopeKeys = {
     a: Object.keys(a.scopes),
@@ -29,7 +29,7 @@ export function mergeCollection<
       ...a.scopes,
       ...b.scopes,
       ...nonUniqueScopeKeys.reduce(
-        (acc: { [key: string]: ScopeTree }, x) =>
+        (acc: { [key: string]: ScopeTreeUnion }, x) =>
           Object.assign(acc, mergeScope(a.scopes[x], b.scopes[x])),
         {}
       )
@@ -37,7 +37,7 @@ export function mergeCollection<
   } as A & B;
 }
 
-export function mergeScope<A extends ScopeTree, B extends ScopeTree>(
+export function mergeScope<A extends ScopeTreeUnion, B extends ScopeTreeUnion>(
   a: A,
   b: B
 ): A & B {
@@ -56,7 +56,7 @@ export function mergeScope<A extends ScopeTree, B extends ScopeTree>(
       ...a.scopes,
       ...b.scopes,
       ...nonUniqueScopeKeys.reduce(
-        (acc: { [key: string]: ScopeTree }, x) =>
+        (acc: { [key: string]: ScopeTreeUnion }, x) =>
           Object.assign(acc, mergeScope(a.scopes[x], b.scopes[x])),
         {}
       )
@@ -64,10 +64,10 @@ export function mergeScope<A extends ScopeTree, B extends ScopeTree>(
   } as A & B;
 }
 
-export function mergeServices<A extends TreeServices, B extends TreeServices>(
-  a: A,
-  b: B
-): A & B {
+export function mergeServices<
+  A extends TreeServicesUnion,
+  B extends TreeServicesUnion
+>(a: A, b: B): A & B {
   const keys = Object.keys(b);
 
   for (const key of keys) {
@@ -83,7 +83,7 @@ export function mergeServices<A extends TreeServices, B extends TreeServices>(
   return { ...a, ...b };
 }
 
-export function mergeTypes<A extends TreeTypes, B extends TreeTypes>(
+export function mergeTypes<A extends TreeTypesUnion, B extends TreeTypesUnion>(
   a: A,
   b: B
 ): A & B {
@@ -103,10 +103,10 @@ export function mergeTypes<A extends TreeTypes, B extends TreeTypes>(
 }
 
 export function mergeServiceErrors(
-  a: ServiceErrors,
-  b: ServiceErrors
-): ServiceErrors {
-  const hash: { [key: string]: string | ElementItem<ErrorType> } = {};
+  a: ServiceErrorsUnion,
+  b: ServiceErrorsUnion
+): ServiceErrorsUnion {
+  const hash: { [key: string]: string | ElementItem<ErrorTypeUnion> } = {};
 
   const errors = a.concat(b);
   for (const error of errors) {

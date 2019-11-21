@@ -1,14 +1,14 @@
-import { CollectionTree } from '~/types';
+import { CollectionTreeUnion } from '~/types';
 import { containsKey } from 'contains-key';
 
-export function reference<T extends CollectionTree, K extends keyof T['types']>(
-  collection: T,
-  name: K
-): K;
-export function reference<T extends CollectionTree, K extends keyof T['types']>(
-  collection: T,
-  name: K[]
-): K[];
+export function reference<
+  T extends CollectionTreeUnion,
+  K extends keyof T['types']
+>(collection: T, name: K): K;
+export function reference<
+  T extends CollectionTreeUnion,
+  K extends keyof T['types']
+>(collection: T, name: K[]): K[];
 
 /**
  * Returns `name`, as a *string* or a *string array*, while ensuring
@@ -16,7 +16,7 @@ export function reference<T extends CollectionTree, K extends keyof T['types']>(
  * A helper to be used for type safety when referencing types on service creation.
  */
 export function reference(
-  collection: CollectionTree,
+  collection: CollectionTreeUnion,
   name: string | string[]
 ): string | string[] {
   const isArray = Array.isArray(name);

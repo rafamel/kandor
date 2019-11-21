@@ -2,9 +2,9 @@ import {
   PublicError,
   ErrorLabel,
   CollectionError,
-  CollectionTree,
+  CollectionTreeUnion,
   ElementItem,
-  ErrorType
+  ErrorTypeUnion
 } from '@karmic/core';
 import { RPCError } from '~/types';
 import { ErrorCodes } from '~/errors';
@@ -42,8 +42,8 @@ export type RPCErrorProviderType =
   | 'InternalError';
 
 export function createErrorProvider(
-  collection: CollectionTree,
-  complete: ElementItem<ErrorType>
+  collection: CollectionTreeUnion,
+  complete: ElementItem<ErrorTypeUnion>
 ): ErrorProvider {
   function ensure(error: PublicErrorProviderType): PublicError {
     return error instanceof PublicError

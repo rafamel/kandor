@@ -1,4 +1,4 @@
-import { ServiceElement, CollectionTree, Schema } from '~/types';
+import { ServiceElementUnion, CollectionTreeUnion, Schema } from '~/types';
 import { isTypeRequest, isTypeResponse } from '~/inspect';
 
 export interface ServiceSchemas {
@@ -7,8 +7,8 @@ export interface ServiceSchemas {
 }
 
 export function getSchemas(
-  service: ServiceElement,
-  collection: CollectionTree
+  service: ServiceElementUnion,
+  collection: CollectionTreeUnion
 ): ServiceSchemas {
   let request = service.request;
   let response = service.response;

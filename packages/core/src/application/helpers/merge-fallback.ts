@@ -1,13 +1,13 @@
 import {
   CollectionTreeImplementation,
-  UnaryApplicationResolve,
-  QueryServiceImplementation
+  QueryServiceImplementation,
+  UnaryApplicationResolve
 } from '~/types';
 import { services, collections } from '~/create';
 import { lift } from '~/transform';
-import { ApplicationCreateMapFn } from '../types';
 import { getRoutes } from './get-routes';
 import { atPath } from '~/inspect';
+import { ApplicationCreateMapFn } from '../types';
 
 export interface MergeFallback {
   collection: CollectionTreeImplementation;

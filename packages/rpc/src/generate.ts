@@ -1,10 +1,14 @@
-import { client, CollectionTree, ClientGenerateOptions } from '@karmic/core';
+import {
+  client,
+  CollectionTreeUnion,
+  ClientGenerateOptions
+} from '@karmic/core';
 
 /**
  * Code generator for a collection's RPC client.
  */
 export async function generate(
-  collection: CollectionTree | Promise<CollectionTree>,
+  collection: CollectionTreeUnion | Promise<CollectionTreeUnion>,
   options?: ClientGenerateOptions
 ): Promise<string> {
   const opts = Object.assign({ typescript: true }, options);

@@ -1,9 +1,9 @@
 import {
-  TreeElement,
+  TreeElementUnion,
   TreeElementImplementation,
-  ServiceElement,
+  ServiceElementUnion,
   ServiceElementImplementation,
-  TypeElement,
+  TypeElementUnion,
   TypeElementImplementation
 } from '~/types';
 import {
@@ -17,7 +17,7 @@ import { traverse } from '../traverse';
 import { containsKey } from 'contains-key';
 
 export function isTreeImplementation(
-  tree: TreeElement,
+  tree: TreeElementUnion,
   fail?: boolean
 ): tree is TreeElementImplementation {
   const collection = isTreeCollection(tree)
@@ -52,7 +52,7 @@ export function isTreeImplementation(
 }
 
 export function isServiceImplementation(
-  service: ServiceElement
+  service: ServiceElementUnion
 ): service is ServiceElementImplementation {
   return (
     containsKey(service, 'resolve') &&
@@ -61,7 +61,7 @@ export function isServiceImplementation(
 }
 
 export function isTypeImplementation(
-  type: TypeElement
+  type: TypeElementUnion
 ): type is TypeElementImplementation {
   return (
     isTypeError(type) ||

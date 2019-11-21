@@ -1,5 +1,3 @@
-import { ApplicationCreateOptions } from './types';
-import { query, error, item } from '~/create';
 import { PublicError } from '~/errors';
 import {
   ServiceElementImplementation,
@@ -7,6 +5,8 @@ import {
   ApplicationResolve
 } from '~/types';
 import { Observable } from 'rxjs';
+import { ApplicationCreateOptions } from './types';
+import { query, item, error } from '~/create';
 
 export function createDefaults(): Required<ApplicationCreateOptions> {
   return {

@@ -1,6 +1,6 @@
 import {
   ServiceElementImplementation,
-  CollectionTree,
+  CollectionTreeUnion,
   CollectionTreeImplementation
 } from '~/types';
 import { mergeServiceErrors } from '~/helpers';
@@ -24,7 +24,7 @@ export function mergeIntercepts(
 
 export function serviceIntercepts(
   service: ServiceElementImplementation,
-  collection: CollectionTree
+  collection: CollectionTreeUnion
 ): ServiceElementImplementation {
   const intercepts = service.intercepts;
   delete service.intercepts;

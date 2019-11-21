@@ -1,5 +1,5 @@
 import {
-  CollectionTree,
+  CollectionTreeUnion,
   CollectionTreeImplementation,
   toImplementation,
   isServiceQuery,
@@ -16,7 +16,7 @@ import {
   collections,
   types,
   ElementItem,
-  ErrorType,
+  ErrorTypeUnion,
   reference
 } from '@karmic/core';
 import { catchError } from 'rxjs/operators';
@@ -24,7 +24,7 @@ import { throwError } from 'rxjs';
 import { RPCClient } from './client';
 
 export interface RPCReproduceOptions {
-  proxyError: ElementItem<ErrorType<'ServerGateway'>>;
+  proxyError: ElementItem<ErrorTypeUnion<'ServerGateway'>>;
 }
 
 /**
@@ -32,7 +32,7 @@ export interface RPCReproduceOptions {
  * resolving all service calls through the client.
  */
 export async function reproduce(
-  collection: CollectionTree | Promise<CollectionTree>,
+  collection: CollectionTreeUnion | Promise<CollectionTreeUnion>,
   client: RPCClient,
   options?: RPCReproduceOptions
 ): Promise<CollectionTreeImplementation> {

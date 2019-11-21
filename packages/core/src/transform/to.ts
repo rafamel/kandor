@@ -1,12 +1,12 @@
 import {
-  CollectionTree,
+  CollectionTreeUnion,
   CollectionTreeImplementation,
-  ServiceElement,
+  ServiceElementUnion,
   CollectionTreeDeclaration,
   AbstractCollectionTree,
-  QueryService,
-  MutationService,
-  SubscriptionService,
+  QueryServiceUnion,
+  MutationServiceUnion,
+  SubscriptionServiceUnion,
   ElementInfo,
   ServiceElementImplementation
 } from '~/types';
@@ -18,10 +18,10 @@ import {
 } from '~/inspect';
 import { subscribe } from 'promist';
 
-export function toImplementation<T extends CollectionTree>(
+export function toImplementation<T extends CollectionTreeUnion>(
   collection: T,
   fn: (
-    service: ServiceElement,
+    service: ServiceElementUnion,
     info: ElementInfo
   ) => ServiceElementImplementation
 ): T & CollectionTreeImplementation {
@@ -32,7 +32,7 @@ export function toImplementation<T extends CollectionTree>(
 }
 
 export function toDeclaration(
-  collection: CollectionTree
+  collection: CollectionTreeUnion
 ): CollectionTreeDeclaration {
   return replace(collection, (element, info, next): any => {
     element = next(element);
@@ -47,11 +47,11 @@ export function toDeclaration(
 }
 
 export function toUnary<
-  Q extends QueryService,
-  M extends MutationService,
-  T extends AbstractCollectionTree<Q, M, SubscriptionService>
+  Q extends QueryServiceUnion,
+  M extends MutationServiceUnion,
+  T extends AbstractCollectionTree<Q, M, SubscriptionServiceUnion>
 >(
-  collection: T & AbstractCollectionTree<Q, M, SubscriptionService>
+  collection: T & AbstractCollectionTree<Q, M, SubscriptionServiceUnion>
 ): AbstractCollectionTree<Q, M, never> {
   return replace(collection, (element, info, next): any => {
     element = next(element);

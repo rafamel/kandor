@@ -1,18 +1,18 @@
 import {
   AbstractCollectionTree,
-  CollectionTree,
-  QueryService,
-  MutationService,
-  SubscriptionService
+  CollectionTreeUnion,
+  QueryServiceUnion,
+  MutationServiceUnion,
+  SubscriptionServiceUnion
 } from '~/types';
 import { emptyCollection, mergeCollection } from '~/helpers';
 
 export { collections };
 
 function collections<
-  Q extends QueryService,
-  M extends MutationService,
-  S extends SubscriptionService,
+  Q extends QueryServiceUnion,
+  M extends MutationServiceUnion,
+  S extends SubscriptionServiceUnion,
   C1 extends AbstractCollectionTree<Q, M, S>,
   C2 extends AbstractCollectionTree<Q, M, S> = C1,
   C3 extends AbstractCollectionTree<Q, M, S> = C1,
@@ -169,7 +169,9 @@ function collections<
 /**
  * Merges collections.
  */
-function collections(...collections: CollectionTree[]): CollectionTree {
+function collections(
+  ...collections: CollectionTreeUnion[]
+): CollectionTreeUnion {
   let collection = emptyCollection();
 
   for (const item of collections) {

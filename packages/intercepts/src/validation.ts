@@ -5,7 +5,7 @@ import {
   ServiceErrorsImplementation,
   PublicError,
   ElementItem,
-  ErrorType,
+  ErrorTypeUnion,
   ErrorTypeImplementation,
   item,
   validator
@@ -20,14 +20,14 @@ export interface ValidationOptions {
    * If a `ValidationError` is passed, it will be used to fail instead.
    * Default: `true`.
    */
-  request?: ElementItem<ErrorType<'ClientInvalid'>> | boolean;
+  request?: ElementItem<ErrorTypeUnion<'ClientInvalid'>> | boolean;
   /**
    * If `false`, it won't validate responses.
    * If `true`, it will validate responses and use a default `ValidationError` to fail.
    * If a `ValidationError` is passed, it will be used to fail instead.
    * Default: `false`.
    */
-  response?: ElementItem<ErrorType> | boolean;
+  response?: ElementItem<ErrorTypeUnion> | boolean;
 }
 
 /**

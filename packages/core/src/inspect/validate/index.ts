@@ -1,4 +1,4 @@
-import { CollectionTree, CollectionTreeImplementation } from '~/types';
+import { CollectionTreeUnion, CollectionTreeImplementation } from '~/types';
 import { lift } from '~/transform/lift';
 import { isTreeImplementation, isElementTree, isTreeCollection } from '../is';
 import { traverse } from '../traverse';
@@ -33,7 +33,7 @@ export interface ValidateInspectOptions {
  * @returns `true` if a collection is a `CollectionTreeImplementation`.
  */
 export function validate(
-  collection: CollectionTree,
+  collection: CollectionTreeUnion,
   options?: ValidateInspectOptions
 ): collection is CollectionTreeImplementation {
   const opts = Object.assign({ as: null, skipReferences: false }, options);

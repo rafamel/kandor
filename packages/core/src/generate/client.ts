@@ -1,15 +1,15 @@
 import fs from 'fs';
 import {
-  CollectionTree,
+  CollectionTreeUnion,
   CollectionTreeImplementation,
-  ServiceElement,
+  ServiceElementUnion,
   ElementInfo,
-  RequestType
+  RequestTypeUnion
 } from '~/types';
 import { typings } from './typings';
 import { replace, lift } from '~/transform';
 import { isElementService, isServiceSubscription } from '~/inspect';
-import { application } from '~/application';
+import { Application } from '~/classes';
 import { validator } from '~/utils';
 
 export interface ClientGenerateOptions {
@@ -39,11 +39,11 @@ export interface ClientGenerateCustomize {
   /**
    * Maps function bodies for each service.
    */
-  mapService: (service: ServiceElement, info: ElementInfo) => string;
+  mapService: (service: ServiceElementUnion, info: ElementInfo) => string;
 }
 
 export async function client(
-  collection: CollectionTree | Promise<CollectionTree>,
+  collection: CollectionTreeUnion | Promise<CollectionTreeUnion>,
   options?: ClientGenerateOptions | null,
   customize?: ClientGenerateCustomize
 ): Promise<string> {
@@ -73,7 +73,7 @@ export async function client(
           fn += `}`;
           return fn;
         },
-        mapService(service: ServiceElement, info: ElementInfo): string {
+        mapService(service: ServiceElementUnion, info: ElementInfo): string {
           let body = `return app['${info.route.join(':')}']`;
           body += `.resolve(data, getContext())`;
           body += opts.typescript ? ` as any;` : `;`;
@@ -107,13 +107,13 @@ export async function client(
   );
 
   const normal = lift(source) as CollectionTreeImplementation;
-  const { routes } = application(normal, {
+  const { routes } = Application.create(normal, {
     validate: false,
     children: true,
     map(service): any {
       const requestType = normal.types[
         service.request as string
-      ] as RequestType;
+      ] as RequestTypeUnion;
       const emptyObjectValid = validator.compile(requestType.schema)({});
 
       let resolve = '';

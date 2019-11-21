@@ -1,5 +1,5 @@
 import { JSONSchema4 } from 'json-schema';
-import { ServiceElementKind, Element } from './collection';
+import { ServiceElementKind, ElementUnion } from './collection';
 
 export type Schema = JSONSchema4;
 
@@ -36,7 +36,7 @@ export interface ServiceInfo extends ElementInfo {
 }
 
 export interface ElementItem<
-  E extends Element = Element,
+  E extends ElementUnion = ElementUnion,
   N extends string = string
 > {
   name: N;

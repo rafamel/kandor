@@ -1,6 +1,10 @@
-import { ScopeTree, CollectionTree, InterceptImplementation } from '~/types';
+import {
+  ScopeTreeUnion,
+  CollectionTreeUnion,
+  InterceptImplementation
+} from '~/types';
 
-export function emptyCollection(): CollectionTree {
+export function emptyCollection(): CollectionTreeUnion {
   return {
     ...emptyScope(),
     types: {},
@@ -8,7 +12,7 @@ export function emptyCollection(): CollectionTree {
   };
 }
 
-export function emptyScope(): ScopeTree {
+export function emptyScope(): ScopeTreeUnion {
   return {
     services: {},
     scopes: {},

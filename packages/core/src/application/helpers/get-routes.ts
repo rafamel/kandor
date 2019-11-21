@@ -1,7 +1,7 @@
 import {
   CollectionTreeImplementation,
-  ApplicationRoutes,
-  ServiceElementImplementation
+  ServiceElementImplementation,
+  ApplicationRoutes
 } from '~/types';
 import { replace } from '~/transform';
 import {
