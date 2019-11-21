@@ -27,7 +27,8 @@ import {
   AbstractCrudServices,
   AbstractTreeScopes,
   AbstractResponseTypeChildren,
-  AbstractResponseType
+  AbstractResponseType,
+  AbstractTreeHash
 } from './abstract';
 import { ErrorLabel } from '../types';
 
@@ -55,13 +56,31 @@ export type ServiceElementUnion = AbstractServiceElement<
   SubscriptionServiceUnion
 >;
 
-export type CollectionTreeUnion = AbstractCollectionTree<
+export type CollectionTreeUnion<
+  A extends TreeTypesUnion = TreeTypesUnion,
+  B extends TreeServicesUnion = TreeServicesUnion,
+  C extends TreeScopesUnion = TreeScopesUnion
+> = AbstractCollectionTree<
   QueryServiceUnion,
   MutationServiceUnion,
-  SubscriptionServiceUnion
+  SubscriptionServiceUnion,
+  A,
+  B,
+  C
 >;
 
-export type ScopeTreeUnion = AbstractScopeTree<
+export type ScopeTreeUnion<
+  B extends TreeServicesUnion = TreeServicesUnion,
+  C extends TreeScopesUnion = TreeScopesUnion
+> = AbstractScopeTree<
+  QueryServiceUnion,
+  MutationServiceUnion,
+  SubscriptionServiceUnion,
+  B,
+  C
+>;
+
+export type TreeHashUnion = AbstractTreeHash<
   QueryServiceUnion,
   MutationServiceUnion,
   SubscriptionServiceUnion

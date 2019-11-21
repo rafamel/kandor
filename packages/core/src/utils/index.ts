@@ -1,2 +1,3 @@
-export * from './get-schemas';
+export * from './item';
+export * from './schema';
 export * from './validator';

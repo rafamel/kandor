@@ -11,37 +11,37 @@ import {
   ElementInfo,
   ServiceErrorsUnion
 } from '~/types';
+import { containsKey } from 'contains-key';
 import {
-  isTreeCollection,
-  isTypeResponse,
   isElementTree,
   isElementType,
-  isElementService
+  isElementService,
+  isTreeCollection,
+  isTypeResponse
 } from '~/inspect/is/element';
-import { ReplaceTransformFn } from './index';
-import { containsKey } from 'contains-key';
+import { ReplaceInputFn } from './index';
 
 export function next<E extends ElementUnion>(
   element: E,
-  info: ElementInfo,
-  cb: ReplaceTransformFn
+  cb: ReplaceInputFn,
+  info: ElementInfo = { path: [], route: [] }
 ): E {
   return cb(element, info, (item) =>
-    routeNext(item === undefined ? element : (item as ElementUnion), info, cb)
+    routeNext(item === undefined ? element : (item as ElementUnion), cb, info)
   ) as E;
 }
 
 export function routeNext<E extends ElementUnion>(
   element: E,
-  info: ElementInfo,
-  cb: ReplaceTransformFn
+  cb: ReplaceInputFn,
+  info: ElementInfo
 ): E {
   if (isElementTree(element)) {
-    return nextTree(element, info, cb);
+    return nextTree(element, cb, info);
   } else if (isElementType(element)) {
-    return nextType(element, info, cb);
+    return nextType(element, cb, info);
   } else if (isElementService(element)) {
-    return nextService(element, info, cb);
+    return nextService(element, cb, info);
   } else {
     throw Error(`Couldn't identify element kind: ${element.kind}`);
   }
@@ -49,8 +49,8 @@ export function routeNext<E extends ElementUnion>(
 
 export function nextTree<E extends TreeElementUnion>(
   tree: E,
-  info: ElementInfo,
-  cb: ReplaceTransformFn
+  cb: ReplaceInputFn,
+  info: ElementInfo
 ): E {
   tree = { ...tree };
 
@@ -59,7 +59,7 @@ export function nextTree<E extends TreeElementUnion>(
     for (const [key, value] of Object.entries(tree.types)) {
       const path = info.path.concat(['types', key]);
       const route = info.route.concat([key]);
-      types[key] = next(value, { path, route }, cb);
+      types[key] = next(value, cb, { path, route });
     }
     tree.types = types;
   }
@@ -68,7 +68,7 @@ export function nextTree<E extends TreeElementUnion>(
   for (const [key, value] of Object.entries(tree.services)) {
     const path = info.path.concat(['services', key]);
     const route = info.route.concat([key]);
-    services[key] = next(value, { path, route }, cb);
+    services[key] = next(value, cb, { path, route });
   }
   tree.services = services;
 
@@ -77,7 +77,7 @@ export function nextTree<E extends TreeElementUnion>(
     for (const [key, value] of Object.entries(tree.scopes)) {
       const path = info.path.concat(['scopes', key]);
       const route = info.route.concat([key]);
-      const scope = next(value, { path, route }, cb);
+      const scope = next(value, cb, { path, route });
       scopes[key] = scope as ScopeTreeUnion;
     }
     tree.scopes = scopes;
@@ -88,15 +88,15 @@ export function nextTree<E extends TreeElementUnion>(
 
 export function nextType<E extends TypeElementUnion>(
   type: E,
-  info: ElementInfo,
-  cb: ReplaceTransformFn
+  cb: ReplaceInputFn,
+  info: ElementInfo
 ): E {
   if (isTypeResponse(type) && type.children) {
     const children: ResponseTypeChildrenUnion = {};
     for (const [key, value] of Object.entries(type.children || {})) {
       const path = info.path.concat(['children', key]);
       const route = info.route.concat([key]);
-      children[key] = next(value, { path, route }, cb);
+      children[key] = next(value, cb, { path, route });
     }
     type = { ...type, children };
   }
@@ -106,8 +106,8 @@ export function nextType<E extends TypeElementUnion>(
 
 export function nextService<E extends ServiceElementUnion>(
   service: E,
-  info: ElementInfo,
-  cb: ReplaceTransformFn
+  cb: ReplaceInputFn,
+  info: ElementInfo
 ): E {
   const errors: ServiceErrorsUnion = [];
 
@@ -115,7 +115,10 @@ export function nextService<E extends ServiceElementUnion>(
     if (typeof error !== 'string') {
       const path = info.path.concat(['errors', error.name]);
       const route = info.route.concat(['errors', error.name]);
-      errors.push({ ...error, item: next(error.item, { path, route }, cb) });
+      errors.push({
+        ...error,
+        item: next(error.item, cb, { path, route })
+      });
     }
   }
 

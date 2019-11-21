@@ -1,5 +1,5 @@
 import { ErrorLabel, CollectionTreeUnion } from '~/types';
-import { isTypeError } from './inspect';
+import { isTypeError } from './inspect/is/element';
 import { containsKey } from 'contains-key';
 
 export class PublicError extends Error {

@@ -17,7 +17,8 @@ import {
   AbstractResponseTypeChildren,
   AbstractRequestType,
   AbstractErrorType,
-  AbstractServiceErrors
+  AbstractServiceErrors,
+  AbstractTreeHash
 } from './abstract';
 import { Observable } from 'rxjs';
 import { Schema, ElementInfo, ServiceInfo, ErrorLabel } from '../types';
@@ -73,6 +74,12 @@ export type ScopeTreeImplementation<
   SubscriptionServiceImplementation,
   B,
   C
+>;
+
+export type TreeHashImplementation = AbstractTreeHash<
+  QueryServiceImplementation,
+  MutationServiceImplementation,
+  SubscriptionServiceImplementation
 >;
 
 export type TreeTypesImplementation = AbstractTreeTypes<

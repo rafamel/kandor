@@ -4,7 +4,8 @@ import {
   ServiceElementUnion,
   ServiceElementImplementation,
   TypeElementUnion,
-  TypeElementImplementation
+  TypeElementImplementation,
+  CollectionTreeUnion
 } from '~/types';
 import {
   isTreeCollection,
@@ -12,22 +13,21 @@ import {
   isTypeError,
   isTypeRequest
 } from './element';
-import { emptyCollection } from '~/helpers';
-import { traverse } from '../traverse';
 import { containsKey } from 'contains-key';
+import { traverse } from '../traverse';
 
 export function isTreeImplementation(
   tree: TreeElementUnion,
   fail?: boolean
 ): tree is TreeElementImplementation {
-  const collection = isTreeCollection(tree)
+  const collection: CollectionTreeUnion = isTreeCollection(tree)
     ? tree
-    : { ...emptyCollection(), scopes: { tree } };
+    : { kind: 'collection', types: {}, services: {}, scopes: { tree } };
 
   let isImplementation: null | boolean = null;
   try {
     traverse(collection, (element, info, next) => {
-      next();
+      element = next();
 
       if (isElementService(element)) {
         const is = isServiceImplementation(element);
@@ -39,6 +39,8 @@ export function isTreeImplementation(
           );
         }
       }
+
+      return element;
     });
   } catch (err) {
     if (fail) {

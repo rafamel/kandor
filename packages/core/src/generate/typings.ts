@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { CollectionTreeUnion } from '~/types';
 import { compile } from 'json-schema-to-typescript';
-import { lift } from '~/transform/lift';
+import { Collection } from '~/classes';
 
 export interface TypingsGenerateOptions {
   /**
@@ -29,7 +29,7 @@ export async function typings(
       '/* This file was automatically generated. DO NOT MODIFY IT BY HAND. */\n\n';
   }
 
-  const { types } = lift(await collection);
+  const { types } = new Collection(await collection).lift();
   for (const [key, value] of Object.entries(types)) {
     if (value.kind !== 'error') {
       content += await compile(value.schema, key, { bannerComment: '' });

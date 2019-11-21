@@ -17,7 +17,8 @@ import {
   AbstractResponseTypeChildren,
   AbstractRequestType,
   AbstractErrorType,
-  AbstractServiceErrors
+  AbstractServiceErrors,
+  AbstractTreeHash
 } from './abstract';
 import { ErrorLabel } from '../types';
 
@@ -68,6 +69,12 @@ export type ScopeTreeDeclaration<
   SubscriptionServiceDeclaration,
   B,
   C
+>;
+
+export type TreeHashDeclaration = AbstractTreeHash<
+  QueryServiceDeclaration,
+  MutationServiceDeclaration,
+  SubscriptionServiceDeclaration
 >;
 
 export type TreeTypesDeclaration = AbstractTreeTypes<

@@ -65,6 +65,15 @@ export interface AbstractScopeTree<
   scopes: C;
 }
 
+export type AbstractTreeHash<
+  Q extends AbstractQueryService,
+  M extends AbstractMutationService,
+  S extends AbstractSubscriptionService
+> =
+  | AbstractTreeTypes<Q, S>
+  | AbstractTreeServices<Q, M, S>
+  | AbstractTreeScopes<Q, M, S>;
+
 export interface AbstractTreeTypes<
   Q extends AbstractQueryService,
   S extends AbstractSubscriptionService

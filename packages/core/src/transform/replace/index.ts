@@ -1,14 +1,14 @@
 import {
-  ElementInfo,
   QueryServiceUnion,
   MutationServiceUnion,
   SubscriptionServiceUnion,
   AbstractElement,
-  AbstractCollectionTree
+  ElementInfo,
+  ElementUnion
 } from '~/types';
 import { next } from './helpers';
 
-export type ReplaceTransformFn<
+export type ReplaceInputFn<
   Q extends QueryServiceUnion = QueryServiceUnion,
   M extends MutationServiceUnion = MutationServiceUnion,
   S extends SubscriptionServiceUnion = SubscriptionServiceUnion
@@ -18,16 +18,10 @@ export type ReplaceTransformFn<
   next: (element?: AbstractElement<Q, M, S>) => AbstractElement<Q, M, S>
 ) => AbstractElement<Q, M, S>;
 
-/**
- * Performs a traversal, returning a new collection where `Element`s are substituted by the ones returned by `cb`. Alternative to `traverse`.
- */
-export function replace<
-  Q extends QueryServiceUnion,
-  M extends MutationServiceUnion,
-  S extends SubscriptionServiceUnion
->(
-  collection: AbstractCollectionTree<Q, M, S>,
-  cb: ReplaceTransformFn<Q, M, S>
-): AbstractCollectionTree<Q, M, S> {
-  return next(collection, { path: [], route: [] }, cb as any);
+export function replace<T extends ElementUnion>(
+  element: T,
+  cb: ReplaceInputFn,
+  info?: ElementInfo
+): T {
+  return next(element, cb as any, info);
 }

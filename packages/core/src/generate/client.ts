@@ -7,10 +7,9 @@ import {
   RequestTypeUnion
 } from '~/types';
 import { typings } from './typings';
-import { replace, lift } from '~/transform';
-import { isElementService, isServiceSubscription } from '~/inspect';
-import { Application } from '~/classes';
-import { validator } from '~/utils';
+import { Application, Collection } from '~/classes';
+import { isElementService, isServiceSubscription } from '~/inspect/is';
+import { validator } from '~/utils/validator';
 
 export interface ClientGenerateOptions {
   /**
@@ -82,7 +81,7 @@ export async function client(
       };
 
   let content = '';
-  collection = await collection;
+  const instance = new Collection(await collection);
 
   if (opts.typescript) {
     content += await typings(collection, {
@@ -92,7 +91,7 @@ export async function client(
     content += `\n`;
   }
 
-  const source = replace(collection, (element, info, next): any => {
+  const source = instance.replace((element, info, next): any => {
     element = next(element);
     if (!isElementService(element)) return element;
     return {
@@ -106,7 +105,8 @@ export async function client(
     (String(Math.random()) + String(Math.random())).replace(/\./g, '')
   );
 
-  const normal = lift(source) as CollectionTreeImplementation;
+  const normal = source.lift() as Collection<CollectionTreeImplementation>;
+
   const { routes } = Application.create(normal, {
     validate: false,
     children: true,
