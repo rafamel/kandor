@@ -17,18 +17,30 @@ import {
   ExceptionsRecordImplementation,
   SchemasRecordImplementation,
   ExceptionsRecordDeclaration,
-  SchemasRecordDeclaration
+  SchemasRecordDeclaration,
+  CollectionTreeKind
 } from '~/types';
 import { Collection } from './Collection';
 
-/* Input */
-export interface CollectionCreateInput<
+/* Main */
+export type CollectionConstructor = <
+  A extends ExceptionsRecordUnion = {},
+  B extends SchemasRecordUnion = {},
+  C extends ChildrenRecordUnion = {},
+  D extends ServicesRecordUnion = {},
+  E extends ScopesRecordUnion = {}
+>(
+  collection: CollectionInput<A, B, C, D, E>
+) => Collection<A, B, C, D, E>;
+
+export interface CollectionInput<
   A extends ExceptionsRecordUnion = {},
   B extends SchemasRecordUnion = {},
   C extends ChildrenRecordUnion = {},
   D extends ServicesRecordUnion = {},
   E extends ScopesRecordUnion = {}
 > {
+  kind?: CollectionTreeKind;
   exceptions?: A;
   schemas?: B;
   children?: C;
@@ -36,6 +48,15 @@ export interface CollectionCreateInput<
   scopes?: E;
 }
 
+export type CollectionInstance<T extends CollectionTreeUnion> = Collection<
+  T['exceptions'],
+  T['schemas'],
+  T['children'],
+  T['services'],
+  T['scopes']
+>;
+
+/* Input */
 export type CollectionFilterInputFn<
   Q extends QueryServiceUnion = QueryServiceUnion,
   M extends MutationServiceUnion = MutationServiceUnion,
@@ -233,7 +254,7 @@ export type CollectionMergeFn = <
   c48?: C48,
   c49?: C49,
   c50?: C50 & CollectionTreeUnion
-) => Collection<
+) => CollectionInstance<
   C1 &
     C2 &
     C3 &

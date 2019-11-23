@@ -20,3 +20,9 @@ export interface ElementItem<
   name: N;
   item: E;
 }
+
+export type Optional<T extends Record<string, any>, K extends keyof T> = Omit<
+  T,
+  K
+> &
+  { [P in K]?: T[P] };

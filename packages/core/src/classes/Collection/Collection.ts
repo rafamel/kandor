@@ -1,179 +1,137 @@
 /* eslint-disable no-dupe-class-members */
 import {
-  AbstractCollectionTree,
-  CollectionTreeImplementation,
-  InterceptImplementation,
-  QueryServiceUnion,
-  MutationServiceUnion,
-  SubscriptionServiceUnion,
   CollectionTreeUnion,
-  CollectionTreeDeclaration,
   ExceptionsRecordUnion,
   SchemasRecordUnion,
   ChildrenRecordUnion,
+  ServicesRecordUnion,
   ScopesRecordUnion,
-  ServicesRecordUnion
+  InterceptImplementation,
+  CollectionTreeImplementation,
+  QueryServiceUnion,
+  MutationServiceUnion,
+  SubscriptionServiceUnion,
+  AbstractCollectionTree,
+  CollectionTreeDeclaration
 } from '~/types';
+import { Element } from '../Element';
 import {
+  CollectionInput,
+  CollectionMergeFn,
   CollectionInterceptOptions,
+  CollectionInstance,
   ScopeCollection,
   ExtractScope,
-  CollectionCreateInput,
-  CollectionMergeFn,
+  CollectionValidateOptions,
   CollectionLiftOptions,
   LiftCollection,
   CollectionFilterInputFn,
-  CollectionValidateOptions,
   CollectionImplementationInputFn
 } from './definitions';
-import { Element } from '../Element';
-import { lift } from './helpers/lift';
-import { validate } from './helpers/validate';
 import { mergeCollection } from '~/transform/merge';
 import { ReplaceInputFn, replace } from '~/transform/replace';
-import { TraverseInputFn, traverse } from '~/inspect/traverse';
+import { reference } from './helpers/reference';
+import { PublicError } from '~/PublicError';
+import { error } from './helpers/error';
 import { intercept } from './helpers/intercept';
+import { scope, extract } from './helpers/scope';
+import { validate } from './helpers/validate';
+import { TraverseInputFn, traverse } from '~/inspect/traverse';
+import { lift } from './helpers/lift';
 import { filter } from './helpers/filter';
 import { toImplementation, toDeclaration, toUnary } from './helpers/to';
-import { extract, scope } from './helpers/scope';
-import { create } from './helpers/create';
-import { reference } from './helpers/reference';
-import { error } from './helpers/error';
-import { PublicError } from '~/PublicError';
 
 export class Collection<
-  T extends CollectionTreeUnion = CollectionTreeUnion
-> extends Element<T> {
-  public static create<
-    A extends ExceptionsRecordUnion = {},
-    B extends SchemasRecordUnion = {},
-    C extends ChildrenRecordUnion = {},
-    D extends ServicesRecordUnion = {},
-    E extends ScopesRecordUnion = {}
-  >(
-    collection?: CollectionCreateInput<A, B, C, D, E>
-  ): Collection<CollectionTreeUnion<A, B, C, D, E>> {
-    return new Collection(create(collection));
-  }
+  A extends ExceptionsRecordUnion = {},
+  B extends SchemasRecordUnion = {},
+  C extends ChildrenRecordUnion = {},
+  D extends ServicesRecordUnion = {},
+  E extends ScopesRecordUnion = {}
+> extends Element<CollectionTreeUnion> {
   public static exceptions<T extends ExceptionsRecordUnion>(
     exceptions: T
-  ): Collection<CollectionTreeUnion<T, {}, {}, {}, {}>> {
-    return Collection.create({ exceptions });
+  ): Collection<T, {}, {}, {}, {}> {
+    return new Collection({ exceptions });
   }
   public static schemas<T extends SchemasRecordUnion>(
     schemas: T
-  ): Collection<CollectionTreeUnion<{}, T, {}, {}, {}>> {
-    return Collection.create({ schemas });
+  ): Collection<{}, T, {}, {}, {}> {
+    return new Collection({ schemas });
   }
   public static children<T extends ChildrenRecordUnion>(
     children: T
-  ): Collection<CollectionTreeUnion<{}, {}, T, {}, {}>> {
-    return Collection.create({ children });
+  ): Collection<{}, {}, T, {}, {}> {
+    return new Collection({ children });
   }
   public static services<T extends ServicesRecordUnion>(
     services: T
-  ): Collection<CollectionTreeUnion<{}, {}, {}, T, {}>> {
-    return Collection.create({ services });
+  ): Collection<{}, {}, {}, T, {}> {
+    return new Collection({ services });
   }
   public static merge: CollectionMergeFn = function merge(
     collection?: CollectionTreeUnion,
     ...collections: any[]
   ): any {
-    let tree = collection || Collection.create();
+    let tree = collection || new Collection();
     for (const item of collections) {
       tree = mergeCollection(tree, item);
     }
     return new Collection(tree);
   };
-  public readonly exceptions: T['exceptions'];
-  public readonly schemas: T['schemas'];
-  public readonly children: T['children'];
-  public readonly services: T['services'];
-  public readonly scopes: T['scopes'];
-  public constructor(collection: T) {
-    super(collection.kind);
-    this.exceptions = collection.exceptions;
-    this.schemas = collection.schemas;
-    this.children = collection.children;
-    this.services = collection.services;
-    this.scopes = collection.scopes;
+  public readonly exceptions: A;
+  public readonly schemas: B;
+  public readonly children: C;
+  public readonly services: D;
+  public readonly scopes: E;
+  public constructor(collection?: CollectionInput<A, B, C, D, E>) {
+    super('collection');
+
+    if (!collection) collection = {};
+    this.exceptions = (collection.exceptions || {}) as A;
+    this.schemas = (collection.schemas || {}) as B;
+    this.children = (collection.children || {}) as C;
+    this.services = (collection.services || {}) as D;
+    this.scopes = (collection.scopes || {}) as E;
   }
+  public reference<N extends keyof A | keyof B | Array<keyof A | keyof B>>(
+    names: N
+  ): N extends string[] ? string[] : string;
   public reference<
-    C extends CollectionTreeUnion,
-    N extends
-      | keyof C['exceptions']
-      | keyof C['schemas']
-      | Array<keyof C['exceptions'] | keyof C['schemas']>
-  >(this: C, names: N): N extends string[] ? string[] : string;
-  public reference<
-    C extends CollectionTreeUnion,
     M extends 'exceptions' | 'schemas',
-    N extends keyof C[M] | Array<keyof C[M]>
-  >(this: C, mode: M, names: N): N extends string[] ? string[] : string;
+    N extends M extends 'exceptions'
+      ? keyof A | Array<keyof A>
+      : keyof B | Array<keyof B>
+  >(mode: M, names: N): N extends string[] ? string[] : string;
   public reference(a: any, b?: any): string | string[] {
     return reference(this, a, b);
   }
-  public error<C extends CollectionTreeUnion, K extends keyof C['exceptions']>(
-    this: C,
+  public error<K extends keyof A>(
     id: K & string,
     source?: Error | null,
     clear?: boolean
   ): PublicError {
     return error(this, id, source, clear);
   }
-  public intercept(
-    this: CollectionTreeImplementation & T,
+  public intercept<T extends CollectionTreeImplementation>(
+    this: T,
     intercepts: InterceptImplementation | InterceptImplementation[],
     options?: CollectionInterceptOptions
-  ): Collection<T> {
+  ): CollectionInstance<T> {
     return new Collection(intercept(this, intercepts, options));
   }
-  public scope<
-    A extends ExceptionsRecordUnion,
-    B extends SchemasRecordUnion,
-    C extends ChildrenRecordUnion,
-    D extends ServicesRecordUnion,
-    E extends ScopesRecordUnion,
-    N extends string
-  >(
-    this: AbstractCollectionTree<
-      QueryServiceUnion,
-      MutationServiceUnion,
-      SubscriptionServiceUnion,
-      A,
-      B,
-      C,
-      D,
-      E
-    >,
+  public scope<N extends string>(
     name: N
-  ): Collection<ScopeCollection<A, B, C, D, E, N>> {
+  ): CollectionInstance<ScopeCollection<A, B, C, D, E, N>> {
     return new Collection(scope(this, name));
   }
-  public extract<
-    A extends ExceptionsRecordUnion,
-    B extends SchemasRecordUnion,
-    C extends ChildrenRecordUnion,
-    E extends ScopesRecordUnion,
-    N extends keyof E
-  >(
-    this: AbstractCollectionTree<
-      QueryServiceUnion,
-      MutationServiceUnion,
-      SubscriptionServiceUnion,
-      A,
-      B,
-      C,
-      ServicesRecordUnion,
-      E
-    >,
+  public extract<N extends keyof E>(
     name: N & string
-  ): Collection<ExtractScope<A, B, C, E, N>> {
+  ): CollectionInstance<ExtractScope<A, B, C, E, N>> {
     return new Collection(extract(this, name));
   }
   public validate(
     options?: CollectionValidateOptions
-  ): this is Collection<CollectionTreeImplementation> {
+  ): this is CollectionTreeImplementation {
     return validate(this, options);
   }
   public replace<
@@ -183,7 +141,7 @@ export class Collection<
   >(
     this: AbstractCollectionTree<Q, M, S>,
     fn: ReplaceInputFn<Q, M, S>
-  ): Collection<AbstractCollectionTree<Q, M, S>> {
+  ): CollectionInstance<AbstractCollectionTree<Q, M, S>> {
     return new Collection(replace(this, fn as any));
   }
   public traverse<
@@ -194,9 +152,8 @@ export class Collection<
     return traverse(this, cb as any);
   }
   public lift(
-    this: CollectionTreeUnion & T,
     options?: CollectionLiftOptions
-  ): Collection<LiftCollection<T>> {
+  ): CollectionInstance<LiftCollection<CollectionTreeUnion<A, B, C, D, E>>> {
     return new Collection(lift(this, options));
   }
   public filter<
@@ -206,7 +163,7 @@ export class Collection<
   >(
     this: AbstractCollectionTree<Q, M, S>,
     fn: CollectionFilterInputFn<Q, M, S>
-  ): Collection<AbstractCollectionTree<Q, M, S>> {
+  ): CollectionInstance<AbstractCollectionTree<Q, M, S>> {
     return new Collection(filter(this, fn));
   }
   public toImplementation<
@@ -216,18 +173,18 @@ export class Collection<
   >(
     this: AbstractCollectionTree<Q, M, S>,
     fn: CollectionImplementationInputFn
-  ): Collection<CollectionTreeImplementation> {
+  ): CollectionInstance<CollectionTreeImplementation> {
     return new Collection(toImplementation(this, fn));
   }
-  public toDeclaration(): Collection<CollectionTreeDeclaration> {
+  public toDeclaration(): CollectionInstance<CollectionTreeDeclaration> {
     return new Collection(toDeclaration(this));
   }
   public toUnary<Q extends QueryServiceUnion, M extends MutationServiceUnion>(
     this: AbstractCollectionTree<Q, M, SubscriptionServiceUnion>
-  ): Collection<AbstractCollectionTree<Q, M, never>> {
+  ): CollectionInstance<AbstractCollectionTree<Q, M, never>> {
     return new Collection(toUnary(this));
   }
-  public element(): T {
+  public element(): CollectionTreeUnion<A, B, C, D, E> {
     return {
       kind: this.kind,
       exceptions: this.exceptions,
@@ -235,6 +192,6 @@ export class Collection<
       children: this.children,
       services: this.services,
       scopes: this.scopes
-    } as T;
+    };
   }
 }

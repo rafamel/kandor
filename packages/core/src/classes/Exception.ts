@@ -1,26 +1,23 @@
-import { ExceptionUnion, ExceptionLabel } from '~/types';
+import { ExceptionUnion, ExceptionLabel, Optional } from '~/types';
 import { Element } from './Element';
 import { PublicError } from '~/PublicError';
 
-export type ExceptionCreateInput<
-  L extends ExceptionLabel = ExceptionLabel
-> = Omit<ExceptionUnion<L>, 'kind'>;
+export type ExceptionConstructor = <L extends ExceptionLabel = ExceptionLabel>(
+  exception: ExceptionInput<L>
+) => Exception<L>;
+
+export type ExceptionInput<L extends ExceptionLabel> = Optional<
+  ExceptionUnion<L>,
+  'kind'
+>;
 
 export class Exception<
-  T extends ExceptionUnion = ExceptionUnion
-> extends Element<T> {
-  public static create<L extends ExceptionLabel>(
-    exception: ExceptionCreateInput<L>
-  ): Exception<ExceptionUnion<L>> {
-    return new Exception({
-      kind: 'exception',
-      ...exception
-    });
-  }
-  public readonly label: T['label'];
-  public readonly description: T['description'];
-  public constructor(exception: T) {
-    super(exception.kind);
+  L extends ExceptionLabel = ExceptionLabel
+> extends Element<ExceptionUnion> {
+  public readonly label: L;
+  public readonly description: string | undefined;
+  public constructor(exception: ExceptionInput<L>) {
+    super('exception');
     this.label = exception.label;
     this.description = exception.description;
   }
@@ -31,8 +28,8 @@ export class Exception<
   ): PublicError {
     return new PublicError(id, this.label, source, this.description, clear);
   }
-  public element(): T {
-    return (this.description
+  public element(): ExceptionUnion<L> {
+    return this.description
       ? {
           kind: this.kind,
           label: this.label,
@@ -41,6 +38,6 @@ export class Exception<
       : {
           kind: this.kind,
           label: this.label
-        }) as T;
+        };
   }
 }

@@ -67,7 +67,7 @@ export class Application {
 
     const services: ApplicationServices = {};
 
-    Collection.create(this.declaration).traverse((element, info, next) => {
+    new Collection(this.declaration).traverse((element, info, next) => {
       next();
       if (isElementService(element)) {
         if (!info.route) throw Error(`Expected route on path: ${info.path}`);

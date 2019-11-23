@@ -6,4 +6,3 @@ export * from './Children';
 export * from './Element';
 export * from './Exception';
 export * from './Schema';
-export * from './functions';

@@ -5,33 +5,35 @@ import {
 } from '~/types';
 import { Observable } from 'rxjs';
 
-/* Input */
-export interface InterceptCreateInput<I = any, O = any, C = any> {
+/* Main */
+export interface InterceptInput<I, O, C> {
+  kind?: 'intercept';
   exceptions?: ServiceExceptionsImplementation;
-  factory?: InterceptCreateInputFactory<I, O, C>;
+  factory?: InterceptInputFactory<I, O, C>;
 }
 
-export type InterceptCreateInputFactory<I = any, O = any, C = any> = (
+export type InterceptInputFactory<I = any, O = any, C = any> = (
   schemas: InterceptSchemasImplementation
-) => InterceptCreateInputResolve<I, O, C>;
+) => InterceptInputResolve<I, O, C>;
 
-export type InterceptCreateInputResolve<I = any, O = any, C = any> = (
+export type InterceptInputResolve<I = any, O = any, C = any> = (
   data: I,
   context: C,
   info: ServiceInfo,
   next: (data?: I) => Observable<O>
 ) => Observable<O> | Promise<Observable<O>>;
 
-export interface InterceptHookInput<T = any, C = any> {
+/* Input */
+export interface InterceptHookInput<T, C> {
   exceptions?: ServiceExceptionsImplementation;
   factory: InterceptHookInputFactory<T, C>;
 }
 
-export type InterceptHookInputFactory<T = any, C = any> = (
+export type InterceptHookInputFactory<T, C> = (
   schemas: InterceptSchemasImplementation
 ) => InterceptHookInputResolve<T, C>;
 
-export type InterceptHookInputResolve<T = any, C = any> = (
+export type InterceptHookInputResolve<T, C> = (
   data: T,
   context: C,
   info: ServiceInfo

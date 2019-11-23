@@ -7,11 +7,11 @@ import {
   UnaryApplicationResolve,
   ApplicationCreateOptionsMapFn
 } from '../definitions';
-import { Collection } from '../../Collection';
+import { Collection, CollectionInstance } from '../../Collection';
 import { atPath } from '~/inspect/at';
 
 export interface MergeFallback {
-  collection: Collection<CollectionTreeImplementation>;
+  collection: CollectionInstance<CollectionTreeImplementation>;
   fallback: UnaryApplicationResolve;
 }
 

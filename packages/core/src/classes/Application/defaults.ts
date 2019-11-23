@@ -12,7 +12,7 @@ export function createDefaults(): Required<ApplicationCreateOptions> {
     children: true,
     fallback: Service.query({
       exceptions: [
-        item('NotFoundError', Exception.create({ label: 'ClientNotFound' }))
+        item('NotFoundError', new Exception({ label: 'ClientNotFound' }))
       ],
       async resolve() {
         throw new PublicError(

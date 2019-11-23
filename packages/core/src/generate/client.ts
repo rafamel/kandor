@@ -6,7 +6,7 @@ import {
   ServiceUnion
 } from '~/types';
 import { typings } from './typings';
-import { Application, Collection } from '~/classes';
+import { Application, Collection, CollectionInstance } from '~/classes';
 import { isElementService, isServiceSubscription } from '~/inspect/is';
 import { validator } from '~/utils/validator';
 
@@ -105,7 +105,9 @@ export async function client(
     (String(Math.random()) + String(Math.random())).replace(/\./g, '')
   );
 
-  const normal = source.lift() as Collection<CollectionTreeImplementation>;
+  const normal = source.lift() as CollectionInstance<
+    CollectionTreeImplementation
+  >;
 
   const { routes } = Application.create(normal, {
     validate: false,

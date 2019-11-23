@@ -1,46 +1,82 @@
 import {
-  QueryServiceImplementation,
   ElementInfo,
-  MutationServiceImplementation,
-  SubscriptionServiceImplementation,
   ServiceKind,
   QueryServiceKind,
   MutationServiceKind,
-  QueryServiceDeclaration,
-  MutationServiceDeclaration,
-  SubscriptionServiceDeclaration,
   ServiceResolveImplementation,
-  ServiceUnion
+  ServiceUnion,
+  InterceptImplementation,
+  SubscriptionServiceKind,
+  UnaryServiceResolveImplementation,
+  StreamServiceResolveImplementation,
+  ServiceDeclaration,
+  ServiceImplementation
 } from '~/types';
 import { Observable } from 'rxjs';
+import { Service } from './Service';
+
+type Input = Omit<Partial<ServiceUnion>, 'resolve'>;
+type Maybe<T, U> = T extends Function ? U : void;
+type Resolve<K extends ServiceKind, I, O, C> = K extends 'query' | 'mutation'
+  ? UnaryServiceResolveImplementation<I, O, C>
+  : K extends 'subscription'
+  ? StreamServiceResolveImplementation<I, O, C>
+  : ServiceResolveImplementation<I, O, C>;
+
+/* Main */
+export type ServiceConstructor = <
+  K extends ServiceKind = ServiceKind,
+  T = void,
+  I = any,
+  O = any,
+  C = any
+>(
+  service: ServiceInput<K, T, I, O, C>
+) => Service<K, T, I, O, C>;
+
+export type ServiceInput<K extends ServiceKind, T, I, O, C> =
+  | Service<K, T, I, O, C>
+  | ServiceDeclaration
+  | ServiceImplementation<I, O, C>
+  | (Record<'kind', K> &
+      (
+        | ServiceSubscriptionInput<T, I, O, C>
+        | ServiceMutationInput<T, I, O, C>
+        | ServiceQueryInput<T, I, O, C>
+      ));
+
+export type ServiceElement<K extends ServiceKind, T, I, O, C> = ServiceUnion &
+  Record<'kind', K> &
+  Record<'resolve', Maybe<T, Resolve<K, I, O, C>>> &
+  Record<'intercepts', Maybe<T, InterceptImplementation[]>>;
 
 /* Input */
-export type ServiceCreateInput = Omit<Partial<ServiceUnion>, 'kind'>;
-
-export type ServiceQueryInput<I = any, O = any, C = any> = Omit<
-  Partial<QueryServiceImplementation>,
-  'kind' | 'resolve'
-> & {
-  resolve(data: I, context: C, info: ElementInfo): Promise<O> | O;
+export type ServiceQueryInput<T, I, O, C> = Input & {
+  kind?: QueryServiceKind;
+  resolve?: T | ServiceUnaryResolveInput<I, O, C>;
 };
 
-export type ServiceMutationInput<I = any, O = any, C = any> = Omit<
-  Partial<MutationServiceImplementation>,
-  'kind' | 'resolve'
-> & {
-  resolve(data: I, context: C, info: ElementInfo): Promise<O> | O;
+export type ServiceMutationInput<T, I, O, C> = Input & {
+  kind?: MutationServiceKind;
+  resolve?: T | ServiceUnaryResolveInput<I, O, C>;
 };
 
-export type ServiceSubscriptionInput<I = any, O = any, C = any> = Omit<
-  Partial<SubscriptionServiceImplementation>,
-  'kind' | 'resolve'
-> & {
-  resolve(
-    data: I,
-    context: C,
-    info: ElementInfo
-  ): Observable<O> | Promise<Observable<O>>;
+export type ServiceSubscriptionInput<T, I, O, C> = Input & {
+  kind?: SubscriptionServiceKind;
+  resolve?: T | ServiceStreamResolveInput<I, O, C>;
 };
+
+export type ServiceUnaryResolveInput<I = any, O = any, C = any> = (
+  data: I,
+  context: C,
+  info: ElementInfo
+) => Promise<O> | O;
+
+export type ServiceStreamResolveInput<I = any, O = any, C = any> = (
+  data: I,
+  context: C,
+  info: ElementInfo
+) => Observable<O> | Promise<Observable<O>>;
 
 /* Options */
 export interface ServiceInterceptOptions {
@@ -50,19 +86,3 @@ export interface ServiceInterceptOptions {
    */
   prepend?: boolean;
 }
-
-/* Maps */
-export type ServiceCreate<
-  K extends ServiceKind,
-  T extends ServiceCreateInput
-> = T extends { resolve: ServiceResolveImplementation }
-  ? K extends QueryServiceKind
-    ? QueryServiceImplementation
-    : K extends MutationServiceKind
-    ? MutationServiceImplementation
-    : SubscriptionServiceImplementation
-  : K extends QueryServiceKind
-  ? QueryServiceDeclaration
-  : K extends MutationServiceKind
-  ? MutationServiceDeclaration
-  : SubscriptionServiceDeclaration;

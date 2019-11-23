@@ -1,96 +1,95 @@
 import {
   ServiceUnion,
+  ServiceResolveImplementation,
+  InterceptImplementation,
+  ServiceExceptionsUnion,
+  AbstractSchema,
   ServiceKind,
-  QueryServiceImplementation,
-  MutationServiceImplementation,
-  SubscriptionServiceImplementation,
-  ServiceImplementation,
-  InterceptImplementation
+  ServiceImplementation
 } from '~/types';
+import { Element } from '../Element';
 import {
-  ServiceCreateInput,
-  ServiceCreate,
+  ServiceInput,
+  ServiceElement,
   ServiceQueryInput,
   ServiceMutationInput,
   ServiceSubscriptionInput,
   ServiceInterceptOptions
 } from './definitions';
+import { Schema } from '../Schema';
 import { Observable, from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { Element } from '../Element';
-import { isServiceImplementation } from '~/inspect/is';
+import { isServiceImplementation } from '~/inspect';
 
-export class Service<T extends ServiceUnion = ServiceUnion> extends Element<T> {
-  static create<K extends ServiceKind, T extends ServiceCreateInput = {}>(
-    kind: K,
-    service?: T
-  ): Service<ServiceCreate<K, T>> {
-    if (!service) service = {} as T;
-
-    return new Service({
-      kind,
-      exceptions: service.exceptions || [],
-      request: service.request || { type: 'object' },
-      response: service.response || { type: 'null' },
-      resolve: service.resolve,
-      intercepts: service.resolve ? service.intercepts : undefined
-    } as any);
+export class Service<
+  K extends ServiceKind = ServiceKind,
+  T = void,
+  I = any,
+  O = any,
+  C = any
+> extends Element<ServiceUnion> {
+  static query<T = void, I = any, O = any, C = any>(
+    query?: ServiceQueryInput<T, I, O, C>
+  ): Service<'query', T, I, O, C> {
+    return new Service({ kind: 'query', ...query });
   }
-  static query<I = any, O = any, C = any>(
-    query: ServiceQueryInput<I, O, C>
-  ): Service<QueryServiceImplementation<I, O, C>> {
-    return new Service({
-      ...Service.create('query', query),
-      async resolve(...args: any) {
-        return query.resolve.apply(this, args);
-      },
-      intercepts: query.intercepts
-    });
+  static mutation<T = void, I = any, O = any, C = any>(
+    mutation?: ServiceMutationInput<T, I, O, C>
+  ): Service<'mutation', T, I, O, C> {
+    return new Service({ kind: 'mutation', ...mutation });
   }
-  static mutation<I = any, O = any, C = any>(
-    mutation: ServiceMutationInput<I, O, C>
-  ): Service<MutationServiceImplementation<I, O, C>> {
-    return new Service({
-      ...Service.create('mutation', mutation),
-      async resolve(...args: any) {
-        return mutation.resolve.apply(this, args);
-      },
-      intercepts: mutation.intercepts
-    });
+  static subscription<T = void, I = any, O = any, C = any>(
+    subscription?: ServiceSubscriptionInput<T, I, O, C>
+  ): Service<'subscription', T, I, O, C> {
+    return new Service({ kind: 'subscription', ...subscription });
   }
-  static subscription<I = any, O = any, C = any>(
-    subscription: ServiceSubscriptionInput<I, O, C>
-  ): Service<SubscriptionServiceImplementation<I, O, C>> {
-    return new Service({
-      ...Service.create('subscription', subscription),
-      resolve(...args: any) {
-        const get = async (): Promise<Observable<any>> => {
-          return subscription.resolve.apply(this, args);
-        };
-        return from(get()).pipe(switchMap((obs) => obs));
-      },
-      intercepts: subscription.intercepts
-    });
-  }
-  public readonly exceptions: T['exceptions'];
-  public readonly request: T['request'];
-  public readonly response: T['response'];
-  public readonly resolve: T['resolve'];
-  public readonly intercepts: T['intercepts'];
-  public constructor(service: T) {
+  public readonly kind: K;
+  public readonly request: string | AbstractSchema;
+  public readonly response: string | AbstractSchema;
+  public readonly exceptions: ServiceExceptionsUnion;
+  public readonly resolve: ServiceElement<K, T, I, O, C>['resolve'];
+  public readonly intercepts: ServiceElement<K, T, I, O, C>['intercepts'];
+  public constructor(service: ServiceInput<K, T, I, O, C>) {
     super(service.kind);
-    this.exceptions = service.exceptions;
-    this.request = service.request;
-    this.response = service.response;
-    this.resolve = service.resolve;
-    this.intercepts = service.intercepts;
+    this.request = service.request || new Schema(null, { type: 'object' });
+    this.response = service.response || new Schema(null, { type: 'null' });
+    this.exceptions = service.exceptions || [];
+
+    if (service.resolve) {
+      const fn = service.resolve;
+      let resolve: ServiceResolveImplementation;
+      const intercepts = (service.intercepts ||
+        []) as InterceptImplementation[];
+
+      if (service.kind === 'subscription') {
+        resolve = function resolve(this: any, ...args: any) {
+          const get = async (): Promise<Observable<any>> => {
+            return (fn as any).apply(this, args);
+          };
+          return from(get()).pipe(switchMap((obs) => obs));
+        };
+      } else {
+        resolve = async function resolve(this: any, ...args: any) {
+          return (fn as any).apply(this, args);
+        };
+      }
+
+      this.resolve = resolve as ServiceElement<K, T, I, O, C>['resolve'];
+      this.intercepts = intercepts as ServiceElement<
+        K,
+        T,
+        I,
+        O,
+        C
+      >['intercepts'];
+    }
   }
   public intercept(
-    this: Service<ServiceImplementation>,
+    this: ServiceImplementation,
     intercepts: InterceptImplementation | InterceptImplementation[],
     options?: ServiceInterceptOptions
-  ): Service<T> {
-    if (!isServiceImplementation(this as ServiceImplementation)) {
+  ): Service<K, T, I, O, C> {
+    if (!isServiceImplementation(this)) {
       throw Error(`Intercepts can only be applied to service implementations`);
     }
     const opts = Object.assign({ prepend: true }, options);
@@ -104,21 +103,21 @@ export class Service<T extends ServiceUnion = ServiceUnion> extends Element<T> {
         : (this.intercepts || []).concat(arr)
     });
   }
-  public element(): T {
-    return this.resolve
-      ? ({
+  public element(): ServiceElement<K, T, I, O, C> {
+    return (this.resolve
+      ? {
           kind: this.kind,
           exceptions: this.exceptions,
           request: this.request,
           response: this.response,
           resolve: this.resolve,
           intercepts: this.intercepts
-        } as T)
-      : ({
+        }
+      : {
           kind: this.kind,
           exceptions: this.exceptions,
           request: this.request,
           response: this.response
-        } as T);
+        }) as ServiceElement<K, T, I, O, C>;
   }
 }

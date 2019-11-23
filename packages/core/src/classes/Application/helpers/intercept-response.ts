@@ -1,23 +1,23 @@
 import { CollectionTreeImplementation } from '~/types';
 import { catchError, map } from 'rxjs/operators';
 import { throwError } from 'rxjs';
-import { Collection } from '../../Collection';
+import { Collection, CollectionInstance } from '../../Collection';
 import { Intercept } from '../../Intercept';
 import { Exception } from '../../Exception';
 import { PublicError } from '~/PublicError';
 
 export function addInterceptResponse(
-  collection: Collection<CollectionTreeImplementation>
-): Collection<CollectionTreeImplementation> {
+  collection: CollectionInstance<CollectionTreeImplementation>
+): CollectionInstance<CollectionTreeImplementation> {
   const errors = {
-    ServerError: Exception.create({ label: 'ServerError' }),
-    ClientError: Exception.create({ label: 'ClientError' })
+    ServerError: new Exception({ label: 'ServerError' }),
+    ClientError: new Exception({ label: 'ClientError' })
   };
 
   const tree = Collection.merge(collection, Collection.exceptions(errors));
   return tree.intercept(
     [
-      Intercept.create({
+      new Intercept({
         exceptions: Object.keys(errors),
         factory: () => (data, context, info, next) => {
           return next(data).pipe(

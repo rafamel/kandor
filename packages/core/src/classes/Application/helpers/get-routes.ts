@@ -3,7 +3,7 @@ import {
   ApplicationCreateOptionsMapFn,
   ApplicationRoutes
 } from '../definitions';
-import { Collection } from '../../Collection';
+import { CollectionInstance } from '../../Collection';
 import {
   isElementService,
   isElementTree,
@@ -11,7 +11,7 @@ import {
 } from '~/inspect/is';
 
 export function getRoutes(
-  collection: Collection<CollectionTreeImplementation>,
+  collection: CollectionInstance<CollectionTreeImplementation>,
   map: ApplicationCreateOptionsMapFn
 ): ApplicationRoutes {
   const routes: any = collection.replace(
