@@ -109,7 +109,7 @@ export async function client(
     CollectionTreeImplementation
   >;
 
-  const { routes } = Application.create(normal, {
+  const { routes } = new Application(normal, {
     validate: false,
     children: true,
     map(service): any {

@@ -5,7 +5,6 @@ import {
 import {
   UnaryApplicationResolve,
   ApplicationRoutes,
-  ApplicationInput,
   ApplicationServices,
   ApplicationResolve,
   ApplicationCreateOptions
@@ -21,6 +20,9 @@ import { isElementService } from '~/inspect/is';
 import { atPath } from '~/inspect/at';
 
 export class Application {
+  public readonly declaration: CollectionTreeDeclaration;
+  public readonly fallback: UnaryApplicationResolve;
+  public readonly routes: ApplicationRoutes;
   // TODO: routes from camel/pascal case to _ or - separated + validate + implement for REST
   /**
    * Validates and prepares a collection to be used as an `Application`:
@@ -28,10 +30,10 @@ export class Application {
    * - Ensures services fail with a `PublicError` and resolve with `null` for empty responses.
    * - Ensures `ServerError` and `ClientError` error types exist on the collection declaration.
    */
-  public static create(
+  public constructor(
     collection: CollectionTreeImplementation,
     options?: ApplicationCreateOptions
-  ): Application {
+  ) {
     const opts = Object.assign(createDefaults(), options);
 
     const merge = mergeFallback(collection, opts.fallback, defaultMap);
@@ -44,19 +46,10 @@ export class Application {
 
     const declaration = tree.toDeclaration();
     const routes = getRoutes(tree, opts.map);
-    return new Application({
-      declaration,
-      fallback: merge.fallback,
-      routes
-    });
-  }
-  public readonly declaration: CollectionTreeDeclaration;
-  public readonly fallback: UnaryApplicationResolve;
-  public readonly routes: ApplicationRoutes;
-  public constructor(application: ApplicationInput) {
-    this.declaration = application.declaration;
-    this.fallback = application.fallback;
-    this.routes = application.routes;
+
+    this.declaration = declaration;
+    this.fallback = merge.fallback;
+    this.routes = routes;
   }
   public flatten(delimiter: string): ApplicationServices {
     if (!/[^\w]/.exec(delimiter)) {
