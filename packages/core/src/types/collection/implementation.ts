@@ -129,13 +129,13 @@ export type ServiceResolveImplementation<I = any, O = any, C = any> =
 export type UnaryServiceResolveImplementation<I = any, O = any, C = any> = (
   data: I,
   context: C,
-  info: ElementInfo
+  info: Required<ElementInfo>
 ) => Promise<O>;
 
 export type StreamServiceResolveImplementation<I = any, O = any, C = any> = (
   data: I,
   context: C,
-  info: ElementInfo
+  info: Required<ElementInfo>
 ) => Observable<O>;
 
 /* Intercept */
@@ -152,7 +152,7 @@ export type InterceptFactoryImplementation<I = any, O = any, C = any> = (
 export type InterceptResolveImplementation<I = any, O = any, C = any> = (
   data: I,
   context: C,
-  info: ServiceInfo,
+  info: Required<ServiceInfo>,
   next: (data: I) => Observable<O>
 ) => Observable<O>;
 

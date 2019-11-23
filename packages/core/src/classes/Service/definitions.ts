@@ -69,13 +69,13 @@ export type ServiceSubscriptionInput<T, I, O, C> = Input & {
 export type ServiceUnaryResolveInput<I = any, O = any, C = any> = (
   data: I,
   context: C,
-  info: ElementInfo
+  info: Required<ElementInfo>
 ) => Promise<O> | O;
 
 export type ServiceStreamResolveInput<I = any, O = any, C = any> = (
   data: I,
   context: C,
-  info: ElementInfo
+  info: Required<ElementInfo>
 ) => Observable<O> | Promise<Observable<O>>;
 
 /* Options */

@@ -19,7 +19,7 @@ export type InterceptInputFactory<I = any, O = any, C = any> = (
 export type InterceptInputResolve<I = any, O = any, C = any> = (
   data: I,
   context: C,
-  info: ServiceInfo,
+  info: Required<ServiceInfo>,
   next: (data?: I) => Observable<O>
 ) => Observable<O> | Promise<Observable<O>>;
 
@@ -36,5 +36,5 @@ export type InterceptHookInputFactory<T, C> = (
 export type InterceptHookInputResolve<T, C> = (
   data: T,
   context: C,
-  info: ServiceInfo
+  info: Required<ServiceInfo>
 ) => T | void | Promise<T | void>;

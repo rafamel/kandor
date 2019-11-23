@@ -30,7 +30,7 @@ export function createDefaults(): Required<ApplicationCreateOptions> {
 
 export function defaultMap(
   service: ServiceImplementation,
-  info: ElementInfo
+  info: Required<ElementInfo>
 ): ApplicationResolve {
   return (data: any, context: any): Promise<any> | Observable<any> => {
     return service.resolve(data, context, info);
