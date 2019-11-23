@@ -70,6 +70,7 @@ export class Application {
     Collection.create(this.declaration).traverse((element, info, next) => {
       next();
       if (isElementService(element)) {
+        if (!info.route) throw Error(`Expected route on path: ${info.path}`);
         services[info.route.join(delimiter)] = {
           declaration: element as any,
           resolve: atPath(

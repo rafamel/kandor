@@ -7,12 +7,12 @@ import {
   MutationServiceUnion,
   SubscriptionServiceUnion,
   CollectionTreeUnion,
-  TreeServicesUnion,
-  TreeTypesUnion,
-  TreeScopesUnion,
-  AbstractElement,
   CollectionTreeDeclaration,
-  ElementUnion
+  ExceptionsRecordUnion,
+  SchemasRecordUnion,
+  ChildrenRecordUnion,
+  ScopesRecordUnion,
+  ServicesRecordUnion
 } from '~/types';
 import {
   CollectionInterceptOptions,
@@ -23,71 +23,58 @@ import {
   CollectionLiftOptions,
   LiftCollection,
   CollectionFilterInputFn,
-  CollectionToImplementationInputFn,
-  CollectionValidateOptions
+  CollectionValidateOptions,
+  CollectionImplementationInputFn
 } from './definitions';
-import { containsKey } from 'contains-key';
 import { Element } from '../Element';
-import camelcase from 'camelcase';
-import { liftServiceTypes } from './helpers/lift';
-import { subscribe } from 'promist';
-import {
-  validateTypes,
-  validateServices,
-  validateScopes
-} from './helpers/validate';
-import {
-  isElementService,
-  isServiceImplementation,
-  isElementTree,
-  isTreeCollection,
-  isTreeImplementation,
-  isElementType,
-  isTypeResponse,
-  isServiceSubscription
-} from '~/inspect/is';
+import { lift } from './helpers/lift';
+import { validate } from './helpers/validate';
 import { mergeCollection } from '~/transform/merge';
 import { ReplaceInputFn, replace } from '~/transform/replace';
 import { TraverseInputFn, traverse } from '~/inspect/traverse';
+import { intercept } from './helpers/intercept';
+import { filter } from './helpers/filter';
+import { toImplementation, toDeclaration, toUnary } from './helpers/to';
+import { extract, scope } from './helpers/scope';
+import { create } from './helpers/create';
+import { reference } from './helpers/reference';
+import { error } from './helpers/error';
+import { PublicError } from '~/PublicError';
 
 export class Collection<
   T extends CollectionTreeUnion = CollectionTreeUnion
 > extends Element<T> {
   public static create<
-    A extends TreeTypesUnion = {},
-    B extends TreeServicesUnion = {},
-    C extends TreeScopesUnion = {}
+    A extends ExceptionsRecordUnion = {},
+    B extends SchemasRecordUnion = {},
+    C extends ChildrenRecordUnion = {},
+    D extends ServicesRecordUnion = {},
+    E extends ScopesRecordUnion = {}
   >(
-    collection?: CollectionCreateInput<A, B, C>
-  ): Collection<CollectionTreeUnion<A, B, C>> {
-    if (!collection) collection = {};
-
-    return new Collection({
-      kind: 'collection',
-      types: collection.types || {},
-      services: collection.services || {},
-      scopes: collection.scopes || {}
-    } as any);
+    collection?: CollectionCreateInput<A, B, C, D, E>
+  ): Collection<CollectionTreeUnion<A, B, C, D, E>> {
+    return new Collection(create(collection));
   }
-  /**
-   * Returns a new `Collection` with services `services`.
-   */
-  public static services<T extends TreeServicesUnion>(
+  public static exceptions<T extends ExceptionsRecordUnion>(
+    exceptions: T
+  ): Collection<CollectionTreeUnion<T, {}, {}, {}, {}>> {
+    return Collection.create({ exceptions });
+  }
+  public static schemas<T extends SchemasRecordUnion>(
+    schemas: T
+  ): Collection<CollectionTreeUnion<{}, T, {}, {}, {}>> {
+    return Collection.create({ schemas });
+  }
+  public static children<T extends ChildrenRecordUnion>(
+    children: T
+  ): Collection<CollectionTreeUnion<{}, {}, T, {}, {}>> {
+    return Collection.create({ children });
+  }
+  public static services<T extends ServicesRecordUnion>(
     services: T
-  ): Collection<CollectionTreeUnion<{}, T, {}>> {
+  ): Collection<CollectionTreeUnion<{}, {}, {}, T, {}>> {
     return Collection.create({ services });
   }
-  /**
-   * Returns a new `collection` with types `types`.
-   */
-  public static types<T extends TreeTypesUnion>(
-    types: T
-  ): Collection<CollectionTreeUnion<T, {}, {}>> {
-    return Collection.create({ types });
-  }
-  /**
-   * Merges collections.
-   */
   public static merge: CollectionMergeFn = function merge(
     collection?: CollectionTreeUnion,
     ...collections: any[]
@@ -98,351 +85,154 @@ export class Collection<
     }
     return new Collection(tree);
   };
-  public readonly types: T['types'];
+  public readonly exceptions: T['exceptions'];
+  public readonly schemas: T['schemas'];
+  public readonly children: T['children'];
   public readonly services: T['services'];
   public readonly scopes: T['scopes'];
   public constructor(collection: T) {
     super(collection.kind);
-    this.types = collection.types;
+    this.exceptions = collection.exceptions;
+    this.schemas = collection.schemas;
+    this.children = collection.children;
     this.services = collection.services;
     this.scopes = collection.scopes;
   }
-  public reference<K extends keyof T['types']>(names: K[]): K[];
-  public reference<K extends keyof T['types']>(name: K): K;
-  /**
-   * Returns `name`, as a *string* or a *string array*, while ensuring
-   * types with `name`s exist on `collection`.
-   * A helper to be used for type safety when referencing types on service creation.
-   */
-  public reference<K extends keyof T['types']>(names: K | K[]): K | K[] {
-    const isArray = Array.isArray(names);
-    const arr = isArray ? (names as K[]) : [names as K];
-
-    for (const name of arr) {
-      if (!containsKey(this.types, name)) {
-        throw Error(`Can't reference "${name}" on collection`);
-      }
-    }
-
-    return isArray ? arr : arr[0];
+  public reference<
+    C extends CollectionTreeUnion,
+    N extends
+      | keyof C['exceptions']
+      | keyof C['schemas']
+      | Array<keyof C['exceptions'] | keyof C['schemas']>
+  >(this: C, names: N): N extends string[] ? string[] : string;
+  public reference<
+    C extends CollectionTreeUnion,
+    M extends 'exceptions' | 'schemas',
+    N extends keyof C[M] | Array<keyof C[M]>
+  >(this: C, mode: M, names: N): N extends string[] ? string[] : string;
+  public reference(a: any, b?: any): string | string[] {
+    return reference(this, a, b);
+  }
+  public error<C extends CollectionTreeUnion, K extends keyof C['exceptions']>(
+    this: C,
+    id: K & string,
+    source?: Error | null,
+    clear?: boolean
+  ): PublicError {
+    return error(this, id, source, clear);
   }
   public intercept(
-    this: Collection<CollectionTreeImplementation>,
+    this: CollectionTreeImplementation & T,
     intercepts: InterceptImplementation | InterceptImplementation[],
     options?: CollectionInterceptOptions
   ): Collection<T> {
-    const opts = Object.assign({ prepend: true }, options);
-    const arr =
-      intercepts && !Array.isArray(intercepts) ? [intercepts] : intercepts;
-
-    return this.replace((element, info, next) => {
-      element = next(element);
-
-      return !isElementService(element) || !isServiceImplementation(element)
-        ? element
-        : {
-            ...element,
-            intercepts: opts.prepend
-              ? arr.concat(element.intercepts || [])
-              : (element.intercepts || []).concat(arr)
-          };
-    }) as Collection<T>;
+    return new Collection(intercept(this, intercepts, options));
   }
-  /**
-   * Returs a new collection with all of the services within the input collection in scope `name`.
-   */
   public scope<
-    A extends TreeTypesUnion,
-    B extends TreeServicesUnion,
-    C extends TreeScopesUnion,
+    A extends ExceptionsRecordUnion,
+    B extends SchemasRecordUnion,
+    C extends ChildrenRecordUnion,
+    D extends ServicesRecordUnion,
+    E extends ScopesRecordUnion,
     N extends string
   >(
-    this: Collection<
-      AbstractCollectionTree<
-        QueryServiceUnion,
-        MutationServiceUnion,
-        SubscriptionServiceUnion,
-        A,
-        B,
-        C
-      >
+    this: AbstractCollectionTree<
+      QueryServiceUnion,
+      MutationServiceUnion,
+      SubscriptionServiceUnion,
+      A,
+      B,
+      C,
+      D,
+      E
     >,
     name: N
-  ): Collection<ScopeCollection<A, B, C, N>> {
-    return new Collection({
-      kind: this.kind,
-      types: this.types,
-      scopes: {
-        [name]: {
-          kind: 'scope',
-          services: this.services,
-          scopes: this.scopes
-        }
-      }
-    } as any);
+  ): Collection<ScopeCollection<A, B, C, D, E, N>> {
+    return new Collection(scope(this, name));
   }
-  /**
-   * Given a collection with a scope `name`, returns a new collection with all of the services in the root scope of the input collection discarded, and scope `name` serving as the new collection root.
-   */
   public extract<
-    A extends TreeTypesUnion,
-    C extends TreeScopesUnion,
-    N extends string
+    A extends ExceptionsRecordUnion,
+    B extends SchemasRecordUnion,
+    C extends ChildrenRecordUnion,
+    E extends ScopesRecordUnion,
+    N extends keyof E
   >(
-    this: Collection<
-      AbstractCollectionTree<
-        QueryServiceUnion,
-        MutationServiceUnion,
-        SubscriptionServiceUnion,
-        A,
-        TreeServicesUnion,
-        C
-      >
+    this: AbstractCollectionTree<
+      QueryServiceUnion,
+      MutationServiceUnion,
+      SubscriptionServiceUnion,
+      A,
+      B,
+      C,
+      ServicesRecordUnion,
+      E
     >,
     name: N & string
-  ): Collection<ExtractScope<A, C, N>> {
-    if (!containsKey(this.scopes, name)) {
-      throw Error(`Collection doesn't have scope: ${name}`);
-    }
-
-    const { services, scopes } = this.scopes[name];
-    return new Collection({
-      kind: this.kind,
-      types: this.types,
-      services,
-      scopes
-    } as any);
+  ): Collection<ExtractScope<A, B, C, E, N>> {
+    return new Collection(extract(this, name));
   }
-  // TODO: validate collection object (ajv)
-  // TODO: children services must have a request schema equal or as a subset of the type they belong to
-  /**
-   * It will throw if a collection:
-   * - Would produce conflicting type names upon `lift`.
-   * - Contains references to non existent types.
-   * - Contains services with types of the wrong kind.
-   * - Has empty type, service, or scope names.
-   * - Has type, service, or scope names with non word characters.
-   * - Has type names starting with a lowercase letter.
-   * - Has service or scope names starting with an uppercase letter.
-   * - Has a scope name equal to a service of its parent.
-   * @returns `true` if a collection is a `CollectionTreeImplementation`.
-   */
   public validate(
     options?: CollectionValidateOptions
   ): this is Collection<CollectionTreeImplementation> {
-    const opts = Object.assign({ as: null, skipReferences: false }, options);
-
-    this.lift(opts).traverse((element, info, next) => {
-      if (!isElementTree(element)) return;
-
-      if (isTreeCollection(element)) validateTypes(element.types);
-      validateServices(element.services);
-      validateScopes(element.scopes, element.services);
-      next();
-    });
-
-    const isImplementation = isTreeImplementation(this, true);
-    if (opts.as) {
-      if (opts.as === 'implementation' && !isImplementation) {
-        throw Error(`Collection is not a implementation`);
-      }
-      if (opts.as === 'declaration' && isImplementation) {
-        throw Error(`Collection is not a declaration`);
-      }
-    }
-
-    return isImplementation;
+    return validate(this, options);
   }
-  /**
-   * Performs a traversal, returning a new collection where `Element`s are substituted by the ones returned by `cb`. Alternative to `Collection.traverse`.
-   */
   public replace<
     Q extends QueryServiceUnion,
     M extends MutationServiceUnion,
     S extends SubscriptionServiceUnion
   >(
-    this: Collection<AbstractCollectionTree<Q, M, S>>,
+    this: AbstractCollectionTree<Q, M, S>,
     fn: ReplaceInputFn<Q, M, S>
   ): Collection<AbstractCollectionTree<Q, M, S>> {
     return new Collection(replace(this, fn as any));
   }
-  /**
-   * Performs a tree traversal. Alternative to `Collection.replace`.
-   */
   public traverse<
     Q extends QueryServiceUnion,
     M extends MutationServiceUnion,
     S extends SubscriptionServiceUnion
-  >(
-    this: Collection<AbstractCollectionTree<Q, M, S>>,
-    cb: TraverseInputFn<Q, M, S>
-  ): void {
+  >(this: AbstractCollectionTree<Q, M, S>, cb: TraverseInputFn<Q, M, S>): void {
     return traverse(this, cb as any);
   }
-  /**
-   * Lifts inline schemas and errors to the top level of a collection, naming them according to their scope, service, and kind. It will throw if a collection:
-   * - Produces conflicting type names.
-   * - Contains references to non existent types.
-   * - Contains services with types of the wrong kind.
-   */
-  public lift(options?: CollectionLiftOptions): Collection<LiftCollection<T>> {
-    const opts = Object.assign({ skipReferences: false }, options);
-
-    const transform = (str: string, _isExplicit: boolean): string => {
-      return camelcase(str, { pascalCase: true });
-    };
-
-    const types = {
-      source: this.types,
-      lift: { ...this.types }
-    };
-
-    const result = {
-      ...this.replace((element, { route }, next): any => {
-        if (isElementTree(element)) return next(element);
-
-        const name = transform(route[route.length - 1], true);
-
-        if (isElementType(element)) {
-          if (!isTypeResponse(element) || !element.children) {
-            return element;
-          }
-
-          const response = { ...element, children: { ...element.children } };
-          for (const [key, service] of Object.entries(element.children)) {
-            response.children[key] = liftServiceTypes(
-              name + transform(key, false),
-              service,
-              types,
-              opts,
-              transform
-            ) as any;
-          }
-          return response;
-        }
-
-        if (isElementService(element)) {
-          return liftServiceTypes(
-            route.length > 1
-              ? transform(route[route.length - 2], false) + name
-              : name,
-            element,
-            types,
-            opts,
-            transform
-          );
-        }
-
-        return element;
-      }),
-      types: types.lift
-    };
-
-    return new Collection(result as LiftCollection<T>);
+  public lift(
+    this: CollectionTreeUnion & T,
+    options?: CollectionLiftOptions
+  ): Collection<LiftCollection<T>> {
+    return new Collection(lift(this, options));
   }
-  /**
-   * Performs a traversal, returning a new collection where `Element`s are deleted when `cb` returns false. Inline types cannot be filtered.
-   */
   public filter<
     Q extends QueryServiceUnion,
     M extends MutationServiceUnion,
     S extends SubscriptionServiceUnion
   >(
-    this: Collection<AbstractCollectionTree<Q, M, S>>,
+    this: AbstractCollectionTree<Q, M, S>,
     fn: CollectionFilterInputFn<Q, M, S>
   ): Collection<AbstractCollectionTree<Q, M, S>> {
-    return this.replace((element, info, next) => {
-      if (isElementTree(element)) {
-        if (isTreeCollection(element)) {
-          element = { ...element, types: { ...element.types } };
-          for (const [key, value] of Object.entries(element.types)) {
-            const path = info.path.concat(['types', key]);
-            const route = info.route.concat([key]);
-            if (!fn(value, { path, route })) {
-              delete element.types[key];
-            }
-          }
-        }
-        element = { ...element, services: { ...element.services } };
-        for (const [key, value] of Object.entries(element.services)) {
-          const path = info.path.concat(['services', key]);
-          const route = info.route.concat([key]);
-          if (!fn(value, { path, route })) {
-            delete element.services[key];
-          }
-        }
-      } else if (
-        isElementType(element) &&
-        isTypeResponse(element) &&
-        element.children
-      ) {
-        const children = { ...element.children };
-        for (const [key, value] of Object.entries(children)) {
-          const path = info.path.concat(['children', key]);
-          const route = info.route.concat([key]);
-          if (!fn(value, { path, route })) {
-            delete children[key];
-          }
-        }
-        element = { ...element, children };
-      }
-
-      return next(element);
-    });
+    return new Collection(filter(this, fn));
   }
   public toImplementation<
     Q extends QueryServiceUnion,
     M extends MutationServiceUnion,
     S extends SubscriptionServiceUnion
   >(
-    this: Collection<AbstractCollectionTree<Q, M, S>>,
-    fn: CollectionToImplementationInputFn
+    this: AbstractCollectionTree<Q, M, S>,
+    fn: CollectionImplementationInputFn
   ): Collection<CollectionTreeImplementation> {
-    return this.replace((element, info, next) => {
-      element = next(element);
-      return isElementService(element)
-        ? (fn(element, info) as AbstractElement<Q, M, S>)
-        : element;
-    }) as Collection<CollectionTreeImplementation>;
+    return new Collection(toImplementation(this, fn));
   }
   public toDeclaration(): Collection<CollectionTreeDeclaration> {
-    return this.replace((element, info, next) => {
-      element = next(element);
-      if (isElementService(element) && isServiceImplementation(element)) {
-        const { resolve, intercepts, ...service } = element;
-        return service as ElementUnion;
-      }
-      return element;
-    }) as Collection<CollectionTreeDeclaration>;
+    return new Collection(toDeclaration(this));
   }
   public toUnary<Q extends QueryServiceUnion, M extends MutationServiceUnion>(
-    this: Collection<AbstractCollectionTree<Q, M, SubscriptionServiceUnion>>
+    this: AbstractCollectionTree<Q, M, SubscriptionServiceUnion>
   ): Collection<AbstractCollectionTree<Q, M, never>> {
-    return this.replace((element, info, next): any => {
-      element = next(element);
-
-      if (!isElementService(element) || !isServiceSubscription(element)) {
-        return element;
-      }
-
-      if (!isServiceImplementation(element)) {
-        return { ...element, kind: 'query' };
-      }
-
-      const resolve: any = element.resolve;
-      return {
-        ...element,
-        kind: 'query',
-        resolve(...args: any): Promise<any> {
-          return subscribe(resolve.apply(this, args));
-        }
-      };
-    }) as Collection<AbstractCollectionTree<Q, M, never>>;
+    return new Collection(toUnary(this));
   }
   public element(): T {
     return {
       kind: this.kind,
-      types: this.types,
+      exceptions: this.exceptions,
+      schemas: this.schemas,
+      children: this.children,
       services: this.services,
       scopes: this.scopes
     } as T;

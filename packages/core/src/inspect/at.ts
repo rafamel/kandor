@@ -4,14 +4,7 @@ import {
   SubscriptionServiceUnion,
   AbstractElement
 } from '~/types';
-import {
-  isElement,
-  isElementTree,
-  isTreeCollection,
-  isElementType,
-  isElementService,
-  isTypeResponse
-} from './is';
+import { isElement, isElementTree, isTreeCollection } from './is';
 import { containsKey } from 'contains-key';
 
 export function atPath<
@@ -62,9 +55,9 @@ export function atRoute<
     if (isElement(element)) {
       if (isElementTree(element)) {
         if (isTreeCollection(element)) {
-          if (containsKey(element.types, next)) {
+          if (containsKey(element.children, next)) {
             return trunk(
-              element.types[next],
+              element.children[next],
               after.slice(1),
               before.concat(next)
             );
@@ -84,38 +77,8 @@ export function atRoute<
             before.concat(next)
           );
         }
-        throw Error(
-          `Element doesn't have route "${next}": ${before.join('.')}`
-        );
       }
-      if (isElementService(element)) {
-        if (containsKey(element, next)) {
-          return trunk(
-            (element as any)[next],
-            after.slice(1),
-            before.concat(next)
-          );
-        }
-        throw Error(
-          `Element doesn't have route "${next}": ${before.join('.')}`
-        );
-      }
-      if (isElementType(element)) {
-        if (
-          isTypeResponse(element) &&
-          element.children &&
-          containsKey(element.children, next)
-        ) {
-          return trunk(
-            element.children[next],
-            after.slice(1),
-            before.concat(next)
-          );
-        }
-        throw Error(
-          `Element doesn't have route "${next}": ${before.join('.')}`
-        );
-      }
+      throw Error(`Element doesn't have route "${next}": ${before.join('.')}`);
     }
 
     if (containsKey(element, next)) {

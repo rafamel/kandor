@@ -1,7 +1,4 @@
-import {
-  CollectionTreeImplementation,
-  ServiceElementImplementation
-} from '~/types';
+import { CollectionTreeImplementation, ServiceImplementation } from '~/types';
 import {
   ApplicationCreateOptionsMapFn,
   ApplicationRoutes
@@ -9,46 +6,37 @@ import {
 import { Collection } from '../../Collection';
 import {
   isElementService,
-  isElementType,
-  isTypeResponse,
-  isElementTree
+  isElementTree,
+  isTreeCollection
 } from '~/inspect/is';
 
 export function getRoutes(
   collection: Collection<CollectionTreeImplementation>,
   map: ApplicationCreateOptionsMapFn
 ): ApplicationRoutes {
-  const responses: ApplicationRoutes = {};
-  const routes: any = collection.replace((element, info, next): any => {
-    if (isElementService(element)) {
-      return map(element as ServiceElementImplementation, info);
-    }
-    if (isElementType(element)) {
-      if (!isTypeResponse(element) || !element.children) return element;
-
-      const entries = Object.entries(element.children);
-      if (!entries.length) return element;
-
-      if (info.route.length > 1) {
-        throw Error(`Type with children not at root: ${info.path}`);
+  const routes: any = collection.replace(
+    (element, { path, route }, next): any => {
+      if (isElementService(element)) {
+        if (!route) {
+          throw Error(`Expected route on path: ${path}`);
+        }
+        return map(element as ServiceImplementation, { path, route });
       }
-      const name = info.route[info.route.length - 1];
-      const children: ApplicationRoutes = {};
-      for (const [key, service] of entries) {
-        children[key] = map(service as ServiceElementImplementation, {
-          route: info.route.concat([key]),
-          path: info.path.concat(['children', key])
-        });
-      }
-      responses[name] = { ...children };
-      return element;
+
+      element = next(element);
+      if (!isElementTree(element)) return element;
+      return isTreeCollection(element)
+        ? {
+            ...element.scopes,
+            ...element.services,
+            ...element.children
+          }
+        : {
+            ...element.scopes,
+            ...element.services
+          };
     }
+  );
 
-    element = next(element);
-    return isElementTree(element)
-      ? { ...element.scopes, ...element.services }
-      : element;
-  });
-
-  return { ...responses, ...routes };
+  return routes;
 }

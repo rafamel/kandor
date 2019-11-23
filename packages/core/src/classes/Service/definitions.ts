@@ -3,19 +3,19 @@ import {
   ElementInfo,
   MutationServiceImplementation,
   SubscriptionServiceImplementation,
-  ServiceElementKind,
+  ServiceKind,
   QueryServiceKind,
   MutationServiceKind,
   QueryServiceDeclaration,
   MutationServiceDeclaration,
   SubscriptionServiceDeclaration,
   ServiceResolveImplementation,
-  ServiceElementUnion
+  ServiceUnion
 } from '~/types';
 import { Observable } from 'rxjs';
 
 /* Input */
-export type ServiceCreateInput = Omit<Partial<ServiceElementUnion>, 'kind'>;
+export type ServiceCreateInput = Omit<Partial<ServiceUnion>, 'kind'>;
 
 export type ServiceQueryInput<I = any, O = any, C = any> = Omit<
   Partial<QueryServiceImplementation>,
@@ -53,7 +53,7 @@ export interface ServiceInterceptOptions {
 
 /* Maps */
 export type ServiceCreate<
-  K extends ServiceElementKind,
+  K extends ServiceKind,
   T extends ServiceCreateInput
 > = T extends { resolve: ServiceResolveImplementation }
   ? K extends QueryServiceKind

@@ -1,16 +1,15 @@
 import {
-  TreeElementUnion,
   CollectionTreeUnion,
   ElementUnion,
-  ServiceElementUnion,
-  TypeElementUnion,
   QueryServiceUnion,
   MutationServiceUnion,
   SubscriptionServiceUnion,
-  ErrorTypeUnion,
-  RequestTypeUnion,
-  ResponseTypeUnion,
-  ScopeTreeUnion
+  ScopeTreeUnion,
+  ServiceUnion,
+  TreeUnion,
+  ExceptionUnion,
+  SchemaUnion,
+  ChildrenUnion
 } from '~/types';
 import { containsKey } from 'contains-key';
 
@@ -18,64 +17,54 @@ export function isElement(item: any): item is ElementUnion {
   return typeof item === 'object' && item !== null && containsKey(item, 'kind');
 }
 
-export function isElementTree(
-  element: ElementUnion
-): element is TreeElementUnion {
+export function isElementTree(element: ElementUnion): element is TreeUnion {
   return ['collection', 'scope'].includes(element.kind);
 }
 
-export function isTreeCollection(
-  tree: TreeElementUnion
-): tree is CollectionTreeUnion {
+export function isTreeCollection(tree: TreeUnion): tree is CollectionTreeUnion {
   return tree.kind === 'collection' && containsKey(tree, 'types');
 }
 
-export function isTreeScope(tree: TreeElementUnion): tree is ScopeTreeUnion {
+export function isTreeScope(tree: TreeUnion): tree is ScopeTreeUnion {
   return tree.kind === 'scope';
 }
 
 export function isElementService(
   element: ElementUnion
-): element is ServiceElementUnion {
+): element is ServiceUnion {
   return ['query', 'mutation', 'subscription'].includes(element.kind);
 }
 
-export function isElementType(
-  element: ElementUnion
-): element is TypeElementUnion {
-  return ['error', 'request', 'response'].includes(element.kind);
-}
-
 export function isServiceQuery(
-  service: ServiceElementUnion
+  service: ServiceUnion
 ): service is QueryServiceUnion {
   return service.kind === 'query';
 }
 
 export function isServiceMutation(
-  service: ServiceElementUnion
+  service: ServiceUnion
 ): service is MutationServiceUnion {
   return service.kind === 'mutation';
 }
 
 export function isServiceSubscription(
-  service: ServiceElementUnion
+  service: ServiceUnion
 ): service is SubscriptionServiceUnion {
   return service.kind === 'subscription';
 }
 
-export function isTypeError(type: TypeElementUnion): type is ErrorTypeUnion {
-  return type.kind === 'error';
+export function isElementException(
+  element: ElementUnion
+): element is ExceptionUnion {
+  return element.kind === 'exception';
 }
 
-export function isTypeRequest(
-  type: TypeElementUnion
-): type is RequestTypeUnion {
-  return type.kind === 'request';
+export function isElementSchema(element: ElementUnion): element is SchemaUnion {
+  return element.kind === 'schema';
 }
 
-export function isTypeResponse(
-  type: TypeElementUnion
-): type is ResponseTypeUnion {
-  return type.kind === 'response';
+export function isElementChildren(
+  element: ElementUnion
+): element is ChildrenUnion {
+  return element.kind === 'children';
 }

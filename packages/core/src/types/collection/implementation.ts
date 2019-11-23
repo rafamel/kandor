@@ -1,117 +1,109 @@
 import {
   AbstractElement,
-  AbstractTreeElement,
-  AbstractTypeElement,
-  AbstractServiceElement,
+  AbstractTree,
+  AbstractService,
   AbstractCollectionTree,
   AbstractScopeTree,
-  AbstractTreeTypes,
-  AbstractTreeServices,
-  AbstractHashServices,
-  AbstractCrudServices,
-  AbstractTreeScopes,
+  AbstractServicesRecord,
+  AbstractServicesHash,
+  AbstractServicesCrud,
+  AbstractScopesRecord,
+  AbstractSchemasRecord,
+  AbstractChildrenRecord,
+  AbstractExceptionsRecord,
+  AbstractServiceExceptions,
   AbstractQueryService,
   AbstractMutationService,
   AbstractSubscriptionService,
-  AbstractResponseType,
-  AbstractResponseTypeChildren,
-  AbstractRequestType,
-  AbstractErrorType,
-  AbstractServiceErrors,
-  AbstractTreeHash
+  AbstractException,
+  AbstractSchema,
+  AbstractChildren,
+  AbstractChildrenSchemas,
+  AbstractChildrenServices
 } from './abstract';
+import { ElementInfo, ServiceInfo, JSONSchema } from '../definitions';
 import { Observable } from 'rxjs';
-import { Schema, ElementInfo, ServiceInfo, ErrorLabel } from '../types';
+import { ExceptionLabel } from '../exceptions';
 
-// Groups
+/* Groups */
 export type ElementImplementation = AbstractElement<
   QueryServiceImplementation,
   MutationServiceImplementation,
   SubscriptionServiceImplementation
 >;
 
-export type TreeElementImplementation = AbstractTreeElement<
+export type TreeImplementation = AbstractTree<
   QueryServiceImplementation,
   MutationServiceImplementation,
   SubscriptionServiceImplementation
 >;
 
-export type TypeElementImplementation = AbstractTypeElement<
-  QueryServiceImplementation,
-  SubscriptionServiceImplementation
->;
-
-export type ServiceElementImplementation<
-  I = any,
-  O = any,
-  C = any
-> = AbstractServiceElement<
+export type ServiceImplementation<I = any, O = any, C = any> = AbstractService<
   QueryServiceImplementation<I, O, C>,
   MutationServiceImplementation<I, O, C>,
   SubscriptionServiceImplementation<I, O, C>
 >;
 
-// Tree
+/* Tree */
 export type CollectionTreeImplementation<
-  A extends TreeTypesImplementation = TreeTypesImplementation,
-  B extends TreeServicesImplementation = TreeServicesImplementation,
-  C extends TreeScopesImplementation = TreeScopesImplementation
+  A extends ExceptionsRecordImplementation = ExceptionsRecordImplementation,
+  B extends SchemasRecordImplementation = SchemasRecordImplementation,
+  C extends ChildrenRecordImplementation = ChildrenRecordImplementation,
+  D extends ServicesRecordImplementation = ServicesRecordImplementation,
+  E extends ScopesRecordImplementation = ScopesRecordImplementation
 > = AbstractCollectionTree<
   QueryServiceImplementation,
   MutationServiceImplementation,
   SubscriptionServiceImplementation,
   A,
   B,
-  C
+  C,
+  D,
+  E
 >;
 
-export type ScopeTreeImplementation<
-  B extends TreeServicesImplementation = TreeServicesImplementation,
-  C extends TreeScopesImplementation = TreeScopesImplementation
-> = AbstractScopeTree<
-  QueryServiceImplementation,
-  MutationServiceImplementation,
-  SubscriptionServiceImplementation,
-  B,
-  C
->;
-
-export type TreeHashImplementation = AbstractTreeHash<
+export type ScopeTreeImplementation = AbstractScopeTree<
   QueryServiceImplementation,
   MutationServiceImplementation,
   SubscriptionServiceImplementation
 >;
 
-export type TreeTypesImplementation = AbstractTreeTypes<
-  QueryServiceImplementation,
-  SubscriptionServiceImplementation
->;
-
-export type TreeServicesImplementation = AbstractTreeServices<
+export type ServicesRecordImplementation = AbstractServicesRecord<
   QueryServiceImplementation,
   MutationServiceImplementation,
   SubscriptionServiceImplementation
 >;
 
-export type HashServicesImplementation = AbstractHashServices<
+export type ServicesHashImplementation = AbstractServicesHash<
   QueryServiceImplementation,
   MutationServiceImplementation,
   SubscriptionServiceImplementation
 >;
 
-export type CrudServicesImplementation = AbstractCrudServices<
+export type ServicesCrudImplementation = AbstractServicesCrud<
   QueryServiceImplementation,
   MutationServiceImplementation,
   SubscriptionServiceImplementation
 >;
 
-export type TreeScopesImplementation = AbstractTreeScopes<
+export type ScopesRecordImplementation = AbstractScopesRecord<
   QueryServiceImplementation,
   MutationServiceImplementation,
   SubscriptionServiceImplementation
 >;
 
-// Services
+export type SchemasRecordImplementation = AbstractSchemasRecord;
+
+export type ChildrenRecordImplementation = AbstractChildrenRecord<
+  QueryServiceImplementation,
+  SubscriptionServiceImplementation
+>;
+
+export type ExceptionsRecordImplementation = AbstractExceptionsRecord;
+
+/* Services */
+export type ServiceExceptionsImplementation = AbstractServiceExceptions;
+
 export interface QueryServiceImplementation<I = any, O = any, C = any>
   extends AbstractQueryService {
   resolve: UnaryServiceResolveImplementation<I, O, C>;
@@ -146,12 +138,10 @@ export type StreamServiceResolveImplementation<I = any, O = any, C = any> = (
   info: ElementInfo
 ) => Observable<O>;
 
-export type ServiceErrorsImplementation = AbstractServiceErrors;
-
-// Intercept
+/* Intercept */
 export interface InterceptImplementation<I = any, O = any, C = any> {
   kind: 'intercept';
-  errors: ServiceErrorsImplementation;
+  exceptions: ServiceExceptionsImplementation;
   factory: InterceptFactoryImplementation<I, O, C>;
 }
 
@@ -167,23 +157,32 @@ export type InterceptResolveImplementation<I = any, O = any, C = any> = (
 ) => Observable<O>;
 
 export interface InterceptSchemasImplementation {
-  request: Schema;
-  response: Schema;
+  request: JSONSchema;
+  response: JSONSchema;
 }
 
-// Types
-export type ErrorTypeImplementation<
-  L extends ErrorLabel = ErrorLabel
-> = AbstractErrorType<L>;
+/* Exception */
+export type ExceptionImplementation<
+  L extends ExceptionLabel = ExceptionLabel
+> = AbstractException<L>;
 
-export type RequestTypeImplementation = AbstractRequestType;
+/* Schema */
+export type SchemaImplementation<
+  S extends JSONSchema = JSONSchema
+> = AbstractSchema<S>;
 
-export type ResponseTypeImplementation = AbstractResponseType<
+/* Children */
+export type ChildrenImplementation<
+  A extends ChildrenServicesImplementation = ChildrenServicesImplementation
+> = AbstractChildren<
   QueryServiceImplementation,
-  SubscriptionServiceImplementation
+  SubscriptionServiceImplementation,
+  A
 >;
 
-export type ResponseTypeChildrenImplementation = AbstractResponseTypeChildren<
+export type ChildrenSchemasImplementation = AbstractChildrenSchemas;
+
+export type ChildrenServicesImplementation = AbstractChildrenServices<
   QueryServiceImplementation,
   SubscriptionServiceImplementation
 >;

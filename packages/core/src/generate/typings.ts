@@ -29,12 +29,10 @@ export async function typings(
       '/* This file was automatically generated. DO NOT MODIFY IT BY HAND. */\n\n';
   }
 
-  const { types } = new Collection(await collection).lift();
-  for (const [key, value] of Object.entries(types)) {
-    if (value.kind !== 'error') {
-      content += await compile(value.schema, key, { bannerComment: '' });
-      content += '\n';
-    }
+  const { schemas } = new Collection(await collection).lift();
+  for (const [key, value] of Object.entries(schemas)) {
+    content += await compile(value.schema, key, { bannerComment: '' });
+    content += '\n';
   }
 
   content = content.trim() + '\n';

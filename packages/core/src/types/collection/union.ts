@@ -1,121 +1,120 @@
 import {
-  QueryServiceImplementation,
-  MutationServiceImplementation,
-  SubscriptionServiceImplementation,
-  ServiceErrorsImplementation,
-  ErrorTypeImplementation,
-  RequestTypeImplementation
-} from './implementation';
+  AbstractElement,
+  AbstractTree,
+  AbstractService,
+  AbstractCollectionTree,
+  AbstractScopeTree,
+  AbstractServicesRecord,
+  AbstractServicesHash,
+  AbstractServicesCrud,
+  AbstractScopesRecord,
+  AbstractSchemasRecord,
+  AbstractChildrenRecord,
+  AbstractExceptionsRecord,
+  AbstractServiceExceptions,
+  AbstractException,
+  AbstractSchema,
+  AbstractChildren,
+  AbstractChildrenSchemas,
+  AbstractChildrenServices
+} from './abstract';
 import {
-  SubscriptionServiceDeclaration,
-  MutationServiceDeclaration,
   QueryServiceDeclaration,
-  ServiceErrorsDeclaration,
-  ErrorTypeDeclaration,
-  RequestTypeDeclaration
+  MutationServiceDeclaration,
+  SubscriptionServiceDeclaration
 } from './declaration';
 import {
-  AbstractTreeElement,
-  AbstractCollectionTree,
-  AbstractElement,
-  AbstractTypeElement,
-  AbstractServiceElement,
-  AbstractScopeTree,
-  AbstractTreeTypes,
-  AbstractTreeServices,
-  AbstractHashServices,
-  AbstractCrudServices,
-  AbstractTreeScopes,
-  AbstractResponseTypeChildren,
-  AbstractResponseType,
-  AbstractTreeHash
-} from './abstract';
-import { ErrorLabel } from '../types';
+  QueryServiceImplementation,
+  MutationServiceImplementation,
+  SubscriptionServiceImplementation
+} from './implementation';
+import { ExceptionLabel } from '../exceptions';
+import { JSONSchema } from '../definitions';
 
-// Groups
+/* Groups */
 export type ElementUnion = AbstractElement<
   QueryServiceUnion,
   MutationServiceUnion,
   SubscriptionServiceUnion
 >;
 
-export type TreeElementUnion = AbstractTreeElement<
+export type TreeUnion = AbstractTree<
   QueryServiceUnion,
   MutationServiceUnion,
   SubscriptionServiceUnion
 >;
 
-export type TypeElementUnion = AbstractTypeElement<
-  QueryServiceUnion,
-  SubscriptionServiceUnion
->;
-
-export type ServiceElementUnion = AbstractServiceElement<
+export type ServiceUnion = AbstractService<
   QueryServiceUnion,
   MutationServiceUnion,
   SubscriptionServiceUnion
 >;
 
+/* Tree */
 export type CollectionTreeUnion<
-  A extends TreeTypesUnion = TreeTypesUnion,
-  B extends TreeServicesUnion = TreeServicesUnion,
-  C extends TreeScopesUnion = TreeScopesUnion
+  A extends ExceptionsRecordUnion = ExceptionsRecordUnion,
+  B extends SchemasRecordUnion = SchemasRecordUnion,
+  C extends ChildrenRecordUnion = ChildrenRecordUnion,
+  D extends ServicesRecordUnion = ServicesRecordUnion,
+  E extends ScopesRecordUnion = ScopesRecordUnion
 > = AbstractCollectionTree<
   QueryServiceUnion,
   MutationServiceUnion,
   SubscriptionServiceUnion,
   A,
   B,
-  C
+  C,
+  D,
+  E
 >;
 
 export type ScopeTreeUnion<
-  B extends TreeServicesUnion = TreeServicesUnion,
-  C extends TreeScopesUnion = TreeScopesUnion
+  A extends ServicesRecordUnion = ServicesRecordUnion,
+  B extends ScopesRecordUnion = ScopesRecordUnion
 > = AbstractScopeTree<
   QueryServiceUnion,
   MutationServiceUnion,
   SubscriptionServiceUnion,
-  B,
-  C
+  A,
+  B
 >;
 
-export type TreeHashUnion = AbstractTreeHash<
+export type ServicesRecordUnion = AbstractServicesRecord<
   QueryServiceUnion,
   MutationServiceUnion,
   SubscriptionServiceUnion
 >;
 
-export type TreeTypesUnion = AbstractTreeTypes<
-  QueryServiceUnion,
-  SubscriptionServiceUnion
->;
-
-export type TreeServicesUnion = AbstractTreeServices<
+export type ServicesHashUnion = AbstractServicesHash<
   QueryServiceUnion,
   MutationServiceUnion,
   SubscriptionServiceUnion
 >;
 
-export type HashServicesUnion = AbstractHashServices<
+export type ServicesCrudUnion = AbstractServicesCrud<
   QueryServiceUnion,
   MutationServiceUnion,
   SubscriptionServiceUnion
 >;
 
-export type CrudServicesUnion = AbstractCrudServices<
+export type ScopesRecordUnion = AbstractScopesRecord<
   QueryServiceUnion,
   MutationServiceUnion,
   SubscriptionServiceUnion
 >;
 
-export type TreeScopesUnion = AbstractTreeScopes<
+export type SchemasRecordUnion = AbstractSchemasRecord;
+
+export type ChildrenRecordUnion = AbstractChildrenRecord<
   QueryServiceUnion,
-  MutationServiceUnion,
   SubscriptionServiceUnion
 >;
 
-// Services
+export type ExceptionsRecordUnion = AbstractExceptionsRecord;
+
+/* Services */
+export type ServiceExceptionsUnion = AbstractServiceExceptions;
+
 export type QueryServiceUnion =
   | QueryServiceDeclaration
   | QueryServiceImplementation;
@@ -128,25 +127,22 @@ export type SubscriptionServiceUnion =
   | SubscriptionServiceDeclaration
   | SubscriptionServiceImplementation;
 
-export type ServiceErrorsUnion =
-  | ServiceErrorsDeclaration
-  | ServiceErrorsImplementation;
+/* Exception */
+export type ExceptionUnion<
+  L extends ExceptionLabel = ExceptionLabel
+> = AbstractException<L>;
 
-// Types
-export type ErrorTypeUnion<L extends ErrorLabel = ErrorLabel> =
-  | ErrorTypeDeclaration<L>
-  | ErrorTypeImplementation<L>;
+/* Schema */
+export type SchemaUnion<S extends JSONSchema = JSONSchema> = AbstractSchema<S>;
 
-export type RequestTypeUnion =
-  | RequestTypeDeclaration
-  | RequestTypeImplementation;
+/* Children */
+export type ChildrenUnion<
+  A extends ChildrenServicesUnion = ChildrenServicesUnion
+> = AbstractChildren<QueryServiceUnion, SubscriptionServiceUnion, A>;
 
-export type ResponseTypeUnion = AbstractResponseType<
-  QueryServiceUnion,
-  SubscriptionServiceUnion
->;
+export type ChildrenSchemasUnion = AbstractChildrenSchemas;
 
-export type ResponseTypeChildrenUnion = AbstractResponseTypeChildren<
+export type ChildrenServicesUnion = AbstractChildrenServices<
   QueryServiceUnion,
   SubscriptionServiceUnion
 >;

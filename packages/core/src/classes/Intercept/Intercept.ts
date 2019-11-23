@@ -3,7 +3,7 @@ import { Element } from '../Element';
 import { InterceptCreateInput, InterceptHookInput } from './definitions';
 import { Observable, from } from 'rxjs';
 import { switchMap, mergeMap } from 'rxjs/operators';
-import { mergeServiceErrors } from '~/transform/merge';
+import { mergeServiceExceptions } from '~/transform/merge';
 
 export class Intercept<
   T extends InterceptImplementation = InterceptImplementation
@@ -20,7 +20,7 @@ export class Intercept<
 
     return new Intercept({
       kind: 'intercept',
-      errors: intercept.errors || [],
+      exceptions: intercept.exceptions || [],
       factory(...args: any) {
         const fn = factory.apply(this, args);
         return function(data, context, info, next) {
@@ -42,7 +42,7 @@ export class Intercept<
   ): Intercept<InterceptImplementation<T, any>> {
     return new Intercept({
       kind: 'intercept',
-      errors: hook.errors || [],
+      exceptions: hook.exceptions || [],
       factory(...args: any) {
         const fn = hook.factory.apply(this, args);
         return function(data, context, info, next) {
@@ -62,7 +62,7 @@ export class Intercept<
   ): Intercept<InterceptImplementation<any, T>> {
     return new Intercept({
       kind: 'intercept',
-      errors: hook.errors || [],
+      exceptions: hook.exceptions || [],
       factory(...args: any) {
         const fn = hook.factory.apply(this, args);
         return function(data, context, info, next) {
@@ -84,7 +84,7 @@ export class Intercept<
     ): InterceptImplementation {
       return {
         kind: 'intercept',
-        errors: mergeServiceErrors(a.errors, b.errors),
+        exceptions: mergeServiceExceptions(a.exceptions, b.exceptions),
         factory(...args: any) {
           const aFn = a.factory.apply(this, args);
           const bFn = b.factory.apply(this, args);
@@ -111,17 +111,17 @@ export class Intercept<
 
     return new Intercept(intercept);
   }
-  public readonly errors: T['errors'];
+  public readonly exceptions: T['exceptions'];
   public readonly factory: T['factory'];
   public constructor(intercept: T) {
     super(intercept.kind);
-    this.errors = intercept.errors;
+    this.exceptions = intercept.exceptions;
     this.factory = intercept.factory;
   }
   public element(): T {
     return {
       kind: this.kind,
-      errors: this.errors,
+      exceptions: this.exceptions,
       factory: this.factory
     } as T;
   }

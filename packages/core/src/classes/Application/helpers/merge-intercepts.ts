@@ -1,5 +1,5 @@
 import {
-  ServiceElementImplementation,
+  ServiceImplementation,
   CollectionTreeUnion,
   CollectionTreeImplementation
 } from '~/types';
@@ -7,7 +7,7 @@ import { Observable, from } from 'rxjs';
 import { subscribe } from 'promist';
 import { isElementService, isServiceImplementation } from '~/inspect/is';
 import { schemas } from '~/inspect/schemas';
-import { mergeServiceErrors } from '~/transform/merge';
+import { mergeServiceExceptions } from '~/transform/merge';
 import { Collection } from '../../Collection';
 import { Intercept } from '../../Intercept';
 
@@ -23,15 +23,15 @@ export function mergeIntercepts(
 }
 
 export function serviceIntercepts(
-  service: ServiceElementImplementation,
+  service: ServiceImplementation,
   collection: CollectionTreeUnion
-): ServiceElementImplementation {
+): ServiceImplementation {
   const intercepts = service.intercepts;
   delete service.intercepts;
   if (!intercepts || !intercepts.length) return service;
 
   const intercept = Intercept.allOf(intercepts);
-  const interceptFn = intercept.factory(schemas(service, collection));
+  const interceptFn = intercept.factory(schemas(collection, service));
 
   switch (service.kind) {
     case 'query':
@@ -39,7 +39,10 @@ export function serviceIntercepts(
       const resolve = service.resolve;
       return {
         ...service,
-        errors: mergeServiceErrors(service.errors, intercept.errors),
+        exceptions: mergeServiceExceptions(
+          service.exceptions,
+          intercept.exceptions
+        ),
         resolve(data: any, context, info): Promise<any> {
           return subscribe(
             interceptFn(
@@ -58,7 +61,10 @@ export function serviceIntercepts(
       const resolve = service.resolve;
       return {
         ...service,
-        errors: mergeServiceErrors(service.errors, intercept.errors),
+        exceptions: mergeServiceExceptions(
+          service.exceptions,
+          intercept.exceptions
+        ),
         resolve(data: any, context, info): Observable<any> {
           return interceptFn(
             data,

@@ -1,93 +1,79 @@
-import { ErrorLabel, Schema, ElementItem } from '../types';
+import { JSONSchema, ElementItem } from '../definitions';
 import {
   CollectionTreeKind,
   ScopeTreeKind,
+  ServiceKind,
   QueryServiceKind,
   MutationServiceKind,
   SubscriptionServiceKind,
-  ErrorTypeKind,
-  RequestTypeKind,
-  ResponseTypeKind,
-  ServiceElementKind
-} from './kind';
+  ExceptionKind,
+  SchemaKind,
+  ChildrenKind
+} from '../kind';
+import { ExceptionLabel } from '../exceptions';
 
-// Groups
+/* Groups */
 export type AbstractElement<
   Q extends AbstractQueryService,
   M extends AbstractMutationService,
   S extends AbstractSubscriptionService
 > =
-  | AbstractTreeElement<Q, M, S>
-  | AbstractTypeElement<Q, S>
-  | AbstractServiceElement<Q, M, S>;
+  | AbstractTree<Q, M, S>
+  | AbstractService<Q, M, S>
+  | AbstractException
+  | AbstractSchema
+  | AbstractChildren<Q, S>;
 
-export type AbstractTreeElement<
+export type AbstractTree<
   Q extends AbstractQueryService,
   M extends AbstractMutationService,
   S extends AbstractSubscriptionService
 > = AbstractCollectionTree<Q, M, S> | AbstractScopeTree<Q, M, S>;
 
-export type AbstractTypeElement<
-  Q extends AbstractQueryService,
-  S extends AbstractSubscriptionService
-> = AbstractErrorType | AbstractRequestType | AbstractResponseType<Q, S>;
-
-export type AbstractServiceElement<
+export type AbstractService<
   Q extends AbstractQueryService,
   M extends AbstractMutationService,
   S extends AbstractSubscriptionService
 > = Q | M | S;
 
-// Tree
+/* Tree */
 export interface AbstractCollectionTree<
   Q extends AbstractQueryService,
   M extends AbstractMutationService,
   S extends AbstractSubscriptionService,
-  A extends AbstractTreeTypes<Q, S> = AbstractTreeTypes<Q, S>,
-  B extends AbstractTreeServices<Q, M, S> = AbstractTreeServices<Q, M, S>,
-  C extends AbstractTreeScopes<Q, M, S> = AbstractTreeScopes<Q, M, S>
+  A extends AbstractExceptionsRecord = AbstractExceptionsRecord,
+  B extends AbstractSchemasRecord = AbstractSchemasRecord,
+  C extends AbstractChildrenRecord<Q, S> = AbstractChildrenRecord<Q, S>,
+  D extends AbstractServicesRecord<Q, M, S> = AbstractServicesRecord<Q, M, S>,
+  E extends AbstractScopesRecord<Q, M, S> = AbstractScopesRecord<Q, M, S>
 > {
   kind: CollectionTreeKind;
-  types: A;
-  services: B;
-  scopes: C;
+  exceptions: A;
+  schemas: B;
+  children: C;
+  services: D;
+  scopes: E;
 }
 
 export interface AbstractScopeTree<
   Q extends AbstractQueryService,
   M extends AbstractMutationService,
   S extends AbstractSubscriptionService,
-  B extends AbstractTreeServices<Q, M, S> = AbstractTreeServices<Q, M, S>,
-  C extends AbstractTreeScopes<Q, M, S> = AbstractTreeScopes<Q, M, S>
+  A extends AbstractServicesRecord<Q, M, S> = AbstractServicesRecord<Q, M, S>,
+  B extends AbstractScopesRecord<Q, M, S> = AbstractScopesRecord<Q, M, S>
 > {
   kind: ScopeTreeKind;
-  services: B;
-  scopes: C;
+  services: A;
+  scopes: B;
 }
 
-export type AbstractTreeHash<
+export type AbstractServicesRecord<
   Q extends AbstractQueryService,
   M extends AbstractMutationService,
   S extends AbstractSubscriptionService
-> =
-  | AbstractTreeTypes<Q, S>
-  | AbstractTreeServices<Q, M, S>
-  | AbstractTreeScopes<Q, M, S>;
+> = AbstractServicesHash<Q, M, S> & AbstractServicesCrud<Q, M, S>;
 
-export interface AbstractTreeTypes<
-  Q extends AbstractQueryService,
-  S extends AbstractSubscriptionService
-> {
-  [key: string]: AbstractTypeElement<Q, S>;
-}
-
-export type AbstractTreeServices<
-  Q extends AbstractQueryService,
-  M extends AbstractMutationService,
-  S extends AbstractSubscriptionService
-> = AbstractHashServices<Q, M, S> & AbstractCrudServices<Q, M, S>;
-
-export interface AbstractHashServices<
+export interface AbstractServicesHash<
   Q extends AbstractQueryService,
   M extends AbstractMutationService,
   S extends AbstractSubscriptionService
@@ -95,7 +81,7 @@ export interface AbstractHashServices<
   [key: string]: Q | M | S;
 }
 
-export interface AbstractCrudServices<
+export interface AbstractServicesCrud<
   Q extends AbstractQueryService,
   M extends AbstractMutationService,
   S extends AbstractSubscriptionService
@@ -108,7 +94,7 @@ export interface AbstractCrudServices<
   remove?: M;
 }
 
-export interface AbstractTreeScopes<
+export interface AbstractScopesRecord<
   Q extends AbstractQueryService,
   M extends AbstractMutationService,
   S extends AbstractSubscriptionService
@@ -116,19 +102,34 @@ export interface AbstractTreeScopes<
   [key: string]: AbstractScopeTree<Q, M, S>;
 }
 
-// Services
+export interface AbstractSchemasRecord {
+  [key: string]: AbstractSchema;
+}
+
+export interface AbstractChildrenRecord<
+  Q extends AbstractQueryService,
+  S extends AbstractSubscriptionService
+> {
+  [key: string]: AbstractChildren<Q, S>;
+}
+
+export interface AbstractExceptionsRecord {
+  [key: string]: AbstractException;
+}
+
+/* Services */
+export type AbstractServiceExceptions = Array<
+  string | ElementItem<AbstractException>
+>;
+
 export interface AbstractGenericService {
-  kind: ServiceElementKind;
-  errors: AbstractServiceErrors;
-  request: string | Schema;
-  response: string | Schema;
+  kind: ServiceKind;
+  request: string | AbstractSchema;
+  response: string | AbstractSchema;
+  exceptions: AbstractServiceExceptions;
   // TODO
   // nullable: boolean;
 }
-
-export type AbstractServiceErrors = Array<
-  string | ElementItem<AbstractErrorType>
->;
 
 export interface AbstractQueryService extends AbstractGenericService {
   kind: QueryServiceKind;
@@ -142,35 +143,35 @@ export interface AbstractSubscriptionService extends AbstractGenericService {
   kind: SubscriptionServiceKind;
 }
 
-// Types
-export interface AbstractErrorType<L extends ErrorLabel = ErrorLabel> {
-  kind: ErrorTypeKind;
-  schema?: never;
-  children?: never;
+/* Exception */
+export interface AbstractException<L extends ExceptionLabel = ExceptionLabel> {
+  kind: ExceptionKind;
   label: L;
   description?: string;
 }
 
-export interface AbstractRequestType {
-  kind: RequestTypeKind;
-  schema: Schema;
-  children?: never;
-  label?: never;
-  description?: never;
+/* Schema */
+export interface AbstractSchema<S extends JSONSchema = JSONSchema> {
+  kind: SchemaKind;
+  schema: S;
 }
 
-export interface AbstractResponseType<
+/* Children */
+export interface AbstractChildren<
   Q extends AbstractQueryService,
-  S extends AbstractSubscriptionService
+  S extends AbstractSubscriptionService,
+  A extends AbstractChildrenServices<Q, S> = AbstractChildrenServices<Q, S>
 > {
-  kind: ResponseTypeKind;
-  schema: Schema;
-  children?: AbstractResponseTypeChildren<Q, S>;
-  label?: never;
-  description?: never;
+  kind: ChildrenKind;
+  schemas: AbstractChildrenSchemas;
+  services: A;
 }
 
-export interface AbstractResponseTypeChildren<
+export type AbstractChildrenSchemas = Array<
+  string | ElementItem<AbstractSchema>
+>;
+
+export interface AbstractChildrenServices<
   Q extends AbstractQueryService,
   S extends AbstractSubscriptionService
 > {

@@ -25,7 +25,9 @@ export function mergeFallback(
   }
 
   const lifted = Collection.services({ fallback }).lift({
-    skipReferences: Object.keys(collection.types)
+    skipReferences: Object.keys(collection.exceptions).concat(
+      Object.keys(collection.schemas)
+    )
   });
 
   return {

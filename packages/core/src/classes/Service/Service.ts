@@ -1,10 +1,10 @@
 import {
-  ServiceElementUnion,
-  ServiceElementKind,
+  ServiceUnion,
+  ServiceKind,
   QueryServiceImplementation,
   MutationServiceImplementation,
   SubscriptionServiceImplementation,
-  ServiceElementImplementation,
+  ServiceImplementation,
   InterceptImplementation
 } from '~/types';
 import {
@@ -20,18 +20,16 @@ import { switchMap } from 'rxjs/operators';
 import { Element } from '../Element';
 import { isServiceImplementation } from '~/inspect/is';
 
-export class Service<
-  T extends ServiceElementUnion = ServiceElementUnion
-> extends Element<T> {
-  static create<
-    K extends ServiceElementKind,
-    T extends ServiceCreateInput = {}
-  >(kind: K, service?: T): Service<ServiceCreate<K, T>> {
+export class Service<T extends ServiceUnion = ServiceUnion> extends Element<T> {
+  static create<K extends ServiceKind, T extends ServiceCreateInput = {}>(
+    kind: K,
+    service?: T
+  ): Service<ServiceCreate<K, T>> {
     if (!service) service = {} as T;
 
     return new Service({
       kind,
-      errors: service.errors || [],
+      exceptions: service.exceptions || [],
       request: service.request || { type: 'object' },
       response: service.response || { type: 'null' },
       resolve: service.resolve,
@@ -74,25 +72,25 @@ export class Service<
       intercepts: subscription.intercepts
     });
   }
-  public readonly errors: T['errors'];
+  public readonly exceptions: T['exceptions'];
   public readonly request: T['request'];
   public readonly response: T['response'];
   public readonly resolve: T['resolve'];
   public readonly intercepts: T['intercepts'];
   public constructor(service: T) {
     super(service.kind);
-    this.errors = service.errors;
+    this.exceptions = service.exceptions;
     this.request = service.request;
     this.response = service.response;
     this.resolve = service.resolve;
     this.intercepts = service.intercepts;
   }
   public intercept(
-    this: Service<ServiceElementImplementation>,
+    this: Service<ServiceImplementation>,
     intercepts: InterceptImplementation | InterceptImplementation[],
     options?: ServiceInterceptOptions
   ): Service<T> {
-    if (!isServiceImplementation(this as ServiceElementImplementation)) {
+    if (!isServiceImplementation(this as ServiceImplementation)) {
       throw Error(`Intercepts can only be applied to service implementations`);
     }
     const opts = Object.assign({ prepend: true }, options);
@@ -110,7 +108,7 @@ export class Service<
     return this.resolve
       ? ({
           kind: this.kind,
-          errors: this.errors,
+          exceptions: this.exceptions,
           request: this.request,
           response: this.response,
           resolve: this.resolve,
@@ -118,7 +116,7 @@ export class Service<
         } as T)
       : ({
           kind: this.kind,
-          errors: this.errors,
+          exceptions: this.exceptions,
           request: this.request,
           response: this.response
         } as T);

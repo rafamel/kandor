@@ -1,7 +1,4 @@
 import {
-  TreeServicesUnion,
-  TreeTypesUnion,
-  TreeScopesUnion,
   CollectionTreeUnion,
   ScopeTreeUnion,
   QueryServiceUnion,
@@ -10,23 +7,33 @@ import {
   AbstractElement,
   ElementInfo,
   CollectionTreeImplementation,
-  TreeTypesImplementation,
   CollectionTreeDeclaration,
-  TreeTypesDeclaration,
-  ServiceElementImplementation,
-  ServiceElementDeclaration
+  ExceptionsRecordUnion,
+  SchemasRecordUnion,
+  ChildrenRecordUnion,
+  ServicesRecordUnion,
+  ScopesRecordUnion,
+  ServiceImplementation,
+  ExceptionsRecordImplementation,
+  SchemasRecordImplementation,
+  ExceptionsRecordDeclaration,
+  SchemasRecordDeclaration
 } from '~/types';
 import { Collection } from './Collection';
 
 /* Input */
 export interface CollectionCreateInput<
-  A extends TreeTypesUnion = {},
-  B extends TreeServicesUnion = {},
-  C extends TreeScopesUnion = {}
+  A extends ExceptionsRecordUnion = {},
+  B extends SchemasRecordUnion = {},
+  C extends ChildrenRecordUnion = {},
+  D extends ServicesRecordUnion = {},
+  E extends ScopesRecordUnion = {}
 > {
-  types?: A;
-  services?: B;
-  scopes?: C;
+  exceptions?: A;
+  schemas?: B;
+  children?: C;
+  services?: D;
+  scopes?: E;
 }
 
 export type CollectionFilterInputFn<
@@ -35,17 +42,11 @@ export type CollectionFilterInputFn<
   S extends SubscriptionServiceUnion = SubscriptionServiceUnion
 > = (element: AbstractElement<Q, M, S>, info: ElementInfo) => boolean;
 
-export type CollectionToImplementationInputFn<
+export type CollectionImplementationInputFn<
   Q extends QueryServiceUnion = QueryServiceUnion,
   M extends MutationServiceUnion = MutationServiceUnion,
   S extends SubscriptionServiceUnion = SubscriptionServiceUnion
-> = (service: Q | M | S, info: ElementInfo) => ServiceElementImplementation;
-
-export type CollectionToDeclarationInputFn<
-  Q extends QueryServiceUnion = QueryServiceUnion,
-  M extends MutationServiceUnion = MutationServiceUnion,
-  S extends SubscriptionServiceUnion = SubscriptionServiceUnion
-> = (service: Q | M | S, info: ElementInfo) => ServiceElementDeclaration;
+> = (service: Q | M | S, info: ElementInfo) => ServiceImplementation;
 
 /* Options */
 export interface CollectionInterceptOptions {
@@ -72,7 +73,7 @@ export interface CollectionValidateOptions {
 
 export interface CollectionLiftOptions {
   /**
-   * Won't throw if reference types don't exist in a collection. Default: `false`.
+   * Won't throw if a schema or exception as a reference doesn't exist in a collection. Default: `false`.
    */
   skipReferences?: boolean | string[];
 }
@@ -87,29 +88,47 @@ export type RankCollection<
   : CollectionTreeUnion;
 
 export type ScopeCollection<
-  A extends TreeTypesUnion,
-  B extends TreeServicesUnion,
-  C extends TreeScopesUnion,
+  A extends ExceptionsRecordUnion,
+  B extends SchemasRecordUnion,
+  C extends ChildrenRecordUnion,
+  D extends ServicesRecordUnion,
+  E extends ScopesRecordUnion,
   N extends string
-> = CollectionTreeUnion<A, {}, { [P in N]: ScopeTreeUnion<B, C> }>;
+> = CollectionTreeUnion<A, B, C, {}, { [P in N]: ScopeTreeUnion<D, E> }>;
 
 export type ExtractScope<
-  A extends TreeTypesUnion,
-  C extends TreeScopesUnion,
-  N extends keyof C
-> = CollectionTreeUnion<A, C[N]['services'], C[N]['scopes']>;
+  A extends ExceptionsRecordUnion,
+  B extends SchemasRecordUnion,
+  C extends ChildrenRecordUnion,
+  E extends ScopesRecordUnion,
+  N extends keyof E
+> = CollectionTreeUnion<A, B, C, E[N]['services'], E[N]['scopes']>;
 
 export type LiftCollection<
   T extends CollectionTreeUnion
 > = T extends CollectionTreeImplementation
   ? CollectionTreeImplementation<
-      TreeTypesImplementation,
+      ExceptionsRecordImplementation,
+      SchemasRecordImplementation,
+      T['children'],
       T['services'],
       T['scopes']
     >
   : T extends CollectionTreeDeclaration
-  ? CollectionTreeDeclaration<TreeTypesDeclaration, T['services'], T['scopes']>
-  : CollectionTreeUnion;
+  ? CollectionTreeDeclaration<
+      ExceptionsRecordDeclaration,
+      SchemasRecordDeclaration,
+      T['children'],
+      T['services'],
+      T['scopes']
+    >
+  : CollectionTreeUnion<
+      ExceptionsRecordUnion,
+      SchemasRecordUnion,
+      T['children'],
+      T['services'],
+      T['scopes']
+    >;
 
 /* Functions */
 export type CollectionMergeFn = <

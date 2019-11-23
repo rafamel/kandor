@@ -1,28 +1,30 @@
 import {
-  TreeElementUnion,
-  TreeElementImplementation,
-  ServiceElementUnion,
-  ServiceElementImplementation,
-  TypeElementUnion,
-  TypeElementImplementation,
-  CollectionTreeUnion
+  CollectionTreeUnion,
+  TreeUnion,
+  TreeImplementation,
+  ServiceUnion,
+  ServiceImplementation,
+  ChildrenUnion,
+  ChildrenImplementation
 } from '~/types';
-import {
-  isTreeCollection,
-  isElementService,
-  isTypeError,
-  isTypeRequest
-} from './element';
+import { isTreeCollection, isElementService } from './element';
 import { containsKey } from 'contains-key';
 import { traverse } from '../traverse';
 
 export function isTreeImplementation(
-  tree: TreeElementUnion,
+  tree: TreeUnion,
   fail?: boolean
-): tree is TreeElementImplementation {
+): tree is TreeImplementation {
   const collection: CollectionTreeUnion = isTreeCollection(tree)
     ? tree
-    : { kind: 'collection', types: {}, services: {}, scopes: { tree } };
+    : {
+        kind: 'collection',
+        exceptions: {},
+        schemas: {},
+        children: {},
+        services: tree.services,
+        scopes: tree.scopes
+      };
 
   let isImplementation: null | boolean = null;
   try {
@@ -54,23 +56,20 @@ export function isTreeImplementation(
 }
 
 export function isServiceImplementation(
-  service: ServiceElementUnion
-): service is ServiceElementImplementation {
+  service: ServiceUnion
+): service is ServiceImplementation {
   return (
     containsKey(service, 'resolve') &&
     typeof (service as any).resolve === 'function'
   );
 }
 
-export function isTypeImplementation(
-  type: TypeElementUnion
-): type is TypeElementImplementation {
-  return (
-    isTypeError(type) ||
-    isTypeRequest(type) ||
-    !type.children ||
-    Object.values(type.children).reduce((acc: boolean, service) => {
-      return acc && isServiceImplementation(service);
-    }, true)
+export function isChildrenImplementation(
+  children: ChildrenUnion,
+  fail?: boolean
+): children is ChildrenImplementation {
+  return isTreeImplementation(
+    { kind: 'scope', scopes: {}, services: children.services },
+    fail
   );
 }

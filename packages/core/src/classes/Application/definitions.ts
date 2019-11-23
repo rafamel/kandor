@@ -1,9 +1,9 @@
 import { Observable } from 'rxjs';
 import {
   CollectionTreeDeclaration,
-  ServiceElementDeclaration,
+  ServiceDeclaration,
   QueryServiceImplementation,
-  ServiceElementImplementation,
+  ServiceImplementation,
   ElementInfo
 } from '~/types';
 
@@ -36,8 +36,8 @@ export interface ApplicationCreateOptions {
 }
 
 export type ApplicationCreateOptionsMapFn<I = any, O = any, C = any> = (
-  service: ServiceElementImplementation<I, O, C>,
-  info: ElementInfo
+  service: ServiceImplementation<I, O, C>,
+  info: Required<ElementInfo>
 ) => ApplicationResolve<I, O, C>;
 
 /* Types */
@@ -50,7 +50,7 @@ export type ApplicationServices = Record<string, ApplicationService>;
 export interface ApplicationService<
   R extends ApplicationResolve = ApplicationResolve
 > {
-  declaration: ServiceElementDeclaration;
+  declaration: ServiceDeclaration;
   resolve: R;
 }
 

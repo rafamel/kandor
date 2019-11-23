@@ -1,5 +1,5 @@
 import {
-  ServiceErrorsImplementation,
+  ServiceExceptionsImplementation,
   InterceptSchemasImplementation,
   ServiceInfo
 } from '~/types';
@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 
 /* Input */
 export interface InterceptCreateInput<I = any, O = any, C = any> {
-  errors?: ServiceErrorsImplementation;
+  exceptions?: ServiceExceptionsImplementation;
   factory?: InterceptCreateInputFactory<I, O, C>;
 }
 
@@ -23,7 +23,7 @@ export type InterceptCreateInputResolve<I = any, O = any, C = any> = (
 ) => Observable<O> | Promise<Observable<O>>;
 
 export interface InterceptHookInput<T = any, C = any> {
-  errors?: ServiceErrorsImplementation;
+  exceptions?: ServiceExceptionsImplementation;
   factory: InterceptHookInputFactory<T, C>;
 }
 

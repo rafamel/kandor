@@ -1,30 +1,23 @@
-import { ServiceElementUnion, CollectionTreeUnion, Schema } from '~/types';
-import { isTypeRequest, isTypeResponse } from '~/inspect/is';
+import { ServiceUnion, CollectionTreeUnion, SchemaUnion } from '~/types';
 
 export interface ServiceSchemas {
-  request: Schema;
-  response: Schema;
+  request: SchemaUnion;
+  response: SchemaUnion;
 }
 
 export function schemas(
-  service: ServiceElementUnion,
-  collection: CollectionTreeUnion
+  collection: CollectionTreeUnion,
+  service: ServiceUnion
 ): ServiceSchemas {
   let request = service.request;
   let response = service.response;
   if (typeof request === 'string') {
-    const type = collection.types[request];
-    if (!type || !isTypeRequest(type)) {
-      throw Error(`Invalid type kind for service request`);
-    }
-    request = type.schema;
+    const schema = collection.schemas[request];
+    request = schema;
   }
   if (typeof response === 'string') {
-    const type = collection.types[response];
-    if (!type || !isTypeResponse(type)) {
-      throw Error(`Invalid type kind for service response`);
-    }
-    response = type.schema;
+    const schema = collection.schemas[response];
+    response = schema;
   }
 
   // TODO

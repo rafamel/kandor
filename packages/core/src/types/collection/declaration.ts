@@ -1,112 +1,108 @@
 import {
   AbstractElement,
-  AbstractTreeElement,
-  AbstractTypeElement,
-  AbstractServiceElement,
+  AbstractTree,
+  AbstractService,
   AbstractCollectionTree,
   AbstractScopeTree,
-  AbstractTreeTypes,
-  AbstractTreeServices,
-  AbstractHashServices,
-  AbstractCrudServices,
-  AbstractTreeScopes,
+  AbstractServicesRecord,
+  AbstractServicesHash,
+  AbstractServicesCrud,
+  AbstractScopesRecord,
+  AbstractSchemasRecord,
+  AbstractChildrenRecord,
+  AbstractExceptionsRecord,
+  AbstractServiceExceptions,
   AbstractQueryService,
   AbstractMutationService,
   AbstractSubscriptionService,
-  AbstractResponseType,
-  AbstractResponseTypeChildren,
-  AbstractRequestType,
-  AbstractErrorType,
-  AbstractServiceErrors,
-  AbstractTreeHash
+  AbstractException,
+  AbstractSchema,
+  AbstractChildren,
+  AbstractChildrenSchemas,
+  AbstractChildrenServices
 } from './abstract';
-import { ErrorLabel } from '../types';
+import { ExceptionLabel } from '../exceptions';
+import { JSONSchema } from '../definitions';
 
-// Groups
+/* Groups */
 export type ElementDeclaration = AbstractElement<
   QueryServiceDeclaration,
   MutationServiceDeclaration,
   SubscriptionServiceDeclaration
 >;
 
-export type TreeElementDeclaration = AbstractTreeElement<
+export type TreeDeclaration = AbstractTree<
   QueryServiceDeclaration,
   MutationServiceDeclaration,
   SubscriptionServiceDeclaration
 >;
 
-export type TypeElementDeclaration = AbstractTypeElement<
-  QueryServiceDeclaration,
-  SubscriptionServiceDeclaration
->;
-
-export type ServiceElementDeclaration = AbstractServiceElement<
+export type ServiceDeclaration = AbstractService<
   QueryServiceDeclaration,
   MutationServiceDeclaration,
   SubscriptionServiceDeclaration
 >;
 
-// Tree
+/* Tree */
 export type CollectionTreeDeclaration<
-  A extends TreeTypesDeclaration = TreeTypesDeclaration,
-  B extends TreeServicesDeclaration = TreeServicesDeclaration,
-  C extends TreeScopesDeclaration = TreeScopesDeclaration
+  A extends ExceptionsRecordDeclaration = ExceptionsRecordDeclaration,
+  B extends SchemasRecordDeclaration = SchemasRecordDeclaration,
+  C extends ChildrenRecordDeclaration = ChildrenRecordDeclaration,
+  D extends ServicesRecordDeclaration = ServicesRecordDeclaration,
+  E extends ScopesRecordDeclaration = ScopesRecordDeclaration
 > = AbstractCollectionTree<
   QueryServiceDeclaration,
   MutationServiceDeclaration,
   SubscriptionServiceDeclaration,
   A,
   B,
-  C
+  C,
+  D,
+  E
 >;
 
-export type ScopeTreeDeclaration<
-  B extends TreeServicesDeclaration = TreeServicesDeclaration,
-  C extends TreeScopesDeclaration = TreeScopesDeclaration
-> = AbstractScopeTree<
-  QueryServiceDeclaration,
-  MutationServiceDeclaration,
-  SubscriptionServiceDeclaration,
-  B,
-  C
->;
-
-export type TreeHashDeclaration = AbstractTreeHash<
+export type ScopeTreeDeclaration = AbstractScopeTree<
   QueryServiceDeclaration,
   MutationServiceDeclaration,
   SubscriptionServiceDeclaration
 >;
 
-export type TreeTypesDeclaration = AbstractTreeTypes<
-  QueryServiceDeclaration,
-  SubscriptionServiceDeclaration
->;
-
-export type TreeServicesDeclaration = AbstractTreeServices<
+export type ServicesRecordDeclaration = AbstractServicesRecord<
   QueryServiceDeclaration,
   MutationServiceDeclaration,
   SubscriptionServiceDeclaration
 >;
 
-export type HashServicesDeclaration = AbstractHashServices<
+export type ServicesHashDeclaration = AbstractServicesHash<
   QueryServiceDeclaration,
   MutationServiceDeclaration,
   SubscriptionServiceDeclaration
 >;
 
-export type CrudServicesDeclaration = AbstractCrudServices<
+export type ServicesCrudDeclaration = AbstractServicesCrud<
   QueryServiceDeclaration,
   MutationServiceDeclaration,
   SubscriptionServiceDeclaration
 >;
 
-export type TreeScopesDeclaration = AbstractTreeScopes<
+export type ScopesRecordDeclaration = AbstractScopesRecord<
   QueryServiceDeclaration,
   MutationServiceDeclaration,
   SubscriptionServiceDeclaration
 >;
 
-// Services
+export type SchemasRecordDeclaration = AbstractSchemasRecord;
+
+export type ChildrenRecordDeclaration = AbstractChildrenRecord<
+  QueryServiceDeclaration,
+  SubscriptionServiceDeclaration
+>;
+
+export type ExceptionsRecordDeclaration = AbstractExceptionsRecord;
+
+/* Services */
+export type ServiceExceptionsDeclaration = AbstractServiceExceptions;
+
 export interface QueryServiceDeclaration extends AbstractQueryService {
   resolve?: never;
   intercepts?: never;
@@ -123,21 +119,28 @@ export interface SubscriptionServiceDeclaration
   intercepts?: never;
 }
 
-export type ServiceErrorsDeclaration = AbstractServiceErrors;
+/* Exception */
+export type ExceptionDeclaration<
+  L extends ExceptionLabel = ExceptionLabel
+> = AbstractException<L>;
 
-// Types
-export type ErrorTypeDeclaration<
-  L extends ErrorLabel = ErrorLabel
-> = AbstractErrorType<L>;
+/* Schema */
+export type SchemaDeclaration<
+  S extends JSONSchema = JSONSchema
+> = AbstractSchema<S>;
 
-export type RequestTypeDeclaration = AbstractRequestType;
-
-export type ResponseTypeDeclaration = AbstractResponseType<
+/* Children */
+export type ChildrenDeclaration<
+  A extends ChildrenServicesDeclaration = ChildrenServicesDeclaration
+> = AbstractChildren<
   QueryServiceDeclaration,
-  SubscriptionServiceDeclaration
+  SubscriptionServiceDeclaration,
+  A
 >;
 
-export type ResponseTypeChildrenDeclaration = AbstractResponseTypeChildren<
+export type ChildrenSchemasDeclaration = AbstractChildrenSchemas;
+
+export type ChildrenServicesDeclaration = AbstractChildrenServices<
   QueryServiceDeclaration,
   SubscriptionServiceDeclaration
 >;

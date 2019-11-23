@@ -18,10 +18,13 @@ export type TraverseInputFn<
   next: (element?: AbstractElement<Q, M, S>) => AbstractElement<Q, M, S>
 ) => void;
 
+/**
+ * Performs a tree traversal. Alternative to `replace`.
+ */
 export function traverse(
   element: ElementUnion,
   cb: TraverseInputFn,
-  info?: ElementInfo
+  info?: Required<ElementInfo>
 ): void {
   replace(
     element,

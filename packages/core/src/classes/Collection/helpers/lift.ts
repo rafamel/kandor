@@ -1,39 +1,130 @@
 import {
-  TreeTypesUnion,
-  ServiceElementUnion,
-  ServiceErrorsUnion,
-  TypeElementUnion,
   InterceptImplementation,
-  ErrorTypeUnion,
-  Schema
+  ServiceUnion,
+  SchemasRecordUnion,
+  CollectionTreeUnion,
+  ExceptionsRecordUnion,
+  ChildrenUnion,
+  ChildrenSchemasUnion,
+  ServiceExceptionsUnion,
+  SchemaUnion,
+  ExceptionUnion
 } from '~/types';
 import isequal from 'lodash.isequal';
 import { containsKey } from 'contains-key';
-import { Type } from '../../Type';
-import { CollectionLiftOptions } from '../definitions';
-import { isServiceImplementation } from '~/inspect/is';
+import { CollectionLiftOptions, LiftCollection } from '../definitions';
+import {
+  isServiceImplementation,
+  isElementTree,
+  isElementService,
+  isElementChildren
+} from '~/inspect/is';
+import camelcase from 'camelcase';
+import { replace } from '~/transform/replace';
+import { item } from '~/utils/item';
 
-export function liftServiceTypes(
-  name: string,
-  service: ServiceElementUnion,
-  types: { source: TreeTypesUnion; lift: TreeTypesUnion },
-  options: Required<CollectionLiftOptions>,
-  transform: (str: string, isExplicit: boolean) => string
-): ServiceElementUnion {
-  service = { ...service };
+interface Destination {
+  exceptions: ExceptionsRecordUnion;
+  schemas: SchemasRecordUnion;
+}
 
-  for (const kind of ['request', 'response'] as ['request', 'response']) {
-    const schema = service[kind];
-    if (typeof schema === 'string') {
-      checkSourceType(kind, schema, types, options);
-    } else {
-      const pascal = name + transform('R' + kind.slice(1), false);
-      liftServiceType(pascal, kind, schema, types);
-      service[kind] = pascal;
+type Transform = (str: string, isExplicit: boolean) => string;
+
+/**
+ * Lifts inline schemas and exceptions to the top level of a collection, naming them according to their scope, service, and role. It will throw if a collection:
+ * - Produces conflicting names.
+ * - Contains references to non existent schemas or exceptions.
+ */
+export function lift<T extends CollectionTreeUnion>(
+  collection: T,
+  options?: CollectionLiftOptions
+): LiftCollection<T> {
+  const opts = Object.assign({ skipReferences: false }, options);
+
+  const transform: Transform = (str) => {
+    return camelcase(str, { pascalCase: true });
+  };
+
+  const destination: Destination = {
+    exceptions: { ...collection.exceptions },
+    schemas: { ...collection.schemas }
+  };
+
+  const result: CollectionTreeUnion = replace(
+    collection,
+    (element, { path, route }, next): any => {
+      if (isElementTree(element)) return next(element);
+
+      const name = transform(path[path.length - 1], true);
+
+      if (isElementService(element)) {
+        if (!route) throw Error(`Expected route for path: ${path}`);
+        return liftService(
+          route.length > 1
+            ? transform(route[route.length - 2], false) + name
+            : name,
+          element,
+          destination,
+          opts,
+          transform
+        );
+      }
+
+      if (isElementChildren(element)) {
+        if (!route) throw Error(`Expected route for path: ${path}`);
+        return liftChildren(name, element, destination, opts, transform);
+      }
+
+      return element;
     }
-  }
+  );
 
-  service.errors = liftErrors(service.errors, types, options);
+  return { ...result, ...destination } as LiftCollection<T>;
+}
+
+export function liftChildren<T extends ChildrenUnion>(
+  name: string,
+  children: T,
+  destination: Destination,
+  options: Required<CollectionLiftOptions>,
+  transform: Transform
+): T {
+  const schemas = liftSchemas(children.schemas, destination, options);
+
+  const services = { ...children.services };
+  for (const [key, service] of Object.entries(services)) {
+    services[key] = liftService(
+      name + transform(key, false),
+      service,
+      destination,
+      options,
+      transform
+    );
+  }
+  return { ...children, schemas, services };
+}
+
+export function liftService<T extends ServiceUnion>(
+  name: string,
+  service: T,
+  destination: Destination,
+  options: Required<CollectionLiftOptions>,
+  transform: Transform
+): T {
+  const exceptions = liftExceptions(service.exceptions, destination, options);
+
+  const [request, response] = liftSchemas(
+    [
+      typeof service.request === 'string'
+        ? service.request
+        : item(name + transform('Request', false), service.request),
+      typeof service.response === 'string'
+        ? service.response
+        : item(name + transform('Response', false), service.response)
+    ],
+    destination,
+    options
+  );
 
   if (
     isServiceImplementation(service) &&
@@ -44,80 +135,88 @@ export function liftServiceTypes(
     for (const intercept of service.intercepts) {
       intercepts.push({
         ...intercept,
-        errors: liftErrors(intercept.errors, types, options)
+        exceptions: liftExceptions(intercept.exceptions, destination, options)
       });
     }
-    service.intercepts = intercepts;
+
+    return { ...service, exceptions, request, response, intercepts };
   }
 
-  return service;
+  return { ...service, exceptions, request, response };
 }
 
-export function liftErrors(
-  errors: ServiceErrorsUnion,
-  types: { source: TreeTypesUnion; lift: TreeTypesUnion },
+export function liftExceptions(
+  exceptions: ServiceExceptionsUnion,
+  destination: Destination,
   options: Required<CollectionLiftOptions>
-): ServiceErrorsUnion {
-  const result: ServiceErrorsUnion = [];
-  for (const error of errors) {
-    if (typeof error === 'string') {
-      checkSourceType('error', error, types, options);
+): string[] {
+  const result: string[] = [];
+
+  for (const exception of exceptions) {
+    if (typeof exception === 'string') {
+      assertReferenceExists(exception, 'exceptions', destination, options);
+      result.push(exception);
     } else {
-      checkServiceType('error', error.item);
-      liftServiceType(error.name, 'error', error.item, types);
-      result.push(error.name);
+      liftException(exception.name, exception.item, destination);
+      result.push(exception.name);
     }
   }
+
   return result;
 }
 
-export function checkServiceType(kind: string, type: TypeElementUnion): void {
-  if (type.kind !== kind) {
-    throw Error(`Invalid inline type kind.`);
-  }
-}
-
-export function liftServiceType(
+export function liftException(
   name: string,
-  kind: 'error' | 'request' | 'response',
-  data: Schema | ErrorTypeUnion,
-  types: { source: TreeTypesUnion; lift: TreeTypesUnion }
+  exception: ExceptionUnion,
+  destination: Destination
 ): void {
-  switch (kind) {
-    case 'error': {
-      // In the case of errors we'll check for deep equality.
-      // This is specially important for intercepts, which might
-      // make inline declarations repeat themselves.
-      if (containsKey(types.lift, name) && !isequal(types.lift[name], data)) {
-        throw Error(`Inline error name collision: ${name}`);
-      }
-      types.lift[name] = data as ErrorTypeUnion;
-      break;
-    }
-    case 'request': {
-      if (containsKey(types.lift, name) as boolean) {
-        throw Error(`Inline request schema name collision: ${name}`);
-      }
-      types.lift[name] = Type.request({ schema: data as Schema });
-      break;
-    }
-    case 'response': {
-      if (containsKey(types.lift, name) as boolean) {
-        throw Error(`Inline response schema name collision: ${name}`);
-      }
-      types.lift[name] = Type.response({ schema: data as Schema });
-      break;
-    }
-    default: {
-      throw Error(`Invalid kind for type: ${name}`);
-    }
+  // In the case of errors we'll check for deep equality.
+  // This is specially important for intercepts, which might
+  // make inline declarations repeat themselves.
+  if (
+    containsKey(destination.exceptions, name) &&
+    !isequal(destination.exceptions[name], exception)
+  ) {
+    throw Error(`Inline exception name collision: ${name}`);
   }
+  destination.exceptions[name] = exception;
 }
 
-export function checkSourceType(
-  kind: string,
+export function liftSchemas(
+  schemas: ChildrenSchemasUnion,
+  destination: Destination,
+  options: Required<CollectionLiftOptions>
+): string[] {
+  const result: string[] = [];
+
+  for (const schema of schemas) {
+    if (typeof schema === 'string') {
+      assertReferenceExists(schema, 'schemas', destination, options);
+      result.push(schema);
+    } else {
+      liftSchema(schema.name, schema.item, destination);
+      result.push(schema.name);
+    }
+  }
+
+  return result;
+}
+
+export function liftSchema(
   name: string,
-  types: { source: TreeTypesUnion; lift: TreeTypesUnion },
+  schema: SchemaUnion,
+  destination: Destination
+): void {
+  if (containsKey(destination.schemas, name) as boolean) {
+    throw Error(`Inline schema name collision: ${name}`);
+  }
+  destination.schemas[name] = schema;
+}
+
+export function assertReferenceExists(
+  name: string,
+  type: 'schemas' | 'exceptions',
+  destination: Destination,
   options: Required<CollectionLiftOptions>
 ): void {
   const skip =
@@ -125,13 +224,7 @@ export function checkSourceType(
     (typeof options.skipReferences === 'boolean' ||
       options.skipReferences.includes(name));
 
-  if (containsKey(types.lift, name)) {
-    if (types.lift[name].kind !== kind) {
-      throw Error(
-        `Invalid type kind reference -expected "${kind}" but got "${types.lift[name].kind}": ${name}`
-      );
-    }
-  } else if (!skip) {
-    throw Error(`Collection lacks referenced type: ${name}`);
+  if (!skip && !containsKey(destination[type], name)) {
+    throw Error(`Collection lacks ${type} reference: ${name}`);
   }
 }

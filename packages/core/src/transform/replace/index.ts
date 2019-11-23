@@ -18,10 +18,13 @@ export type ReplaceInputFn<
   next: (element?: AbstractElement<Q, M, S>) => AbstractElement<Q, M, S>
 ) => AbstractElement<Q, M, S>;
 
+/**
+ * Performs a traversal, returning a new collection where `Element`s are substituted by the ones returned by `cb`. Alternative to `traverse`.
+ */
 export function replace<T extends ElementUnion>(
   element: T,
   cb: ReplaceInputFn,
-  info?: ElementInfo
+  info?: Required<ElementInfo>
 ): T {
   return next(element, cb as any, info);
 }

@@ -1,11 +1,10 @@
 import {
-  TreeTypesUnion,
-  TreeServicesUnion,
   ScopeTreeUnion,
   CollectionTreeUnion,
-  ServiceErrorsUnion,
-  ErrorTypeUnion,
-  ElementItem
+  ElementItem,
+  ExceptionUnion,
+  ServiceExceptionsUnion,
+  ServicesRecordUnion
 } from '~/types';
 import { containsKey } from 'contains-key';
 
@@ -23,8 +22,10 @@ export function mergeCollection<
 
   return {
     kind: 'collection',
+    exceptions: { ...a.exceptions, ...b.exceptions },
+    schemas: { ...a.schemas, ...b.schemas },
+    children: { ...a.children, ...b.children },
     services: mergeServices(a.services, b.services),
-    types: mergeTypes(a.types, b.types),
     scopes: {
       ...a.scopes,
       ...b.scopes,
@@ -65,8 +66,8 @@ export function mergeScope<A extends ScopeTreeUnion, B extends ScopeTreeUnion>(
 }
 
 export function mergeServices<
-  A extends TreeServicesUnion,
-  B extends TreeServicesUnion
+  A extends ServicesRecordUnion,
+  B extends ServicesRecordUnion
 >(a: A, b: B): A & B {
   const keys = Object.keys(b);
 
@@ -83,36 +84,17 @@ export function mergeServices<
   return { ...a, ...b };
 }
 
-export function mergeTypes<A extends TreeTypesUnion, B extends TreeTypesUnion>(
-  a: A,
-  b: B
-): A & B {
-  const keys = Object.keys(b);
-
-  for (const key of keys) {
-    if (containsKey(a, key)) {
-      if (a[key].kind !== b[key].kind) {
-        throw Error(
-          `Forbidden override of type ${key} of kind ${a[key].kind} with kind ${b[key].kind}`
-        );
-      }
-    }
-  }
-
-  return { ...a, ...b };
-}
-
-export function mergeServiceErrors(
-  a: ServiceErrorsUnion,
-  b: ServiceErrorsUnion
-): ServiceErrorsUnion {
-  const hash: { [key: string]: string | ElementItem<ErrorTypeUnion> } = {};
+export function mergeServiceExceptions(
+  a: ServiceExceptionsUnion,
+  b: ServiceExceptionsUnion
+): ServiceExceptionsUnion {
+  const hash: { [key: string]: string | ElementItem<ExceptionUnion> } = {};
 
   const errors = a.concat(b);
   for (const error of errors) {
     const name = typeof error === 'string' ? error : error.name;
     if (containsKey(hash, name) && hash[name] !== error) {
-      throw Error(`Service error name collition: ${name}`);
+      throw Error(`Service exception name collition: ${name}`);
     }
     hash[name] = error;
   }

@@ -2,9 +2,8 @@ import fs from 'fs';
 import {
   CollectionTreeUnion,
   CollectionTreeImplementation,
-  ServiceElementUnion,
   ElementInfo,
-  RequestTypeUnion
+  ServiceUnion
 } from '~/types';
 import { typings } from './typings';
 import { Application, Collection } from '~/classes';
@@ -38,7 +37,7 @@ export interface ClientGenerateCustomize {
   /**
    * Maps function bodies for each service.
    */
-  mapService: (service: ServiceElementUnion, info: ElementInfo) => string;
+  mapService: (service: ServiceUnion, info: Required<ElementInfo>) => string;
 }
 
 export async function client(
@@ -72,7 +71,7 @@ export async function client(
           fn += `}`;
           return fn;
         },
-        mapService(service: ServiceElementUnion, info: ElementInfo): string {
+        mapService(service: ServiceUnion, info: Required<ElementInfo>): string {
           let body = `return app['${info.route.join(':')}']`;
           body += `.resolve(data, getContext())`;
           body += opts.typescript ? ` as any;` : `;`;
@@ -91,12 +90,13 @@ export async function client(
     content += `\n`;
   }
 
-  const source = instance.replace((element, info, next): any => {
+  const source = instance.replace((element, { path, route }, next): any => {
     element = next(element);
     if (!isElementService(element)) return element;
+    if (!route) throw Error(`Expected route for path: ${path}`);
     return {
       ...element,
-      resolve: custom.mapService(element as any, info)
+      resolve: custom.mapService(element as any, { path, route })
     };
   });
 
@@ -111,9 +111,7 @@ export async function client(
     validate: false,
     children: true,
     map(service): any {
-      const requestType = normal.types[
-        service.request as string
-      ] as RequestTypeUnion;
+      const requestType = normal.schemas[service.request as string];
       const emptyObjectValid = validator.compile(requestType.schema)({});
 
       let resolve = '';
