@@ -1,15 +1,15 @@
 import {
-  PublicError,
-  ErrorLabel,
-  CollectionError,
+  ExceptionLabel,
   CollectionTreeUnion,
   ElementItem,
-  ErrorTypeUnion
+  ExceptionUnion,
+  PublicError,
+  Collection
 } from '@karmic/core';
 import { RPCError } from '~/types';
 import { ErrorCodes } from '~/errors';
 
-export const hash: { [P in ErrorLabel]: number } = {
+export const hash: { [P in ExceptionLabel]: number } = {
   // Client
   ClientError: -32000,
   ClientUnauthorized: -32001,
@@ -43,13 +43,13 @@ export type RPCErrorProviderType =
 
 export function createErrorProvider(
   collection: CollectionTreeUnion,
-  complete: ElementItem<ErrorTypeUnion>
+  complete: ElementItem<ExceptionUnion>
 ): ErrorProvider {
+  const instance = new Collection(collection);
   function ensure(error: PublicErrorProviderType): PublicError {
     return error instanceof PublicError
       ? error
-      : new CollectionError(
-          collection,
+      : instance.error(
           error === 'EarlyComplete' ? complete.name : 'ServerError',
           null,
           true

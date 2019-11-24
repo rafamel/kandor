@@ -1,12 +1,10 @@
 import {
   CollectionTreeDeclaration,
   CollectionTreeImplementation,
-  application,
-  toUnary,
-  filter,
   isElementService,
   isServiceSubscription,
-  CollectionError
+  Application,
+  Collection
 } from '@karmic/core';
 import { createDefaults } from './defaults';
 import { ServerRouter } from './ServerRouter';
@@ -27,11 +25,12 @@ export class RESTServer {
     options?: RESTServerOptions
   ) {
     this.options = Object.assign(createDefaults(), options);
-    const app = application(
+
+    const instance = new Collection(collection);
+    const app = new Application(
       this.options.subscriptions
-        ? toUnary(collection)
-        : filter(
-            collection,
+        ? instance.toUnary()
+        : instance.filter(
             (element) =>
               !isElementService(element) || !isServiceSubscription(element)
           ),
@@ -66,7 +65,7 @@ export class RESTServer {
       const item = mapError(err);
       const error = item
         ? item.error
-        : new CollectionError(this.declaration, 'ServerError', err, true);
+        : new Collection(this.declaration).error('ServerError', err, true);
 
       return {
         status: item ? item.status : 500,

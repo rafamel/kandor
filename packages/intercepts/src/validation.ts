@@ -1,14 +1,14 @@
 import {
   InterceptImplementation,
-  intercept,
-  error,
-  ServiceErrorsImplementation,
   PublicError,
   ElementItem,
-  ErrorTypeUnion,
-  ErrorTypeImplementation,
   item,
-  validator
+  validator,
+  Intercept,
+  ServiceExceptionsImplementation,
+  ExceptionUnion,
+  ExceptionImplementation,
+  Exception
 } from '@karmic/core';
 import { switchMap } from 'rxjs/operators';
 import { of, throwError } from 'rxjs';
@@ -20,14 +20,14 @@ export interface ValidationOptions {
    * If a `ValidationError` is passed, it will be used to fail instead.
    * Default: `true`.
    */
-  request?: ElementItem<ErrorTypeUnion<'ClientInvalid'>> | boolean;
+  request?: ElementItem<ExceptionUnion<'ClientInvalid'>> | boolean;
   /**
    * If `false`, it won't validate responses.
    * If `true`, it will validate responses and use a default `ValidationError` to fail.
    * If a `ValidationError` is passed, it will be used to fail instead.
    * Default: `false`.
    */
-  response?: ElementItem<ErrorTypeUnion> | boolean;
+  response?: ElementItem<ExceptionUnion> | boolean;
 }
 
 /**
@@ -38,32 +38,35 @@ export function validation(
 ): InterceptImplementation<any, any, any> {
   const opts = Object.assign({ request: true, response: false }, options);
 
-  const requestError: ElementItem<ErrorTypeImplementation> | null = opts.request
+  const requestError: ElementItem<ExceptionImplementation> | null = opts.request
     ? opts.request === true
-      ? item('RequestValidationError', error({ label: 'ClientInvalid' }))
+      ? item(
+          'RequestValidationError',
+          new Exception({ label: 'ClientInvalid' })
+        )
       : opts.request
     : null;
   const responseError: ElementItem<
-    ErrorTypeImplementation
+    ExceptionImplementation
   > | null = opts.response
     ? opts.response === true
-      ? item('ResponseValidationError', error({ label: 'ServerError' }))
+      ? item('ResponseValidationError', new Exception({ label: 'ServerError' }))
       : opts.response
     : null;
 
-  const errors: ServiceErrorsImplementation = [];
+  const exceptions: ServiceExceptionsImplementation = [];
   if (requestError) {
     if (requestError.item.label !== 'ClientInvalid') {
       throw Error(
         `Request error must have label ClientInvalid: ${requestError.item.label}`
       );
     }
-    errors.push(requestError);
+    exceptions.push(requestError);
   }
-  if (responseError) errors.push(responseError);
+  if (responseError) exceptions.push(responseError);
 
-  return intercept({
-    errors,
+  return new Intercept({
+    exceptions,
     factory: (schemas) => {
       const validateRequest = validator.compile(schemas.request);
       const validateResponse = validator.compile(schemas.response);

@@ -1,10 +1,10 @@
-import { Schema } from '@karmic/core';
+import { JSONSchema } from '@karmic/core';
 
-export const id: Schema = {
+export const id: JSONSchema = {
   anyOf: [{ type: 'number' }, { type: 'string' }, { type: 'null' }]
 };
 
-export const notification: Schema = {
+export const notification: JSONSchema = {
   type: 'object',
   required: ['jsonrpc', 'method'],
   properties: {
@@ -15,7 +15,7 @@ export const notification: Schema = {
   not: { required: ['id'] }
 };
 
-export const request: Schema = {
+export const request: JSONSchema = {
   type: 'object',
   required: ['jsonrpc', 'id', 'method'],
   properties: {
@@ -26,7 +26,7 @@ export const request: Schema = {
   }
 };
 
-export const response: Schema = {
+export const response: JSONSchema = {
   definitions: {
     success: {
       type: 'object',

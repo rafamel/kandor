@@ -1,8 +1,8 @@
 import {
-  intercept,
   PublicError,
   InterceptImplementation,
-  ServiceElementKind
+  ServiceKind,
+  Intercept
 } from '@karmic/core';
 import { tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
@@ -13,7 +13,7 @@ export type LogStatus = 'success' | 'error' | 'complete' | 'unsubscribe';
 
 export interface LogData {
   route: string;
-  kind: ServiceElementKind;
+  kind: ServiceKind;
   status: LogStatus;
   context: any;
   request: object;
@@ -82,7 +82,7 @@ export function logging(
         };
   }
 
-  return intercept({
+  return new Intercept({
     factory: () => (data, context, info, next) => {
       const start = Date.now();
       const observable = next(data);

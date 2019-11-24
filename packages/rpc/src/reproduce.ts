@@ -1,30 +1,23 @@
 import {
+  ElementItem,
+  ExceptionUnion,
   CollectionTreeUnion,
   CollectionTreeImplementation,
-  toImplementation,
+  Exception,
+  Collection,
   isServiceQuery,
+  Service,
   isServiceMutation,
   isServiceSubscription,
-  query,
-  mutation,
-  subscription,
-  error,
-  intercepts,
-  intercept,
-  PublicError,
-  CollectionError,
-  collections,
-  types,
-  ElementItem,
-  ErrorTypeUnion,
-  reference
+  Intercept,
+  PublicError
 } from '@karmic/core';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { RPCClient } from './client';
 
 export interface RPCReproduceOptions {
-  proxyError: ElementItem<ErrorTypeUnion<'ServerGateway'>>;
+  proxyException: ElementItem<ExceptionUnion<'ServerGateway'>>;
 }
 
 /**
@@ -38,28 +31,28 @@ export async function reproduce(
 ): Promise<CollectionTreeImplementation> {
   const opts = Object.assign(
     {
-      proxyError: {
+      proxyException: {
         name: 'ProxyError',
-        item: error({ label: 'ServerGateway' })
+        item: new Exception({ label: 'ServerGateway' })
       }
     },
     options
   );
 
-  const implementation = collections(
-    toImplementation(await collection, (service, info) => {
+  const implementation = Collection.merge(
+    new Collection(await collection).toImplementation((service, info) => {
       if (isServiceQuery(service)) {
-        return query({
+        return Service.query({
           ...service,
           resolve: (data: any) => client.unary(info.route.join(':'), data)
         });
       } else if (isServiceMutation(service)) {
-        return mutation({
+        return Service.mutation({
           ...service,
           resolve: (data: any) => client.unary(info.route.join(':'), data)
         });
       } else if (isServiceSubscription(service)) {
-        return subscription({
+        return Service.subscription({
           ...service,
           resolve: (data: any) => client.stream(info.route.join(':'), data)
         });
@@ -67,25 +60,21 @@ export async function reproduce(
         throw Error(`Invalid service kind: ${JSON.stringify(service)}`);
       }
     }),
-    types({ [opts.proxyError.name]: opts.proxyError.item })
+    Collection.exceptions({
+      [opts.proxyException.name]: opts.proxyException.item
+    })
   );
 
-  return intercepts(
-    implementation,
-    intercept({
-      errors: reference(implementation, [opts.proxyError.name]),
+  return implementation.intercept(
+    new Intercept({
+      exceptions: implementation.reference([opts.proxyException.name]),
       factory: () => (data, context, info, next) => {
         return next(data).pipe(
           catchError((err) => {
             return throwError(
               err instanceof PublicError
                 ? err
-                : new CollectionError(
-                    implementation,
-                    opts.proxyError.name,
-                    err,
-                    true
-                  )
+                : implementation.error(opts.proxyException.name, err, true)
             );
           })
         );

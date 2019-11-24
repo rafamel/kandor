@@ -3,7 +3,7 @@ import {
   RPCSpecErrorResponse,
   RPCSpecError
 } from './specification';
-import { ErrorLabel } from '@karmic/core';
+import { ExceptionLabel } from '@karmic/core';
 
 export type RPCResponse<T = any> =
   | RPCSingleResponse<T>
@@ -27,6 +27,6 @@ export interface RPCError extends RPCSpecError {
 
 export interface RPCPublicError {
   id: string;
-  label: ErrorLabel;
+  label: ExceptionLabel;
   description?: string;
 }

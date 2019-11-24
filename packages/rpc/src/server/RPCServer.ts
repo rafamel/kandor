@@ -1,11 +1,9 @@
 import {
-  CollectionTreeImplementation,
-  application,
   CollectionTreeDeclaration,
-  services,
-  query,
-  collections,
-  types
+  CollectionTreeImplementation,
+  Application,
+  Collection,
+  Service
 } from '@karmic/core';
 import { RPCServerOptions, RPCServerConnection } from './types';
 import { createDefaults } from './defaults';
@@ -20,17 +18,19 @@ export class RPCServer {
     options?: RPCServerOptions
   ) {
     const opts = Object.assign(createDefaults(), options);
-    const app = application(
-      collections(
+    const app = new Application(
+      Collection.merge(
         collection,
-        types({ [opts.complete.name]: opts.complete.item })
+        Collection.exceptions({ [opts.complete.name]: opts.complete.item })
       ),
       options && options.fallback
         ? { fallback: options.fallback, children: opts.children }
         : { children: opts.children }
     );
-    const dapp = application(
-      services({ declaration: query({ resolve: () => app.declaration }) })
+    const dapp = new Application(
+      Collection.services({
+        declaration: Service.query({ resolve: () => app.declaration })
+      })
     );
 
     this.declaration = app.declaration;
@@ -41,7 +41,7 @@ export class RPCServer {
             kind: 'query',
             request: '',
             response: '',
-            errors: []
+            exceptions: []
           },
           resolve: app.fallback
         },

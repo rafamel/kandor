@@ -1,6 +1,6 @@
-import { ErrorLabel, PublicError } from '@karmic/core';
+import { ExceptionLabel, PublicError } from '@karmic/core';
 
-export const hash: { [P in ErrorLabel]: number } = {
+export const hash: { [P in ExceptionLabel]: number } = {
   // Client
   ClientError: 400,
   ClientUnauthorized: 401,
