@@ -33,11 +33,16 @@ export function reference(
   const isArray = Array.isArray(names);
   const arr = (isArray ? names : [names]) as string[];
 
-  for (const mode of modes) {
-    for (const name of arr) {
-      if (!containsKey(collection[mode], name)) {
-        throw Error(`Can't reference "${name}" on collection`);
+  for (const name of arr) {
+    let found = false;
+    for (const mode of modes) {
+      if (containsKey(collection[mode], name)) {
+        found = true;
+        break;
       }
+    }
+    if (!found) {
+      throw Error(`Can't reference "${name}" on collection`);
     }
   }
 
