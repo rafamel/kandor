@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/rafamel/karmic/compare/v0.4.0...v0.5.0) (2019-11-24)
+
+
+### Bug Fixes
+
+* fixes core dependent packages ([c8ba0a7](https://github.com/rafamel/karmic/commit/c8ba0a7620b51b0ad4891d655ff42df14c616ac0))
+
+
+### Features
+
+* **core:** adds ensure static method to classes ([8b54c5d](https://github.com/rafamel/karmic/commit/8b54c5db53b03836ac750b5bf2cf2b77efdac50b))
+
+
+
+
+
 # [0.4.0](https://github.com/rafamel/karmic/compare/v0.3.0...v0.4.0) (2019-11-19)
 
 

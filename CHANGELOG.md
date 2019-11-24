@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/rafamel/karmic/compare/v0.4.0...v0.5.0) (2019-11-24)
+
+
+### Bug Fixes
+
+* **core:** fixes Application.routes ([8d9a203](https://github.com/rafamel/karmic/commit/8d9a20350f5463c71fc5360825790548fd86dcb8))
+* **core:** fixes Collection.reference ([16d7690](https://github.com/rafamel/karmic/commit/16d7690f6b69742d74c2c1b6f26e1fcc85c8820b))
+* **core:** fixes Service.kind -redeclaring an inherited property set on super causes it to be undefi ([c2536da](https://github.com/rafamel/karmic/commit/c2536da5e02c3b72b42d3ffce6cba5e4a09e41c8))
+* fixes core dependent packages ([c8ba0a7](https://github.com/rafamel/karmic/commit/c8ba0a7620b51b0ad4891d655ff42df14c616ac0))
+* **core:** exports generate functions and PublicError from entry point ([e6385d2](https://github.com/rafamel/karmic/commit/e6385d2c03f0dd2adfc1cf9c904a255b0b3fc5a4))
+* **core:** sets info parameter as required ElementInfo for Collection.toImplementation ([6317dca](https://github.com/rafamel/karmic/commit/6317dca8e12e225966e5f36503c371381e7bdc6a))
+* **core:** sets info parameter as required ElementInfo for intercept and service resolve functions ([490f7d7](https://github.com/rafamel/karmic/commit/490f7d74984f23f9a42d074fe617dd7915480fec))
+
+
+### Features
+
+* **core:** adds ensure static method to classes ([8b54c5d](https://github.com/rafamel/karmic/commit/8b54c5db53b03836ac750b5bf2cf2b77efdac50b))
+* **core:** makes query, mutation, and subscription static Service methods only take implementations ([abc1dea](https://github.com/rafamel/karmic/commit/abc1dea70894cd8b693742b821ff245f6e7f16a3))
+* **core:** rewrites Types as Exception, Schema, and Children ([b373082](https://github.com/rafamel/karmic/commit/b3730824731fe4de601216d8d5abf81726a8f151))
+
+
+
+
+
 # [0.4.0](https://github.com/rafamel/karmic/compare/v0.3.0...v0.4.0) (2019-11-19)
 
 

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/rafamel/karmic/compare/v0.4.0...v0.5.0) (2019-11-24)
+
+
+### Bug Fixes
+
+* fixes core dependent packages ([c8ba0a7](https://github.com/rafamel/karmic/commit/c8ba0a7620b51b0ad4891d655ff42df14c616ac0))
+
+
+
+
+
 # [0.4.0](https://github.com/rafamel/karmic/compare/v0.3.0...v0.4.0) (2019-11-19)
 
 
