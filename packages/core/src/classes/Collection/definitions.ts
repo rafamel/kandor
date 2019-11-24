@@ -67,7 +67,7 @@ export type CollectionImplementationInputFn<
   Q extends QueryServiceUnion = QueryServiceUnion,
   M extends MutationServiceUnion = MutationServiceUnion,
   S extends SubscriptionServiceUnion = SubscriptionServiceUnion
-> = (service: Q | M | S, info: ElementInfo) => ServiceImplementation;
+> = (service: Q | M | S, info: Required<ElementInfo>) => ServiceImplementation;
 
 /* Options */
 export interface CollectionInterceptOptions {

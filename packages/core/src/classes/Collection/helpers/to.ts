@@ -26,11 +26,12 @@ export function toImplementation<
   collection: AbstractCollectionTree<Q, M, S>,
   fn: CollectionImplementationInputFn
 ): CollectionTreeImplementation {
-  return replace(collection, (element, info, next) => {
+  return replace(collection, (element, { path, route }, next) => {
     element = next(element);
-    return isElementService(element)
-      ? (fn(element, info) as AbstractElement<Q, M, S>)
-      : element;
+    if (!isElementService(element)) return element;
+
+    if (!route) throw Error(`Route expected at path: ${path}`);
+    return fn(element, { path, route }) as AbstractElement<Q, M, S>;
   }) as CollectionTreeImplementation;
 }
 
