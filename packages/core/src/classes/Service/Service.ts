@@ -27,7 +27,7 @@ export class Service<
   I = any,
   O = any,
   C = any
-> extends Element<ServiceUnion> {
+> extends Element<ServiceUnion & Record<'kind', K>> {
   public static ensure<
     T = false,
     K extends ServiceKind = ServiceKind,
@@ -40,19 +40,18 @@ export class Service<
   public static query<I = any, O = any, C = any>(
     query: ServiceQueryInput<true, I, O, C>
   ): Service<true, 'query', I, O, C> {
-    return new Service({ kind: 'query', ...query });
+    return new Service({ ...query, kind: 'query' });
   }
   public static mutation<I = any, O = any, C = any>(
     mutation: ServiceMutationInput<true, I, O, C>
   ): Service<true, 'mutation', I, O, C> {
-    return new Service({ kind: 'mutation', ...mutation });
+    return new Service({ ...mutation, kind: 'mutation' });
   }
   public static subscription<I = any, O = any, C = any>(
     subscription: ServiceSubscriptionInput<true, I, O, C>
   ): Service<true, 'subscription', I, O, C> {
-    return new Service({ kind: 'subscription', ...subscription });
+    return new Service({ ...subscription, kind: 'subscription' });
   }
-  public readonly kind: K;
   public readonly request: string | AbstractSchema;
   public readonly response: string | AbstractSchema;
   public readonly exceptions: ServiceExceptionsUnion;
