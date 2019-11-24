@@ -1,14 +1,10 @@
-import Ajv from 'ajv';
-import draft04 from 'ajv/lib/refs/json-schema-draft-04.json';
 import { notification, request, response } from './schemas';
 import { RPCSpecNotification, RPCSpecRequest, RPCSpecResponse } from '~/types';
+import { validator } from '@karmic/core';
 
-const ajv = new Ajv({ schemaId: 'id', logger: false });
-ajv.addMetaSchema(draft04);
-
-const validateNotification = ajv.compile(notification);
-const validateRequest = ajv.compile(request);
-const validateResponse = ajv.compile(response);
+const validateNotification = validator.compile(notification);
+const validateRequest = validator.compile(request);
+const validateResponse = validator.compile(response);
 
 export const validate = {
   notification(data: object): data is RPCSpecNotification {
