@@ -9,12 +9,14 @@ import {
   isElementTree,
   isTreeCollection
 } from '~/inspect/is';
+import { replace } from '~/transform';
 
 export function getRoutes(
   collection: CollectionInstance<CollectionTreeImplementation>,
   map: ApplicationCreateOptionsMapFn
 ): ApplicationRoutes {
-  const routes: any = collection.replace(
+  const routes: any = replace(
+    collection,
     (element, { path, route }, next): any => {
       if (isElementService(element)) {
         if (!route) {
