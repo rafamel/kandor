@@ -16,7 +16,8 @@ import { Observable } from 'rxjs';
 import { Service } from './Service';
 
 type Input = Omit<Partial<ServiceUnion>, 'resolve'>;
-type Maybe<T, U> = T extends Function ? U : void;
+type Falsy = false | null | undefined | void | 0 | '';
+type Maybe<T, U> = T extends Falsy ? void : U;
 type Resolve<K extends ServiceKind, I, O, C> = K extends 'query' | 'mutation'
   ? UnaryServiceResolveImplementation<I, O, C>
   : K extends 'subscription'
@@ -25,17 +26,17 @@ type Resolve<K extends ServiceKind, I, O, C> = K extends 'query' | 'mutation'
 
 /* Main */
 export type ServiceConstructor = <
+  T = false,
   K extends ServiceKind = ServiceKind,
-  T = void,
   I = any,
   O = any,
   C = any
 >(
-  service: ServiceInput<K, T, I, O, C>
-) => Service<K, T, I, O, C>;
+  service: ServiceInput<T, K, I, O, C>
+) => Service<T, K, I, O, C>;
 
-export type ServiceInput<K extends ServiceKind, T, I, O, C> =
-  | Service<K, T, I, O, C>
+export type ServiceInput<T, K extends ServiceKind, I, O, C> =
+  | Service<T, K, I, O, C>
   | ServiceDeclaration
   | ServiceImplementation<I, O, C>
   | (Record<'kind', K> &
@@ -45,26 +46,29 @@ export type ServiceInput<K extends ServiceKind, T, I, O, C> =
         | ServiceQueryInput<T, I, O, C>
       ));
 
-export type ServiceElement<K extends ServiceKind, T, I, O, C> = ServiceUnion &
+export type ServiceElement<T, K extends ServiceKind, I, O, C> = ServiceUnion &
   Record<'kind', K> &
   Record<'resolve', Maybe<T, Resolve<K, I, O, C>>> &
   Record<'intercepts', Maybe<T, InterceptImplementation[]>>;
 
 /* Input */
-export type ServiceQueryInput<T, I, O, C> = Input & {
-  kind?: QueryServiceKind;
-  resolve?: T | ServiceUnaryResolveInput<I, O, C>;
-};
+export type ServiceQueryInput<T, I, O, C> = Input &
+  Record<'resolve', Function> & {
+    kind?: QueryServiceKind;
+    resolve: T | ServiceUnaryResolveInput<I, O, C>;
+  };
 
-export type ServiceMutationInput<T, I, O, C> = Input & {
-  kind?: MutationServiceKind;
-  resolve?: T | ServiceUnaryResolveInput<I, O, C>;
-};
+export type ServiceMutationInput<T, I, O, C> = Input &
+  Record<'resolve', Function> & {
+    kind?: MutationServiceKind;
+    resolve: T | ServiceUnaryResolveInput<I, O, C>;
+  };
 
-export type ServiceSubscriptionInput<T, I, O, C> = Input & {
-  kind?: SubscriptionServiceKind;
-  resolve?: T | ServiceStreamResolveInput<I, O, C>;
-};
+export type ServiceSubscriptionInput<T, I, O, C> = Input &
+  Record<'resolve', Function> & {
+    kind?: SubscriptionServiceKind;
+    resolve: T | ServiceStreamResolveInput<I, O, C>;
+  };
 
 export type ServiceUnaryResolveInput<I = any, O = any, C = any> = (
   data: I,

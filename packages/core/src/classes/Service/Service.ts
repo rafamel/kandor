@@ -22,43 +22,43 @@ import { switchMap } from 'rxjs/operators';
 import { isServiceImplementation } from '~/inspect';
 
 export class Service<
+  T = false,
   K extends ServiceKind = ServiceKind,
-  T = void,
   I = any,
   O = any,
   C = any
 > extends Element<ServiceUnion> {
   public static ensure<
+    T = false,
     K extends ServiceKind = ServiceKind,
-    T = void,
     I = any,
     O = any,
     C = any
-  >(service: ServiceInput<K, T, I, O, C>): Service<K, T, I, O, C> {
+  >(service: ServiceInput<T, K, I, O, C>): Service<T, K, I, O, C> {
     return service instanceof Service ? service : new Service(service as any);
   }
-  public static query<T = void, I = any, O = any, C = any>(
-    query?: ServiceQueryInput<T, I, O, C>
-  ): Service<'query', T, I, O, C> {
+  public static query<I = any, O = any, C = any>(
+    query: ServiceQueryInput<true, I, O, C>
+  ): Service<true, 'query', I, O, C> {
     return new Service({ kind: 'query', ...query });
   }
-  public static mutation<T = void, I = any, O = any, C = any>(
-    mutation?: ServiceMutationInput<T, I, O, C>
-  ): Service<'mutation', T, I, O, C> {
+  public static mutation<I = any, O = any, C = any>(
+    mutation: ServiceMutationInput<true, I, O, C>
+  ): Service<true, 'mutation', I, O, C> {
     return new Service({ kind: 'mutation', ...mutation });
   }
-  public static subscription<T = void, I = any, O = any, C = any>(
-    subscription?: ServiceSubscriptionInput<T, I, O, C>
-  ): Service<'subscription', T, I, O, C> {
+  public static subscription<I = any, O = any, C = any>(
+    subscription: ServiceSubscriptionInput<true, I, O, C>
+  ): Service<true, 'subscription', I, O, C> {
     return new Service({ kind: 'subscription', ...subscription });
   }
   public readonly kind: K;
   public readonly request: string | AbstractSchema;
   public readonly response: string | AbstractSchema;
   public readonly exceptions: ServiceExceptionsUnion;
-  public readonly resolve: ServiceElement<K, T, I, O, C>['resolve'];
-  public readonly intercepts: ServiceElement<K, T, I, O, C>['intercepts'];
-  public constructor(service: ServiceInput<K, T, I, O, C>) {
+  public readonly resolve: ServiceElement<T, K, I, O, C>['resolve'];
+  public readonly intercepts: ServiceElement<T, K, I, O, C>['intercepts'];
+  public constructor(service: ServiceInput<T, K, I, O, C>) {
     super(service.kind);
     this.request = service.request || new Schema(null, { type: 'object' });
     this.response = service.response || new Schema(null, { type: 'null' });
@@ -83,10 +83,10 @@ export class Service<
         };
       }
 
-      this.resolve = resolve as ServiceElement<K, T, I, O, C>['resolve'];
+      this.resolve = resolve as ServiceElement<T, K, I, O, C>['resolve'];
       this.intercepts = intercepts as ServiceElement<
-        K,
         T,
+        K,
         I,
         O,
         C
@@ -97,7 +97,7 @@ export class Service<
     this: ServiceImplementation,
     intercepts: InterceptImplementation | InterceptImplementation[],
     options?: ServiceInterceptOptions
-  ): Service<K, T, I, O, C> {
+  ): Service<T, K, I, O, C> {
     if (!isServiceImplementation(this)) {
       throw Error(`Intercepts can only be applied to service implementations`);
     }
@@ -112,7 +112,7 @@ export class Service<
         : (this.intercepts || []).concat(arr)
     });
   }
-  public element(): ServiceElement<K, T, I, O, C> {
+  public element(): ServiceElement<T, K, I, O, C> {
     return (this.resolve
       ? {
           kind: this.kind,
@@ -127,6 +127,6 @@ export class Service<
           exceptions: this.exceptions,
           request: this.request,
           response: this.response
-        }) as ServiceElement<K, T, I, O, C>;
+        }) as ServiceElement<T, K, I, O, C>;
   }
 }
