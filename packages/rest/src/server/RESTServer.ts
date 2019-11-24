@@ -26,7 +26,7 @@ export class RESTServer {
   ) {
     this.options = Object.assign(createDefaults(), options);
 
-    const instance = new Collection(collection);
+    const instance = Collection.ensure(collection);
     const app = new Application(
       this.options.subscriptions
         ? instance.toUnary()
@@ -37,6 +37,7 @@ export class RESTServer {
       options && options.fallback ? { fallback: options.fallback } : {}
     );
 
+    this.declaration = app.declaration;
     this.router = new ServerRouter(
       app.flatten('/'),
       app.fallback,
@@ -65,7 +66,7 @@ export class RESTServer {
       const item = mapError(err);
       const error = item
         ? item.error
-        : new Collection(this.declaration).error('ServerError', err, true);
+        : Collection.ensure(this.declaration).error('ServerError', err, true);
 
       return {
         status: item ? item.status : 500,

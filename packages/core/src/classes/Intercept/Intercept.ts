@@ -12,6 +12,13 @@ import { mergeServiceExceptions } from '~/transform/merge';
 export class Intercept<I = any, O = any, C = any> extends Element<
   InterceptImplementation
 > {
+  public static ensure<I = any, O = any, C = any>(
+    intercept: InterceptImplementation<I, O, C>
+  ): Intercept<I, O, C> {
+    return intercept instanceof Intercept
+      ? intercept
+      : new Intercept(intercept);
+  }
   /**
    * Exposes a simpler api to create intercepts to be run *before* the `resolve` function of a `ServiceImplementation` has been called to act on the incoming `data`.
    */

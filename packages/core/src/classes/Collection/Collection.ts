@@ -48,6 +48,13 @@ export class Collection<
   D extends ServicesRecordUnion = {},
   E extends ScopesRecordUnion = {}
 > extends Element<CollectionTreeUnion> {
+  public static ensure<T extends CollectionTreeUnion>(
+    collection: T
+  ): CollectionInstance<T> {
+    return collection instanceof Collection
+      ? collection
+      : new Collection(collection);
+  }
   public static exceptions<T extends ExceptionsRecordUnion>(
     exceptions: T
   ): Collection<T, {}, {}, {}, {}> {

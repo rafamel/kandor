@@ -40,7 +40,7 @@ export async function reproduce(
   );
 
   const implementation = Collection.merge(
-    new Collection(await collection).toImplementation((service, info) => {
+    Collection.ensure(await collection).toImplementation((service, info) => {
       if (isServiceQuery(service)) {
         return Service.query({
           ...service,

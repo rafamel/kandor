@@ -9,6 +9,9 @@ export type SchemaConstructor = (
 export type SchemaInput = Optional<SchemaUnion, 'kind'>;
 
 export class Schema extends Element<SchemaUnion> {
+  static ensure(schema: SchemaUnion): Schema {
+    return schema instanceof Schema ? schema : new Schema(schema);
+  }
   static json(
     input?: SchemaInput | boolean | null,
     schema?: JSONSchema

@@ -29,7 +29,7 @@ export async function typings(
       '/* This file was automatically generated. DO NOT MODIFY IT BY HAND. */\n\n';
   }
 
-  const { schemas } = new Collection(await collection).lift();
+  const { schemas } = Collection.ensure(await collection).lift();
   for (const [key, value] of Object.entries(schemas)) {
     content += await compile(value.schema, key, { bannerComment: '' });
     content += '\n';

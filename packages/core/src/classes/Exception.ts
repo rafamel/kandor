@@ -14,6 +14,13 @@ export type ExceptionInput<L extends ExceptionLabel> = Optional<
 export class Exception<
   L extends ExceptionLabel = ExceptionLabel
 > extends Element<ExceptionUnion> {
+  public static ensure<L extends ExceptionLabel = ExceptionLabel>(
+    exception: ExceptionUnion<L>
+  ): Exception<L> {
+    return exception instanceof Exception
+      ? exception
+      : new Exception(exception);
+  }
   public readonly label: L;
   public readonly description: string | undefined;
   public constructor(exception: ExceptionInput<L>) {

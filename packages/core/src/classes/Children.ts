@@ -20,6 +20,11 @@ export type ChildrenInput<A extends ChildrenServicesUnion> = Optional<
 export class Children<
   A extends ChildrenServicesUnion = ChildrenServicesUnion
 > extends Element<ChildrenUnion> {
+  public static ensure<A extends ChildrenServicesUnion = ChildrenServicesUnion>(
+    children: ChildrenUnion<A>
+  ): Children<A> {
+    return children instanceof Children ? children : new Children(children);
+  }
   public readonly schemas: ChildrenSchemasUnion;
   public readonly services: A;
   public constructor(children: ChildrenInput<A>) {

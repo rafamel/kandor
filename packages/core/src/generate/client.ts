@@ -80,7 +80,7 @@ export async function client(
       };
 
   let content = '';
-  const instance = new Collection(await collection);
+  const instance = Collection.ensure(await collection);
 
   if (opts.typescript) {
     content += await typings(collection, {

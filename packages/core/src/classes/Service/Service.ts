@@ -28,17 +28,26 @@ export class Service<
   O = any,
   C = any
 > extends Element<ServiceUnion> {
-  static query<T = void, I = any, O = any, C = any>(
+  public static ensure<
+    K extends ServiceKind = ServiceKind,
+    T = void,
+    I = any,
+    O = any,
+    C = any
+  >(service: ServiceInput<K, T, I, O, C>): Service<K, T, I, O, C> {
+    return service instanceof Service ? service : new Service(service as any);
+  }
+  public static query<T = void, I = any, O = any, C = any>(
     query?: ServiceQueryInput<T, I, O, C>
   ): Service<'query', T, I, O, C> {
     return new Service({ kind: 'query', ...query });
   }
-  static mutation<T = void, I = any, O = any, C = any>(
+  public static mutation<T = void, I = any, O = any, C = any>(
     mutation?: ServiceMutationInput<T, I, O, C>
   ): Service<'mutation', T, I, O, C> {
     return new Service({ kind: 'mutation', ...mutation });
   }
-  static subscription<T = void, I = any, O = any, C = any>(
+  public static subscription<T = void, I = any, O = any, C = any>(
     subscription?: ServiceSubscriptionInput<T, I, O, C>
   ): Service<'subscription', T, I, O, C> {
     return new Service({ kind: 'subscription', ...subscription });
