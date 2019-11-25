@@ -25,16 +25,6 @@ type Resolve<K extends ServiceKind, I, O, C> = K extends 'query' | 'mutation'
   : ServiceResolveImplementation<I, O, C>;
 
 /* Main */
-export type ServiceConstructor = <
-  T = false,
-  K extends ServiceKind = ServiceKind,
-  I = any,
-  O = any,
-  C = any
->(
-  service: ServiceInput<T, K, I, O, C>
-) => Service<T, K, I, O, C>;
-
 export type ServiceInput<T, K extends ServiceKind, I, O, C> =
   | Service<T, K, I, O, C>
   | ServiceDeclaration

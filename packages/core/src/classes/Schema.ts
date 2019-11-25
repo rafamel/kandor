@@ -1,11 +1,6 @@
 import { SchemaUnion, JSONSchema, Optional } from '~/types';
 import { Element } from './Element';
 
-export type SchemaConstructor = (
-  input?: SchemaInput | boolean | null,
-  schema?: JSONSchema
-) => SchemaUnion;
-
 export type SchemaInput = Optional<SchemaUnion, 'kind'>;
 
 export class Schema extends Element<SchemaUnion> {

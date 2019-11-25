@@ -6,12 +6,6 @@ import {
 } from '~/types';
 import { Element } from './Element';
 
-export type ChildrenConstructor = <
-  A extends ChildrenServicesUnion = ChildrenServicesUnion
->(
-  children: ChildrenInput<A>
-) => Children<A>;
-
 export type ChildrenInput<A extends ChildrenServicesUnion> = Optional<
   ChildrenUnion<A>,
   'kind'

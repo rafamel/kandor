@@ -2,10 +2,6 @@ import { ExceptionUnion, ExceptionLabel, Optional } from '~/types';
 import { Element } from './Element';
 import { PublicError } from '~/PublicError';
 
-export type ExceptionConstructor = <L extends ExceptionLabel = ExceptionLabel>(
-  exception: ExceptionInput<L>
-) => Exception<L>;
-
 export type ExceptionInput<L extends ExceptionLabel> = Optional<
   ExceptionUnion<L>,
   'kind'

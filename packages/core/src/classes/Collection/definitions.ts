@@ -23,16 +23,6 @@ import {
 import { Collection } from './Collection';
 
 /* Main */
-export type CollectionConstructor = <
-  A extends ExceptionsRecordUnion = {},
-  B extends SchemasRecordUnion = {},
-  C extends ChildrenRecordUnion = {},
-  D extends ServicesRecordUnion = {},
-  E extends ScopesRecordUnion = {}
->(
-  collection: CollectionInput<A, B, C, D, E>
-) => Collection<A, B, C, D, E>;
-
 export interface CollectionInput<
   A extends ExceptionsRecordUnion = {},
   B extends SchemasRecordUnion = {},
