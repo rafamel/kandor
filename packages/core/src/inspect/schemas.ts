@@ -1,4 +1,6 @@
 import { ServiceUnion, CollectionTreeUnion, JSONSchema } from '~/types';
+import { validator } from '~/utils';
+import { Schema } from '~/classes/Schema';
 
 export interface ServiceSchemas {
   request: JSONSchema;
@@ -18,6 +20,15 @@ export function schemas(
   if (typeof response === 'string') {
     const schema = collection.schemas[response];
     response = schema;
+  }
+
+  if (service.nullable) {
+    const validate = validator.compile(response.schema);
+    if (!validate(null)) {
+      response = new Schema(null, {
+        anyOf: [{ type: 'null' }, response]
+      });
+    }
   }
 
   return { request: request.schema, response: response.schema };
