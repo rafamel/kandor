@@ -29,7 +29,6 @@ import {
   SubscriptionServiceImplementation
 } from './implementation';
 import { ExceptionLabel } from '../exceptions';
-import { JSONSchema } from '../definitions';
 
 /* Groups */
 export type ElementUnion = AbstractElement<
@@ -133,7 +132,7 @@ export type ExceptionUnion<
 > = AbstractException<L>;
 
 /* Schema */
-export type SchemaUnion<S extends JSONSchema = JSONSchema> = AbstractSchema<S>;
+export type SchemaUnion = AbstractSchema;
 
 /* Children */
 export type ChildrenUnion<

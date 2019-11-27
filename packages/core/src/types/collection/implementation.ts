@@ -167,9 +167,7 @@ export type ExceptionImplementation<
 > = AbstractException<L>;
 
 /* Schema */
-export type SchemaImplementation<
-  S extends JSONSchema = JSONSchema
-> = AbstractSchema<S>;
+export type SchemaImplementation = AbstractSchema;
 
 /* Children */
 export type ChildrenImplementation<

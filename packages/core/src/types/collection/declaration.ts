@@ -22,7 +22,6 @@ import {
   AbstractChildrenServices
 } from './abstract';
 import { ExceptionLabel } from '../exceptions';
-import { JSONSchema } from '../definitions';
 
 /* Groups */
 export type ElementDeclaration = AbstractElement<
@@ -125,9 +124,7 @@ export type ExceptionDeclaration<
 > = AbstractException<L>;
 
 /* Schema */
-export type SchemaDeclaration<
-  S extends JSONSchema = JSONSchema
-> = AbstractSchema<S>;
+export type SchemaDeclaration = AbstractSchema;
 
 /* Children */
 export type ChildrenDeclaration<

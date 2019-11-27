@@ -127,8 +127,6 @@ export interface AbstractGenericService {
   request: string | AbstractSchema;
   response: string | AbstractSchema;
   exceptions: AbstractServiceExceptions;
-  // TODO
-  // nullable: boolean;
 }
 
 export interface AbstractQueryService extends AbstractGenericService {
@@ -151,9 +149,9 @@ export interface AbstractException<L extends ExceptionLabel = ExceptionLabel> {
 }
 
 /* Schema */
-export interface AbstractSchema<S extends JSONSchema = JSONSchema> {
+export interface AbstractSchema {
   kind: SchemaKind;
-  schema: S;
+  schema: JSONSchema;
 }
 
 /* Children */
