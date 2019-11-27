@@ -24,10 +24,9 @@ import { traverse } from '~/inspect/traverse';
  * - Contains references to non existent schemas or exceptions.
  * - Has empty exception, schema, children, service, or scope names.
  * - Has exception, schema, children, service, or scope names with non word characters.
- * - Has exception or schema names starting with a lowercase letter.
- * - Has children, service, or scope names starting with an uppercase letter.
+ * - Has exception, schema, or children names starting with a lowercase letter.
+ * - Has service or scope names starting with an uppercase letter.
  * - Several children elements with equal service names reference the same schema.
- * - Has a children element name equal to a service or scope of the collection root.
  * - Has a scope name equal to a service of its parent.
  * @returns `true` if a collection is a `CollectionTreeImplementation`.
  */
@@ -67,10 +66,8 @@ export function validate(
  * Throws if a collection:
  * - Has conflicting schema and exception names.
  * - Has exception, schema, or children names with non word characters.
- * - Has exception or schema names starting with a lowercase letter.
- * - Has children names starting with an uppercase letter.
+ * - Has exception, schema, or children names starting with a lowercase letter.
  * - Several children elements with equal service names reference the same schema.
- * - Has a children element name equal to a service or scope of the collection root.
  */
 export function validateRoot(collection: CollectionTreeUnion): void {
   const exceptions = Object.keys(collection.exceptions);
@@ -90,18 +87,7 @@ export function validateRoot(collection: CollectionTreeUnion): void {
 
   const references: Record<string, ChildrenUnion> = {};
   for (const name of children) {
-    validateWord(name, 'lowercase');
-
-    if (containsKey(collection.services, name)) {
-      throw Error(
-        `A children element can't have the same name as a root service: ${name}`
-      );
-    }
-    if (containsKey(collection.scopes, name)) {
-      throw Error(
-        `A children element can't have the same name as a root scope: ${name}`
-      );
-    }
+    validateWord(name, 'uppercase');
 
     const element = collection.children[name];
     for (const schema of collection.children[name].schemas) {
