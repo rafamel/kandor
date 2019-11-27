@@ -1,7 +1,7 @@
-import { SchemaUnion, JSONSchema, Optional } from '~/types';
+import { SchemaUnion, JSONSchema } from '~/types';
 import { Element } from './Element';
 
-export type SchemaInput = Optional<SchemaUnion, 'kind'>;
+export type SchemaInput = Partial<SchemaUnion>;
 
 export class Schema extends Element<SchemaUnion> {
   static ensure(schema: SchemaUnion): Schema {

@@ -17,7 +17,7 @@ import { Service } from './Service';
 
 type Input = Omit<Partial<ServiceUnion>, 'resolve'>;
 type Falsy = false | null | undefined | void | 0 | '';
-type Maybe<T, U> = T extends Falsy ? void : U;
+type Rank<T, D, I> = T extends Falsy ? D : I;
 type Resolve<K extends ServiceKind, I, O, C> = K extends 'query' | 'mutation'
   ? UnaryServiceResolveImplementation<I, O, C>
   : K extends 'subscription'
@@ -38,8 +38,8 @@ export type ServiceInput<T, K extends ServiceKind, I, O, C> =
 
 export type ServiceElement<T, K extends ServiceKind, I, O, C> = ServiceUnion &
   Record<'kind', K> &
-  Record<'resolve', Maybe<T, Resolve<K, I, O, C>>> &
-  Record<'intercepts', Maybe<T, InterceptImplementation[]>>;
+  Record<'resolve', Rank<T, void, Resolve<K, I, O, C>>> &
+  Record<'intercepts', Rank<T, void, InterceptImplementation[]>>;
 
 /* Input */
 export type ServiceQueryInput<T, I, O, C> = Input &

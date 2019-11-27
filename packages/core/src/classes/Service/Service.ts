@@ -2,7 +2,6 @@ import {
   ServiceUnion,
   ServiceResolveImplementation,
   InterceptImplementation,
-  ServiceExceptionsUnion,
   AbstractSchema,
   ServiceKind,
   ServiceImplementation
@@ -19,14 +18,15 @@ import {
 import { Schema } from '../Schema';
 import { Observable, from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { isServiceImplementation } from '~/inspect';
+import { isServiceImplementation } from '~/inspect/is';
 
 export class Service<
   T = false,
   K extends ServiceKind = ServiceKind,
   I = any,
   O = any,
-  C = any
+  C = any,
+  E extends ServiceElement<T, K, I, O, C> = ServiceElement<T, K, I, O, C>
 > extends Element<ServiceUnion & Record<'kind', K>> {
   public static ensure<
     T = false,
@@ -54,9 +54,9 @@ export class Service<
   }
   public readonly request: string | AbstractSchema;
   public readonly response: string | AbstractSchema;
-  public readonly exceptions: ServiceExceptionsUnion;
-  public readonly resolve: ServiceElement<T, K, I, O, C>['resolve'];
-  public readonly intercepts: ServiceElement<T, K, I, O, C>['intercepts'];
+  public readonly exceptions: E['exceptions'];
+  public readonly resolve: E['resolve'];
+  public readonly intercepts: E['intercepts'];
   public constructor(service: ServiceInput<T, K, I, O, C>) {
     super(service.kind);
     this.request = service.request || new Schema(null, { type: 'object' });
@@ -82,14 +82,8 @@ export class Service<
         };
       }
 
-      this.resolve = resolve as ServiceElement<T, K, I, O, C>['resolve'];
-      this.intercepts = intercepts as ServiceElement<
-        T,
-        K,
-        I,
-        O,
-        C
-      >['intercepts'];
+      this.resolve = resolve as E['resolve'];
+      this.intercepts = intercepts as E['intercepts'];
     }
   }
   public intercept(
@@ -111,7 +105,7 @@ export class Service<
         : (this.intercepts || []).concat(arr)
     });
   }
-  public element(): ServiceElement<T, K, I, O, C> {
+  public element(): E {
     return (this.resolve
       ? {
           kind: this.kind,
@@ -126,6 +120,6 @@ export class Service<
           exceptions: this.exceptions,
           request: this.request,
           response: this.response
-        }) as ServiceElement<T, K, I, O, C>;
+        }) as E;
   }
 }
