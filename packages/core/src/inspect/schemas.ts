@@ -1,8 +1,8 @@
-import { ServiceUnion, CollectionTreeUnion, SchemaUnion } from '~/types';
+import { ServiceUnion, CollectionTreeUnion, JSONSchema } from '~/types';
 
 export interface ServiceSchemas {
-  request: SchemaUnion;
-  response: SchemaUnion;
+  request: JSONSchema;
+  response: JSONSchema;
 }
 
 export function schemas(
@@ -20,13 +20,5 @@ export function schemas(
     response = schema;
   }
 
-  // TODO
-  // if (service.nullable) {
-  //   const validate = validator.compile(response);
-  //   if (!validate(null)) {
-  //     response = { anyOf: [{ type: 'null' }, response] };
-  //   }
-  // }
-
-  return { request, response };
+  return { request: request.schema, response: response.schema };
 }
