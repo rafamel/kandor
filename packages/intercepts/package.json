@@ -65,7 +65,7 @@
   },
   "dependencies": {
     "@karmic/core": "^0.5.0",
-    "errorish": "^0.4.0",
+    "errorish": "^0.5.0",
     "promist": "^2.0.0"
   },
   "peerDependencies": {

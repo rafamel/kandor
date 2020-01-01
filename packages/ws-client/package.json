@@ -72,7 +72,7 @@
   "dependencies": {
     "@karmic/core": "^0.5.0",
     "@karmic/rpc": "^0.5.0",
-    "errorish": "^0.4.0",
+    "errorish": "^0.5.0",
     "isomorphic-ws": "^4.0.1",
     "promist": "^2.0.0",
     "query-string": "^6.8.3"
