@@ -97,7 +97,7 @@ export function logging(
         return observable.pipe(
           tap({
             next: opts.skip.includes('success')
-              ? () => {}
+              ? () => undefined
               : (value) =>
                   fn({
                     status: 'success',
@@ -107,7 +107,7 @@ export function logging(
                   }),
             error: (error) =>
               opts.skip.includes('error')
-                ? () => {}
+                ? () => undefined
                 : fn({
                     status: 'error',
                     ...base,
