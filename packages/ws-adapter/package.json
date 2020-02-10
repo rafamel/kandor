@@ -1,6 +1,6 @@
 {
   "name": "@karmic/ws-adapter",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "author": "Rafa Mel",
   "description": "Karmic WebSockets RPC adapter",
   "keywords": [
@@ -70,8 +70,8 @@
     "ws": "^7.2.1"
   },
   "dependencies": {
-    "@karmic/core": "^0.5.0",
-    "@karmic/rpc": "^0.5.0",
+    "@karmic/core": "^0.5.1",
+    "@karmic/rpc": "^0.5.1",
     "query-string": "^6.10.1"
   },
   "peerDependencies": {

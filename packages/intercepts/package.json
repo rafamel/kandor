@@ -1,6 +1,6 @@
 {
   "name": "@karmic/intercepts",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "author": "Rafa Mel",
   "description": "A collection of Karmic intercept factories",
   "keywords": [
@@ -64,7 +64,7 @@
     "rxjs": "^6.5.4"
   },
   "dependencies": {
-    "@karmic/core": "^0.5.0",
+    "@karmic/core": "^0.5.1",
     "errorish": "^0.4.0",
     "promist": "^2.0.0"
   },

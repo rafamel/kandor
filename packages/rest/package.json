@@ -1,6 +1,6 @@
 {
   "name": "@karmic/rest",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "author": "Rafa Mel",
   "description": "Karmic REST common package",
   "keywords": [
@@ -59,7 +59,7 @@
     "url": "https://github.com/rafamel/karmic/issues"
   },
   "dependencies": {
-    "@karmic/core": "^0.5.0",
+    "@karmic/core": "^0.5.1",
     "query-string": "^6.10.1"
   },
   "@pika/pack": {

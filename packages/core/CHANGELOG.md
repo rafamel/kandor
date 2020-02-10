@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.1](https://github.com/rafamel/karmic/compare/v0.5.0...v0.5.1) (2020-02-10)
+
+
+### Bug Fixes
+
+* updates dependencies ([86afcfe](https://github.com/rafamel/karmic/commit/86afcfee6490bd35b7871aed9214f7f23b4068e7))
+* **core:** fixes service schemas getter ([4c5ce88](https://github.com/rafamel/karmic/commit/4c5ce88a91d7bbe8494193c60daeb3248fc47b70))
+
+
+
+
+
 # [0.5.0](https://github.com/rafamel/karmic/compare/v0.4.0...v0.5.0) (2019-11-24)
 
 
