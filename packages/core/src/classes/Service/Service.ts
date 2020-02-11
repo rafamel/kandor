@@ -54,6 +54,7 @@ export class Service<
   }
   public readonly request: string | AbstractSchema;
   public readonly response: string | AbstractSchema;
+  public readonly nullable: E['nullable'];
   public readonly exceptions: E['exceptions'];
   public readonly resolve: E['resolve'];
   public readonly intercepts: E['intercepts'];
@@ -61,6 +62,7 @@ export class Service<
     super(service.kind);
     this.request = service.request || new Schema(null, { type: 'object' });
     this.response = service.response || new Schema(null, { type: 'null' });
+    this.nullable = service.nullable || false;
     this.exceptions = service.exceptions || [];
 
     if (service.resolve) {

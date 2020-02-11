@@ -126,6 +126,7 @@ export interface AbstractGenericService {
   kind: ServiceKind;
   request: string | AbstractSchema;
   response: string | AbstractSchema;
+  nullable: boolean;
   exceptions: AbstractServiceExceptions;
 }
 
