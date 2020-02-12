@@ -69,7 +69,7 @@
   "dependencies": {
     "@karmic/core": "^0.5.1",
     "contains-key": "^0.1.1",
-    "dataloader": "^1.4.0",
+    "dataloader": "^2.0.0",
     "promist": "^2.0.0"
   },
   "peerDependencies": {
