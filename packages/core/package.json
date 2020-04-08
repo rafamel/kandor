@@ -71,7 +71,7 @@
   "dependencies": {
     "@types/json-schema": "^7.0.4",
     "ajv": "^6.11.0",
-    "camelcase": "^5.3.1",
+    "camelcase": "^6.0.0",
     "contains-key": "^0.1.1",
     "json-schema-to-typescript": "^7.1.0",
     "lodash.isequal": "^4.5.0",
